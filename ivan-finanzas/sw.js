@@ -1,7 +1,7 @@
 /* Iván Finanzas — service worker: la app abre sin internet y se actualiza sola.
    Tus datos NO viven aquí (siguen en el almacenamiento del navegador); esto solo guarda los archivos de la app. */
-const CACHE = 'if-app-v5.8.11';
-const ARCHIVOS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './blank-192.png', './blank-512.png',
+const CACHE = 'if-app-v5.8.12';
+const ARCHIVOS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png',
   './icon-maskable-512.png', './favicon-64.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
