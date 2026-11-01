@@ -1370,7 +1370,7 @@ function renderPresupuesto() {
 /* ── Me pagaron (fecha real del pago) ── */
 function pagoCercano() {
   const hoy = hoyStr(), reales = S.estado.pagosReales || {};
-  return (nominalesCerca(hoy).map(fstr).find(n => n !== hoy && !reales[n] && difDias(hoy, n) <= 4 && difDias(n, hoy) <= 2)) || null;
+  return (nominalesCerca(hoy).map(fstr).find(n => n > hoy && !reales[n] && difDias(hoy, n) <= 4)) || null;   // solo pagos que vienen en los próximos 4 días
 }
 function hojaMePagaron() {
   abrirHoja(`<h3>Registrar mi pago</h3><p class="desc">Si te pagaron antes o después de lo normal, tu ${nombreCiclo()} empieza el día que te llegó la plata.</p>
