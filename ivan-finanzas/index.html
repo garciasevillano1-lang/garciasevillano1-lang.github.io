@@ -993,6 +993,19 @@
 
     /* ─── Portafolio ─── */
     .port-hero { margin: 4px 20px 14px; border-radius: var(--radius); padding: 22px 20px; }
+    /* Pantera como marca de agua en la tarjeta de Patrimonio (Inicio) */
+    .hero-pantera {
+      position: absolute; right: -26px; bottom: -22px; width: 190px; height: 190px; z-index: -1; pointer-events: none;
+      mix-blend-mode: lighten; opacity: 0.62;
+      -webkit-mask-image: radial-gradient(closest-side, #000 55%, transparent 100%); mask-image: radial-gradient(closest-side, #000 55%, transparent 100%);
+      animation: panteraIn 1.2s var(--ease) 0.3s both;
+    }
+    .port-hero.hero-onza { padding-right: 130px; }
+    .port-hero.hero-onza .port-hero-value { font-size: 30px; }
+    .port-hero.hero-onza .port-hero-sub { max-width: 210px; line-height: 1.35; }
+    .hero-filo { position: absolute; left: 20px; right: 20px; top: 0; height: 2px; z-index: 1; pointer-events: none;
+      background: linear-gradient(90deg, transparent, #cda149 30%, #f0d488 50%, #cda149 70%, transparent); opacity: 0.9; }
+    @keyframes panteraIn { from { opacity: 0; transform: translateX(14px) scale(0.96); } to { opacity: 0.62; transform: none; } }
     .port-hero-label { font-size: 10px; font-weight: 700; letter-spacing: 1.3px; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: 8px; }
     .port-hero-value { font-size: 34px; font-weight: 700; letter-spacing: -1.4px; color: #fff; font-family: var(--mono); line-height: 1.05; }
     .port-hero-sub { font-size: 12.5px; margin-top: 8px; font-weight: 600; font-family: var(--mono); color: rgba(255,255,255,0.68); }
@@ -2306,7 +2319,9 @@
     </div>
 
     <!-- Patrimonio Neto (hero) -->
-    <div class="port-hero" style="margin:0 20px 14px">
+    <div class="port-hero hero-onza" style="margin:0 20px 14px">
+      <div class="hero-filo"></div>
+      <svg class="hero-pantera" aria-hidden="true"><use href="#logoMark"/></svg>
       <div class="port-hero-label">Patrimonio neto</div>
       <div class="port-hero-value" id="inicioNetoValor">$0</div>
       <div class="port-hero-sub" id="inicioNetoVariacion">—</div>
