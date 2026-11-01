@@ -664,6 +664,12 @@
       border-radius: var(--radius-sm); padding: 13px 10px 12px; text-align: center;
       box-shadow: var(--shadow-sm);
     }
+    #patrimonioGrid .pat-card { position: relative; overflow: hidden; }
+    #patrimonioGrid .pat-card::before {
+      content: ''; position: absolute; left: 14%; right: 14%; top: 0; height: 1.5px; pointer-events: none;
+      background: linear-gradient(90deg, transparent, #cda149, transparent); opacity: 0.75;
+    }
+    #page-inicio .header { background: radial-gradient(ellipse closest-side at 25% 50%, rgba(205,161,73,0.15), transparent); }
     .pat-card-icon {
       width: 34px; height: 34px; margin: 0 auto 8px; border-radius: 11px;
       display: flex; align-items: center; justify-content: center; font-size: 17px;
