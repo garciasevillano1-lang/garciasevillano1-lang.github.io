@@ -438,8 +438,35 @@
     .fab-rapido:active { transform: scale(0.9); }
     body:has(#page-inicio.active) .fab-rapido { display: flex; }
     body:has(.modal-overlay.open) .fab-rapido { display: none; }
-    .rapido-monto { font-size: 30px !important; font-weight: 800; letter-spacing: -0.8px; padding-top: 14px; padding-bottom: 14px; }
-    .rapido-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+    .rapido-recientes { display: flex; gap: 8px; overflow-x: auto; margin: 0 -2px 14px; padding: 2px; scrollbar-width: none; }
+    .rapido-recientes::-webkit-scrollbar { display: none; }
+    .rapido-recientes:empty { display: none; }
+    .rapido-rec {
+      flex: none; display: flex; flex-direction: column; gap: 2px; padding: 9px 13px; border-radius: 14px; text-align: left;
+      background: var(--accent-bg); border: 1px solid rgba(205,161,73,0.32);
+    }
+    .rapido-rec b { font-size: 13px; font-family: var(--mono); color: var(--accent); letter-spacing: -0.3px; }
+    .rapido-rec span { font-size: 10.5px; color: var(--muted); font-weight: 600; white-space: nowrap; }
+    .rapido-monto-wrap { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 0 2px; }
+    .rapido-signo { font-size: 26px; font-weight: 700; color: var(--accent); }
+    .rapido-monto {
+      width: 2ch; min-width: 2ch; max-width: 240px; background: none; border: 0; outline: 0; text-align: center; color: var(--text);
+      font-family: var(--mono); font-size: 44px; font-weight: 800; letter-spacing: -1.5px; padding: 0; -moz-appearance: textfield;
+    }
+    .rapido-monto::-webkit-outer-spin-button, .rapido-monto::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .rapido-monto::placeholder { color: var(--muted); opacity: 0.45; }
+    .rapido-suma { display: flex; justify-content: center; gap: 6px; margin: 8px 0 4px; }
+    .rapido-suma button {
+      padding: 7px 11px; border-radius: 999px; font-size: 11.5px; font-weight: 700; color: var(--text-dim);
+      background: var(--card); border: 1px solid var(--border-md); transition: transform 0.2s var(--spring);
+    }
+    .rapido-suma button:active { transform: scale(0.92); }
+    .rapido-suma .borrar { padding: 7px 9px; color: var(--muted); }
+    .rapido-suma .borrar .ico { font-size: 13px; }
+    .rapido-preview { min-height: 18px; text-align: center; font-size: 11.5px; font-weight: 600; color: var(--muted); margin: 8px 0 14px; }
+    .rapido-preview b { color: var(--accent); font-family: var(--mono); }
+    .rapido-preview.mal b { color: var(--danger); }
+    .rapido-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
     .rapido-chip {
       display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 999px;
       background: var(--card); border: 1px solid var(--border-md); color: var(--text-dim); font-size: 12.5px; font-weight: 600;
@@ -447,12 +474,13 @@
     }
     .rapido-chip:active { transform: scale(0.94); }
     .rapido-chip.sel { background: linear-gradient(180deg, #e9c978, #c9a04a); color: var(--accent-ink); border-color: transparent; font-weight: 800; box-shadow: 0 4px 14px rgba(205,161,73,0.3); }
-    .rapido-repetir {
-      width: 100%; display: flex; align-items: center; gap: 10px; padding: 11px 14px; margin-bottom: 14px; border-radius: var(--radius-sm);
-      background: var(--accent-bg); border: 1px dashed rgba(205,161,73,0.45); color: var(--accent); font-size: 12.5px; font-weight: 700; text-align: left;
-    }
-    .rapido-repetir .ico { font-size: 17px; flex: none; }
-    .rapido-repetir span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .rapido-fila { display: flex; gap: 10px; margin-bottom: 14px; align-items: stretch; }
+    .rapido-fila .form-input { flex: 1; min-width: 0; }
+    .rapido-seg { display: flex; padding: 3px; border-radius: var(--radius-sm); background: var(--card); border: 1px solid var(--border-md); flex: none; }
+    .rapido-seg button { padding: 0 13px; border-radius: 10px; font-size: 12.5px; font-weight: 700; color: var(--muted); transition: background 0.2s, color 0.2s; }
+    .rapido-seg button.sel { background: var(--accent-bg) !important; color: var(--accent); box-shadow: inset 0 0 0 1px rgba(205,161,73,0.4); }
+    .rapido-seg button { background: none; }
+    .rapido-seg button:disabled { opacity: 0.3; background: none; }
     .modal-overlay {
       position: fixed; inset: 0; z-index: 100;
       background: rgba(5,8,16,0.55);
@@ -1700,26 +1728,33 @@
 <button class="fab-rapido" id="fabRapido" onclick="abrirRapido()" aria-label="Registrar gasto rápido"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg></button>
 
 <div class="modal-overlay" id="rapidoOverlay">
-  <div class="modal">
+  <div class="modal rapido-modal">
     <div class="modal-header">
       <span class="modal-title">Gasto rápido</span>
       <button class="modal-close" onclick="cerrarRapido()"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
     </div>
-    <button class="rapido-repetir" id="rapidoRepetir" onclick="repetirUltimoGasto()" style="display:none"><svg class="ico" aria-hidden="true"><use href="#i-repeat"/></svg><span id="rapidoRepetirTxt"></span></button>
-    <div class="form-row">
-      <div class="amount-wrap">
-        <span class="amount-prefix">$</span>
-        <input class="form-input rapido-monto" type="number" id="rapidoMonto" placeholder="0" inputmode="numeric" />
+    <div class="rapido-recientes" id="rapidoRecientes"></div>
+    <div class="rapido-monto-wrap">
+      <span class="rapido-signo">$</span>
+      <input class="rapido-monto" type="number" id="rapidoMonto" placeholder="0" inputmode="numeric" oninput="actualizarRapido()" />
+    </div>
+    <div class="rapido-suma">
+      <button type="button" onclick="sumarRapido(5000)">+5 mil</button>
+      <button type="button" onclick="sumarRapido(10000)">+10 mil</button>
+      <button type="button" onclick="sumarRapido(20000)">+20 mil</button>
+      <button type="button" onclick="sumarRapido(50000)">+50 mil</button>
+      <button type="button" class="borrar" onclick="sumarRapido(0)" aria-label="Borrar monto"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="rapido-preview" id="rapidoPreview"></div>
+    <div class="rapido-chips" id="rapidoChips"></div>
+    <div class="rapido-fila">
+      <div class="rapido-seg" id="rapidoSeg">
+        <button type="button" class="sel" data-d="0" onclick="fijarDiaRapido(0)">Hoy</button>
+        <button type="button" data-d="1" onclick="fijarDiaRapido(1)" id="rapidoAyer">Ayer</button>
       </div>
-    </div>
-    <div class="form-row">
-      <label class="form-label">Categoría</label>
-      <div class="rapido-chips" id="rapidoChips"></div>
-    </div>
-    <div class="form-row">
       <input class="form-input" type="text" id="rapidoNota" placeholder="Nota (opcional)" />
     </div>
-    <button class="btn-primary" onclick="guardarRapido()"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg> Registrar · hoy</button>
+    <button class="btn-primary" id="rapidoBtn" onclick="guardarRapido()"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg> <span id="rapidoBtnTxt">Registrar gasto</span></button>
   </div>
 </div>
 
@@ -2841,7 +2876,7 @@
         <div class="config-row">
           <div>
             <div class="config-label">Iván Finanzas</div>
-            <div class="config-sublabel">Control financiero personal · v5.9 (gasto rápido)</div>
+            <div class="config-sublabel">Control financiero personal · v5.9.1</div>
           </div>
         </div>
       </div>
@@ -4615,31 +4650,71 @@ const guardarSnapshotNeto = () => {
 const drawEvolucionNeto = () => {
   const canvas = document.getElementById('chartEvolucionNeto');
   if (!canvas) return;
-  const ctx = ctxFit(canvas);
-  const W = canvas._W, H = canvas._H;
-  ctx.clearRect(0,0,W,H);
+  const W = canvas.offsetWidth || 300, H = 170;
+  const ctx = prepCanvas(canvas, W, H);
+  ctx.clearRect(0, 0, W, H);
   if (historialPatrimonio.length < 1) {
     ctx.fillStyle = chartInk(0.35); ctx.font = '12px DM Sans, sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('Registra tu primer mes para ver la evolución', W/2, H/2);
+    ctx.fillText('Registra tu primer mes para ver la evolución', W / 2, H / 2);
     return;
   }
-  const datos = historialPatrimonio.slice(-12); // últimos 12 meses
-  const max = Math.max(...datos.map(d => d.neto), 1);
-  const min = Math.min(...datos.map(d => d.neto), 0);
-  const rango = (max - min) || 1;
-  const padL = 8, padR = 8, padT = 10, padB = 20;
-  const graphW = W - padL - padR, graphH = H - padT - padB;
-  const barW = Math.min(34, graphW / datos.length * 0.55);
-  const step = graphW / datos.length;
+  const datos = historialPatrimonio.slice(-12);
+  const n = datos.length;
+  const vals = datos.map(d => d.neto);
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  const margen = ((hi - lo) || Math.abs(hi) * 0.1 || 1) * 0.35;
+  lo -= margen; hi += margen;
+  const padL = 14, padR = 14, padT = 30, padB = 24;
+  const gw = W - padL - padR, gh = H - padT - padB;
+  const px = i => n === 1 ? padL + gw / 2 : padL + (gw * i) / (n - 1);
+  const py = v => padT + gh - ((v - lo) / (hi - lo)) * gh;
+  const oro = '#cda149', oroClaro = '#f0d488';
 
-  datos.forEach((d,i) => {
-    const x = padL + step*i + (step-barW)/2;
-    const hBar = Math.max(2, ((d.neto - Math.min(min,0)) / rango) * graphH);
-    const y = padT + graphH - hBar;
-    ctx.fillStyle = d.neto >= 0 ? '#cda149' : '#cc5f56';
-    ctx.beginPath(); ctx.roundRect(x, y, barW, hBar, 6); ctx.fill();
-    ctx.fillStyle = chartInk(0.45); ctx.font = '8px DM Sans, sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText(mesLegible(d.mes).split(' ')[0], x+barW/2, H-4);
+  // Guías horizontales suaves
+  ctx.strokeStyle = chartInk(0.07); ctx.lineWidth = 1; ctx.setLineDash([3, 5]);
+  for (let k = 0; k <= 2; k++) { const y = padT + (gh * k) / 2; ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke(); }
+  ctx.setLineDash([]);
+
+  // Trazo curvo
+  const pts = datos.map((d, i) => [px(i), py(d.neto)]);
+  const trazo = () => {
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    for (let i = 1; i < pts.length; i++) {
+      const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], cx = (x0 + x1) / 2;
+      ctx.bezierCurveTo(cx, y0, cx, y1, x1, y1);
+    }
+  };
+  if (n > 1) {
+    const area = ctx.createLinearGradient(0, padT, 0, padT + gh);
+    area.addColorStop(0, 'rgba(205,161,73,0.32)'); area.addColorStop(1, 'rgba(205,161,73,0)');
+    ctx.beginPath(); trazo(); ctx.lineTo(pts[n - 1][0], padT + gh); ctx.lineTo(pts[0][0], padT + gh); ctx.closePath();
+    ctx.fillStyle = area; ctx.fill();
+    const linea = ctx.createLinearGradient(padL, 0, W - padR, 0);
+    linea.addColorStop(0, oro); linea.addColorStop(1, oroClaro);
+    ctx.beginPath(); trazo(); ctx.strokeStyle = linea; ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ctx.shadowColor = 'rgba(205,161,73,0.45)'; ctx.shadowBlur = 8; ctx.stroke(); ctx.shadowBlur = 0;
+  }
+
+  // Puntos, valores y meses
+  datos.forEach((d, i) => {
+    const [x, y] = pts[i], ultimo = i === n - 1;
+    if (ultimo) {
+      ctx.beginPath(); ctx.arc(x, y, 9, 0, 7); ctx.fillStyle = 'rgba(205,161,73,0.22)'; ctx.fill();
+    }
+    ctx.beginPath(); ctx.arc(x, y, ultimo ? 4.5 : 3, 0, 7);
+    ctx.fillStyle = ultimo ? oroClaro : (temaClaro() ? '#fff' : '#0e1424'); ctx.fill();
+    ctx.lineWidth = 2; ctx.strokeStyle = oro; ctx.stroke();
+    if (ultimo || n <= 4) {
+      ctx.fillStyle = ultimo ? chartInk(0.95) : chartInk(0.6);
+      ctx.font = `${ultimo ? 700 : 600} ${ultimo ? 11.5 : 10}px DM Sans, sans-serif`;
+      ctx.textAlign = ultimo && n > 1 ? 'right' : (i === 0 && n > 1 ? 'left' : 'center');
+      const tx = ultimo && n > 1 ? Math.min(x + 8, W - 4) : (i === 0 && n > 1 ? Math.max(x - 8, 2) : x);
+      ctx.fillText(fmtCorto(d.neto), tx, y - 13);
+    }
+    if (n <= 6 || i % 2 === (n - 1) % 2) {
+      ctx.fillStyle = chartInk(ultimo ? 0.8 : 0.42); ctx.font = `${ultimo ? 700 : 500} 9.5px DM Sans, sans-serif`; ctx.textAlign = 'center';
+      ctx.fillText(mesLegible(d.mes).split(' ')[0], x, H - 6);
+    }
   });
 };
 
@@ -5429,58 +5504,95 @@ const agregarGasto = async () => {
 /* ══════════════════════════════════════════════
    GASTO RÁPIDO
 ══════════════════════════════════════════════ */
-let rapidoCat = null;
-const _ultimoGasto = () => (semanaActual.gastos || []).slice().sort((a, b) => (a.fecha < b.fecha ? 1 : a.fecha > b.fecha ? -1 : 0))[0] || null;
+let rapidoCat = null, rapidoDia = 0;
+const _gastosOrdenados = () => (semanaActual.gastos || []).slice().reverse();
 const _catMasUsada = () => {
   const n = {};
   (semanaActual.gastos || []).forEach(g => { n[g.categoria] = (n[g.categoria] || 0) + 1; });
   return Object.keys(n).sort((a, b) => n[b] - n[a])[0] || null;
 };
+const _fechaRapido = () => { const d = new Date(); d.setDate(d.getDate() - rapidoDia); return fechaStr(d); };
 const pintarChipsRapido = () => {
   const cont = document.getElementById('rapidoChips');
   cont.innerHTML = config.categorias.map(c => `<button type="button" class="rapido-chip ${c.nombre === rapidoCat ? 'sel' : ''}" data-cat="${String(c.nombre).replace(/"/g, '&quot;')}">${c.emoji || ''} ${c.nombre}</button>`).join('');
-  cont.querySelectorAll('.rapido-chip').forEach(b => b.addEventListener('click', () => { rapidoCat = b.dataset.cat; pintarChipsRapido(); if (navigator.vibrate) navigator.vibrate(10); }));
+  cont.querySelectorAll('.rapido-chip').forEach(b => b.addEventListener('click', () => { rapidoCat = b.dataset.cat; pintarChipsRapido(); vibrar(10); }));
+};
+const actualizarRapido = () => {
+  const inpM = document.getElementById('rapidoMonto');
+  inpM.style.width = Math.max(2, String(inpM.value).length) + 'ch';
+  const m = parseFloat(inpM.value) || 0;
+  const pre = document.getElementById('rapidoPreview'), saldo = calcSaldo();
+  const fin = semanaActual.finSemana ? parseFecha(semanaActual.finSemana) : null;
+  const h0 = new Date(); h0.setHours(0, 0, 0, 0);
+  const dias = fin ? Math.max(1, Math.round((fin - h0) / 86400000) + 1) : null;
+  if (m > 0) {
+    const quedan = saldo - m;
+    pre.className = 'rapido-preview' + (quedan < 0 ? ' mal' : '');
+    pre.innerHTML = quedan < 0
+      ? `Te pasas del presupuesto por <b>${formatCOP(-quedan)}</b>`
+      : `Te quedarían <b>${formatCOP(quedan)}</b>${dias ? ` · ≈ <b>${formatCOP(quedan / dias)}</b>/día` : ''}`;
+  } else {
+    pre.className = 'rapido-preview';
+    pre.innerHTML = `Disponible esta semana: <b>${formatCOP(saldo)}</b>`;
+  }
+  document.getElementById('rapidoBtnTxt').textContent = m > 0 ? `Registrar ${formatCOP(m)}` : 'Registrar gasto';
+};
+const sumarRapido = v => {
+  const inp = document.getElementById('rapidoMonto');
+  inp.value = v === 0 ? '' : String((parseFloat(inp.value) || 0) + v);
+  vibrar(8); actualizarRapido();
+};
+const fijarDiaRapido = d => {
+  rapidoDia = d;
+  document.querySelectorAll('#rapidoSeg button').forEach(b => b.classList.toggle('sel', Number(b.dataset.d) === d));
 };
 const abrirRapido = () => {
-  const ult = _ultimoGasto();
   rapidoCat = _catMasUsada() || (config.categorias[0] && config.categorias[0].nombre) || null;
   document.getElementById('rapidoMonto').value = '';
   document.getElementById('rapidoNota').value = '';
-  const btn = document.getElementById('rapidoRepetir');
-  if (ult) {
-    const cat = config.categorias.find(c => c.nombre === ult.categoria);
-    document.getElementById('rapidoRepetirTxt').textContent = `Repetir: ${cat ? cat.emoji + ' ' : ''}${ult.categoria} · ${formatCOP(ult.cantidad)}${ult.nota ? ' · ' + ult.nota : ''}`;
-    btn.style.display = 'flex';
-  } else btn.style.display = 'none';
-  pintarChipsRapido();
+  // «Ayer» solo si cae dentro de la semana actual
+  const ayer = new Date(); ayer.setDate(ayer.getDate() - 1);
+  const okAyer = !semanaActual.inicioSemana || fechaStr(ayer) >= semanaActual.inicioSemana;
+  document.getElementById('rapidoAyer').disabled = !okAyer;
+  fijarDiaRapido(0);
+  // Recientes: combinaciones distintas (categoría + monto + nota), un toque las carga
+  const vistos = new Set(), rec = [];
+  for (const g of _gastosOrdenados()) {
+    const k = `${g.categoria}|${g.cantidad}|${g.nota || ''}`;
+    if (vistos.has(k)) continue;
+    vistos.add(k); rec.push(g);
+    if (rec.length === 5) break;
+  }
+  const cont = document.getElementById('rapidoRecientes');
+  cont.innerHTML = rec.map((g, i) => {
+    const c = config.categorias.find(x => x.nombre === g.categoria);
+    return `<button type="button" class="rapido-rec" data-i="${i}"><b>${formatCOP(g.cantidad)}</b><span>${c ? c.emoji + ' ' : ''}${g.nota ? String(g.nota).replace(/[<>&]/g, '').slice(0, 18) : g.categoria}</span></button>`;
+  }).join('');
+  cont.querySelectorAll('.rapido-rec').forEach(b => b.addEventListener('click', () => {
+    const g = rec[Number(b.dataset.i)];
+    document.getElementById('rapidoMonto').value = g.cantidad; document.getElementById('rapidoNota').value = g.nota || '';
+    rapidoCat = g.categoria; pintarChipsRapido(); actualizarRapido(); vibrar(10);
+  }));
+  pintarChipsRapido(); actualizarRapido();
   document.getElementById('rapidoOverlay').classList.add('open');
   setTimeout(() => document.getElementById('rapidoMonto').focus(), 320);
 };
 const cerrarRapido = () => document.getElementById('rapidoOverlay').classList.remove('open');
-const _registrarRapido = async (cantidad, categoria, nota) => {
-  if (!cantidad || cantidad <= 0) { mostrarToast('Ingresa una cantidad válida', 'danger'); return false; }
+const guardarRapido = async () => {
+  if (!rapidoCat) { mostrarToast('Elige una categoría', 'danger'); return; }
+  const cantidad = parseFloat(document.getElementById('rapidoMonto').value);
+  if (!cantidad || cantidad <= 0) { mostrarToast('Ingresa una cantidad válida', 'danger'); return; }
   const saldo = calcSaldo();
   if (saldo > 0 && cantidad > saldo * 0.30) {
     const ok = await uiConfirm(`Este gasto (${formatCOP(cantidad)}) supera el 30% de tu saldo disponible (${formatCOP(saldo)}). ¿Quieres registrarlo igual?`, { titulo: 'Gasto alto', ok: 'Registrar igual' });
-    if (!ok) return false;
+    if (!ok) return;
   }
-  semanaActual.gastos.push({ id: genId(), cantidad, categoria, nota, fecha: fechaStr(new Date()) });
+  semanaActual.gastos.push({ id: genId(), cantidad, categoria: rapidoCat, nota: document.getElementById('rapidoNota').value.trim(), fecha: _fechaRapido() });
   guardarSemana();
-  if (navigator.vibrate) navigator.vibrate(40);
+  vibrar(40);
   mostrarToast(`✓ ${formatCOP(cantidad)} registrado`, 'success');
+  cerrarRapido();
   renderTodo();
-  return true;
-};
-const guardarRapido = async () => {
-  if (!rapidoCat) { mostrarToast('Elige una categoría', 'danger'); return; }
-  const ok = await _registrarRapido(parseFloat(document.getElementById('rapidoMonto').value), rapidoCat, document.getElementById('rapidoNota').value.trim());
-  if (ok) cerrarRapido();
-};
-const repetirUltimoGasto = async () => {
-  const u = _ultimoGasto();
-  if (!u) return;
-  const ok = await _registrarRapido(u.cantidad, u.categoria, u.nota || '');
-  if (ok) cerrarRapido();
 };
 document.getElementById('rapidoMonto').addEventListener('keydown', e => { if (e.key === 'Enter') guardarRapido(); });
 
