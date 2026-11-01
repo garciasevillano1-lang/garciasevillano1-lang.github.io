@@ -788,6 +788,19 @@
       background: var(--card); border: 1px solid var(--border);
       border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow-sm);
     }
+    .mini-chart-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+    .mini-chart-total { font-family: var(--mono); font-size: 17px; font-weight: 800; color: var(--accent); letter-spacing: -0.4px; }
+    .mini-chart-leyenda { display: flex; gap: 14px; flex-wrap: wrap; margin: 6px 0 2px; font-size: 10px; font-weight: 600; color: var(--muted); }
+    .mini-chart-leyenda i { display: inline-block; vertical-align: middle; margin-right: 5px; }
+    .lg-barra { width: 8px; height: 8px; border-radius: 3px; background: #cda149; }
+    .lg-linea { width: 12px; height: 0; border-top: 1.5px dashed #7c8db3; }
+    .cat-filas { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); display: grid; gap: 11px; }
+    .cat-filas:empty { display: none; }
+    .cat-fila-top { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; font-weight: 600; color: var(--text-dim); margin-bottom: 5px; }
+    .cat-fila-top b { font-family: var(--mono); font-size: 12px; color: var(--text); letter-spacing: -0.2px; }
+    .cat-fila-top b small { font-family: inherit; font-size: 10px; color: var(--muted); font-weight: 600; margin-left: 5px; }
+    .cat-fila-bar { height: 6px; border-radius: 6px; background: var(--track); overflow: hidden; }
+    .cat-fila-bar i { display: block; height: 100%; border-radius: 6px; background: linear-gradient(90deg, #b98c37, #e9c978); transform-origin: left; animation: barGrow 0.9s var(--ease) 0.15s both; }
     .mini-chart-title {
       font-size: 10px; font-weight: 700; color: var(--muted);
       text-transform: uppercase; letter-spacing: 1.3px; margin-bottom: 12px;
@@ -2552,8 +2565,13 @@
     <!-- Mini chart gastos semanal -->
     <div class="mini-chart-wrap">
       <div class="mini-chart-card">
-        <div class="mini-chart-title">Gastos por categoría · Esta semana</div>
-        <canvas id="chartCategorias" height="100"></canvas>
+        <div class="mini-chart-head">
+          <div class="mini-chart-title" style="margin:0">Gasto de la semana</div>
+          <div class="mini-chart-total" id="chartSemTotal">$0</div>
+        </div>
+        <canvas id="chartCategorias" height="150"></canvas>
+        <div class="mini-chart-leyenda"><span><i class="lg-barra"></i>Gastado</span><span><i class="lg-linea"></i>Promedio diario del presupuesto</span></div>
+        <div class="cat-filas" id="catFilas"></div>
       </div>
     </div>
 
@@ -2896,7 +2914,7 @@
         <div class="config-row">
           <div>
             <div class="config-label">Iván Finanzas</div>
-            <div class="config-sublabel">Control financiero personal · v5.9.2</div>
+            <div class="config-sublabel">Control financiero personal · v5.9.3</div>
           </div>
         </div>
       </div>
@@ -3918,53 +3936,71 @@ const renderProyeccionCiclo = () => {
 const renderChartCategorias = () => {
   const canvas = document.getElementById('chartCategorias');
   if (!canvas) return;
-  const W = canvas.offsetWidth || 400;
-  const H = 100;
+  const W = canvas.offsetWidth || 340, H = 150;
   const ctx = prepCanvas(canvas, W, H);
+  ctx.clearRect(0, 0, W, H);
 
-  // Agrupar por categoría
-  const totals = {};
-  semanaActual.gastos.forEach(g => {
-    totals[g.categoria] = (totals[g.categoria]||0) + g.cantidad;
-  });
-  const entries = Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0,6);
-
-  ctx.clearRect(0,0,W,H);
-
-  if (!entries.length) {
-    ctx.fillStyle = chartInk(0.35);
-    ctx.font = '12px DM Sans, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('Sin gastos registrados esta semana', W/2, H/2);
-    return;
+  // Gasto por día de la semana
+  const total = semanaActual.gastos.reduce((t, g) => t + g.cantidad, 0);
+  const totEl = document.getElementById('chartSemTotal'); if (totEl) totEl.textContent = formatCOP(total);
+  const ini = semanaActual.inicioSemana ? parseFecha(semanaActual.inicioSemana) : null;
+  if (!ini || isNaN(ini)) { ctx.fillStyle = chartInk(0.35); ctx.font = '12px DM Sans, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Sin datos de la semana', W / 2, H / 2); }
+  else {
+    const fin = semanaActual.finSemana ? parseFecha(semanaActual.finSemana) : null;
+    const h0 = new Date(); h0.setHours(0, 0, 0, 0);
+    const dias = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(ini); d.setDate(ini.getDate() + i);
+      if (fin && d > fin) break;
+      const f = fechaStr(d);
+      dias.push({ d, v: semanaActual.gastos.filter(g => g.fecha === f).reduce((t, g) => t + g.cantidad, 0), hoy: d.getTime() === h0.getTime(), futuro: d > h0 });
+    }
+    const ref = semanaActual.presupuesto > 0 ? semanaActual.presupuesto / 7 : 0;
+    const maxV = Math.max(ref * 1.25, ...dias.map(x => x.v), 1);
+    const padL = 6, padR = 6, padT = 18, padB = 22, gh = H - padT - padB, gw = W - padL - padR;
+    const step = gw / dias.length, bw = Math.min(30, step * 0.52);
+    const NOM = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
+    // Guías
+    ctx.strokeStyle = chartInk(0.06); ctx.lineWidth = 1; ctx.setLineDash([3, 5]);
+    [0, 0.5].forEach(f => { const y = padT + gh * f; ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke(); });
+    ctx.setLineDash([]);
+    dias.forEach((x, i) => {
+      const cx = padL + step * i + step / 2, bx = cx - bw / 2;
+      // pista
+      ctx.fillStyle = chartInk(x.futuro ? 0.04 : 0.07);
+      ctx.beginPath(); ctx.roundRect(bx, padT, bw, gh, bw / 2); ctx.fill();
+      if (x.v > 0) {
+        const hh = Math.max(bw, (x.v / maxV) * gh), y = padT + gh - hh;
+        const g = ctx.createLinearGradient(0, y, 0, y + hh);
+        g.addColorStop(0, x.hoy ? '#f0d488' : '#e0bb5f'); g.addColorStop(1, x.hoy ? '#c9a04a' : '#a9812f');
+        ctx.fillStyle = g;
+        if (x.hoy) { ctx.shadowColor = 'rgba(205,161,73,0.5)'; ctx.shadowBlur = 10; }
+        ctx.beginPath(); ctx.roundRect(bx, y, bw, hh, bw / 2); ctx.fill(); ctx.shadowBlur = 0;
+        ctx.fillStyle = chartInk(x.hoy ? 0.95 : 0.6); ctx.font = `${x.hoy ? 700 : 600} 9.5px DM Sans, sans-serif`; ctx.textAlign = 'center';
+        ctx.fillText(fmtCorto(x.v), cx, y - 5);
+      }
+      ctx.fillStyle = x.hoy ? '#d9b35f' : chartInk(0.42); ctx.font = `${x.hoy ? 800 : 600} 10px DM Sans, sans-serif`; ctx.textAlign = 'center';
+      ctx.fillText(NOM[x.d.getDay()], cx, H - 6);
+    });
+    // Promedio diario del presupuesto
+    if (ref > 0) {
+      const y = padT + gh - (ref / maxV) * gh;
+      ctx.setLineDash([5, 4]); ctx.strokeStyle = '#7c8db3'; ctx.lineWidth = 1.3;
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke(); ctx.setLineDash([]);
+    }
   }
 
-  const maxVal  = Math.max(...entries.map(e=>e[1]));
-  const barW    = Math.min(46, Math.floor((W - 20) / entries.length) - 4);
-  const offX    = Math.max(10, (W - entries.length * (barW + 4)) / 2);
-  const colors  = ['#cda149','#5f6d92','#e8c468','#7c8db3','#a9791f','#4a5670'];
-  const maxH    = H - 30;
-
-  entries.forEach(([cat, val], i) => {
-    const x   = offX + i * (barW + 4);
-    const barH= Math.max(4, (val/maxVal)*maxH);
-    const y   = maxH - barH + 5;
-    // Barra
-    ctx.fillStyle = colors[i % colors.length] + '55';
-    ctx.beginPath();
-    ctx.roundRect(x, y, barW, barH, 4);
-    ctx.fill();
-    ctx.fillStyle = colors[i % colors.length];
-    ctx.beginPath();
-    ctx.roundRect(x, y, barW, Math.min(barH, 4), 4);
-    ctx.fill();
-    // Etiqueta
-    ctx.fillStyle = chartInk(0.5);
-    ctx.font = `9px DM Sans, sans-serif`;
-    ctx.textAlign = 'center';
-    const emoji = getEmojiCat(cat);
-    ctx.fillText(emoji, x+barW/2, H-2);
-  });
+  // Categorías (filas limpias)
+  const cont = document.getElementById('catFilas');
+  if (cont) {
+    const totals = {};
+    semanaActual.gastos.forEach(g => { totals[g.categoria] = (totals[g.categoria] || 0) + g.cantidad; });
+    const entries = Object.entries(totals).sort((a, b) => b[1] - a[1]).slice(0, 6);
+    const mx = entries.length ? entries[0][1] : 1;
+    cont.innerHTML = entries.map(([cat, val]) => `
+      <div><div class="cat-fila-top"><span>${getEmojiCat(cat)} ${String(cat).replace(/[<>&]/g, '')}</span><b>${formatCOP(val)}<small>${total ? Math.round(val / total * 100) : 0}%</small></b></div>
+      <div class="cat-fila-bar"><i style="width:${Math.max(3, val / mx * 100)}%"></i></div></div>`).join('');
+  }
 };
 
 /* ══════════════════════════════════════════════
