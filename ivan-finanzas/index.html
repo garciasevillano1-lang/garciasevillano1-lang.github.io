@@ -169,6 +169,17 @@
     .perfil-nombre { font-size: 17px; font-weight: 800; color: #fff; letter-spacing: -0.3px; }
     .perfil-nombre span { color: #d9b35f; }
     .perfil-lema { margin-top: 3px; font-size: 10.5px; font-weight: 600; letter-spacing: 0.5px; color: rgba(255,255,255,0.55); }
+    .semana-tira { margin: -4px 20px 14px; padding: 12px 14px 12px; border-radius: var(--radius-sm); background: var(--card); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+    .semana-tira:empty { display: none; }
+    .st-dias { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+    .st-dia { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 9.5px; font-weight: 700; letter-spacing: 0.6px; color: var(--muted); }
+    .st-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--track); box-shadow: inset 0 0 0 1px var(--border); }
+    .st-dia.pasado .st-dot { background: #cda149; box-shadow: none; opacity: 0.55; }
+    .st-dia.hoy { color: var(--accent); }
+    .st-dia.hoy .st-dot { width: 14px; height: 14px; margin: -2px 0; background: radial-gradient(circle, #f0d488, #cda149); box-shadow: 0 0 0 3px rgba(205,161,73,0.22), 0 0 12px rgba(205,161,73,0.55); }
+    .st-pie { margin-top: 11px; padding-top: 10px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 11.5px; color: var(--muted); font-weight: 600; }
+    .st-pie b { font-family: var(--mono); font-size: 14px; color: var(--accent); letter-spacing: -0.3px; }
+    .st-pie b.neg { color: var(--danger); }
     .week-label { font-size: 12px; color: var(--muted); letter-spacing: 0.1px; margin-top: 4px; font-weight: 500; }
 
     /* ─── Ciclo Financiero ─── */
@@ -2422,6 +2433,8 @@
       </div>
     </div>
 
+    <div class="semana-tira" id="semanaTira"></div>
+
     <!-- Insights -->
     <div class="insights">
       <div class="insight-chip">
@@ -3726,6 +3739,23 @@ const renderSummary = () => {
     subEl.innerHTML = `Base ${base} <span style="color:${color}">${signo}${formatCOP(Math.abs(carry))} sem. ant.</span>`;
   } else {
     subEl.textContent = 'Esta semana';
+  }
+
+  const _tira = document.getElementById('semanaTira');
+  if (_tira && semanaActual.inicioSemana && semanaActual.finSemana) {
+    const h0 = new Date(); h0.setHours(0, 0, 0, 0);
+    const ini = parseFecha(semanaActual.inicioSemana), fin = parseFecha(semanaActual.finSemana);
+    const ND = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
+    let dias = '';
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(ini); d.setDate(ini.getDate() + i);
+      if (d > fin) break;
+      dias += `<div class="st-dia ${d < h0 ? 'pasado' : d.getTime() === h0.getTime() ? 'hoy' : ''}"><span class="st-dot"></span>${ND[d.getDay()]}</div>`;
+    }
+    const restan = Math.max(1, Math.round((fin - h0) / 86400000) + 1);
+    const enSemana = h0 >= ini && h0 <= fin;
+    const porDia = saldo / restan;
+    _tira.innerHTML = `<div class="st-dias">${dias}</div>` + (enSemana ? `<div class="st-pie"><span>${saldo > 0 ? `Para ${restan} ${restan === 1 ? 'día' : 'días'}, puedes gastar` : 'Presupuesto de la semana agotado'}</span>${saldo > 0 ? `<b>${formatCOP(Math.round(porDia))} / día</b>` : `<b class="neg">${formatCOP(Math.abs(saldo))} de más</b>`}</div>` : '');
   }
 
   const _lemas = ['Constancia sobre intensidad', 'Hoy el presupuesto manda, no el impulso', 'Lo que se mide, mejora', 'Paga primero a tu futuro', 'Gasta con intención', 'Cada peso tiene un destino', 'Disciplina hoy, libertad mañana'];
