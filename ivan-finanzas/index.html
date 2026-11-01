@@ -917,6 +917,11 @@
     }
     #splashScreen .logo-mark { width: 100%; height: 100%; }
     .splash-word { position: absolute; left: 0; right: 0; top: calc(50% + 52px + 22px); text-align: center; animation: splashWord 0.8s var(--ease) 0.2s both; }
+    /* App instalada: Android ya muestra el logo al abrir, así que aquí solo queda el nombre (sin segundo logo) */
+    @media (display-mode: standalone), (display-mode: fullscreen) {
+      #splashScreen .logo-tile { display: none; }
+      .splash-word { top: calc(50% - 22px); }
+    }
     .splash-word .name { font-size: 20px; font-weight: 800; letter-spacing: 5px; color: #e8eaf1; }
     .splash-word .name span { color: #cda149; }
     .splash-word .tagline { margin-top: 10px; font-size: 9.5px; font-weight: 600; letter-spacing: 2px; color: #6c7389; text-transform: uppercase; }
