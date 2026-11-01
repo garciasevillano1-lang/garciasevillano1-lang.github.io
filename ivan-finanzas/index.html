@@ -388,12 +388,7 @@
     .gasto-amount { font-size: 14.5px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; font-family: var(--mono); }
     .gasto-fecha { font-size: 10.5px; color: var(--muted); margin-top: 2px; }
 
-    .empty-state { text-align: center; padding: 30px 20px 26px; color: var(--muted); position: relative; isolation: isolate; }
-    .empty-state::before {
-      content: ''; position: absolute; z-index: -1; left: 50%; top: 0; width: 150px; height: 150px; transform: translateX(-50%);
-      background: var(--pantera-img, none) center / contain no-repeat; mix-blend-mode: lighten; opacity: 0.28; pointer-events: none;
-      -webkit-mask-image: radial-gradient(closest-side, #000 50%, transparent 100%); mask-image: radial-gradient(closest-side, #000 50%, transparent 100%);
-    }
+    .empty-state { text-align: center; padding: 30px 20px 26px; color: var(--muted); }
     .empty-state .icon {
       width: 56px; height: 56px; margin: 0 auto 12px; border-radius: 18px;
       display: flex; align-items: center; justify-content: center;
