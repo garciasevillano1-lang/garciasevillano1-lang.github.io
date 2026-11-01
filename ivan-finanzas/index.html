@@ -388,7 +388,12 @@
     .gasto-amount { font-size: 14.5px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; font-family: var(--mono); }
     .gasto-fecha { font-size: 10.5px; color: var(--muted); margin-top: 2px; }
 
-    .empty-state { text-align: center; padding: 30px 20px 26px; color: var(--muted); }
+    .empty-state { text-align: center; padding: 30px 20px 26px; color: var(--muted); position: relative; isolation: isolate; }
+    .empty-state::before {
+      content: ''; position: absolute; z-index: -1; left: 50%; top: 0; width: 150px; height: 150px; transform: translateX(-50%);
+      background: var(--pantera-img, none) center / contain no-repeat; mix-blend-mode: lighten; opacity: 0.28; pointer-events: none;
+      -webkit-mask-image: radial-gradient(closest-side, #000 50%, transparent 100%); mask-image: radial-gradient(closest-side, #000 50%, transparent 100%);
+    }
     .empty-state .icon {
       width: 56px; height: 56px; margin: 0 auto 12px; border-radius: 18px;
       display: flex; align-items: center; justify-content: center;
@@ -1270,7 +1275,15 @@
     .rp-logo-l { width: 72px; height: 72px; border-radius: 18px; }
     .rp-logo-l .logo-mark { width: 100%; height: 100%; }
 
-    .rp-portada { display: flex; align-items: center; gap: 20px; padding-top: 18px; }
+    .rp-portada {
+      display: flex; align-items: center; gap: 20px; margin-top: 6px; padding: 22px 24px; border-radius: 16px; position: relative; overflow: hidden;
+      background: radial-gradient(380px 170px at 100% 0%, rgba(232,196,104,0.18), transparent 70%), linear-gradient(135deg, #131a30, #0b0f1c);
+      border-bottom: 3px solid #cda149;
+    }
+    .rp-portada .rp-kicker { color: #d9b35f; }
+    .rp-portada .rp-h1 { color: #fff; }
+    .rp-portada .rp-sub { color: rgba(255,255,255,0.62); }
+    .rp-portada .rp-logo-l { width: 92px; height: 92px; border-radius: 18px; flex: none; }
     .rp-kicker { font-size: 11px; font-weight: 800; letter-spacing: 2.6px; text-transform: uppercase; color: #a9791f; }
     .rp-h1 { font-size: 34px; font-weight: 800; color: #17203a; letter-spacing: -1.2px; line-height: 1.1; margin: 6px 0 6px; }
     .rp-sub { font-size: 12.5px; color: #767b88; font-weight: 600; }
@@ -7788,6 +7801,10 @@ const inicializar = () => {
 /* ══════════════════════════════════════════════
    PANTALLA DE CARGA
 ══════════════════════════════════════════════ */
+try {
+  const _img = document.querySelector('#logoMark image');
+  if (_img) document.documentElement.style.setProperty('--pantera-img', `url("${_img.getAttribute('href')}")`);
+} catch (e) {}
 const ocultarSplash = () => {
   const splash = document.getElementById('splashScreen');
   if (!splash) return;
