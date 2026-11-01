@@ -285,6 +285,13 @@
       transition: width 0.7s var(--ease), background 0.3s;
       animation: barGrow 0.9s var(--ease) 0.15s both;
     }
+    .progress-bar-fill, .ahorro-bar-fill { position: relative; box-shadow: 0 0 10px rgba(205,161,73,0.35); }
+    .progress-bar-fill::after, .ahorro-bar-fill::after {
+      content: ''; position: absolute; top: 0; bottom: 0; left: -40%; width: 40%; pointer-events: none;
+      background: linear-gradient(100deg, transparent, rgba(255,245,210,0.55), transparent);
+      animation: barSheen 1.4s var(--ease) 1s 1 both;
+    }
+    @keyframes barSheen { from { left: -40%; } to { left: 120%; } }
     @keyframes barGrow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
     /* ─── Insights ─── */
@@ -348,12 +355,15 @@
 
     .btn-primary {
       width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
-      background: var(--gold-grad); color: var(--accent-ink);
+      background: linear-gradient(180deg, #e9c978 0%, #cfa64b 52%, #b98c37 100%); color: var(--accent-ink);
+      position: relative; overflow: hidden;
       font-size: 14.5px; font-weight: 800; letter-spacing: 0.1px; line-height: 1.25;
       padding: 15px; border-radius: var(--radius-sm); margin-top: 4px;
       box-shadow: 0 8px 22px rgba(205,161,73,0.22), inset 0 1px 0 rgba(255,255,255,0.35);
       transition: transform var(--transition), box-shadow var(--transition), filter var(--transition);
     }
+    .btn-primary::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 48%; pointer-events: none; background: linear-gradient(180deg, rgba(255,255,255,0.30), rgba(255,255,255,0)); }
+    .btn-primary { box-shadow: 0 8px 24px rgba(205,161,73,0.30), 0 0 0 1px rgba(240,212,136,0.40), inset 0 1px 0 rgba(255,255,255,0.45); }
     .btn-primary .ico { font-size: 18px; }
     .btn-primary:hover { filter: brightness(1.04); }
     .btn-primary:active { transform: scale(0.98); box-shadow: 0 3px 10px rgba(205,161,73,0.2); }
@@ -557,7 +567,13 @@
     .nav-tab .tab-icon { font-size: 21px; line-height: 0; transition: transform 0.35s var(--spring); }
     .nav-tab .tab-label { line-height: 1; }
     .nav-tab.active { color: var(--accent); }
-    .nav-tab.active .tab-icon { transform: translateY(-1px) scale(1.06); }
+    .nav-tab.active .tab-icon { transform: translateY(-1px) scale(1.06); filter: drop-shadow(0 0 6px rgba(205,161,73,0.55)); }
+    .nav-tabs::before { background: linear-gradient(180deg, rgba(205,161,73,0.20), rgba(205,161,73,0.07)); box-shadow: inset 0 0 0 1px rgba(205,161,73,0.28), 0 0 18px rgba(205,161,73,0.10); }
+    .nav-tabs::after {
+      content: ''; position: absolute; bottom: 7px; left: 6px; width: calc((100% - 12px) / 6); height: 3px; pointer-events: none;
+      background: radial-gradient(closest-side, #f0d488, #cda149 60%, transparent); border-radius: 3px; opacity: 0.95;
+      transform: scaleX(0.4) translateX(calc(var(--i) * 250%)); transition: transform 0.45s var(--spring);
+    }
     .nav-tab:active .tab-icon { transform: scale(0.88); }
 
     /* ─── Páginas y transiciones ─── */
