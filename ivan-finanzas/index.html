@@ -426,6 +426,33 @@
     .empty-state p { font-size: 13px; line-height: 1.6; }
 
     /* ─── Modal → hoja inferior ─── */
+    /* ─── Gasto rápido ─── */
+    .fab-rapido {
+      position: fixed; z-index: 59; right: 18px; bottom: calc(88px + env(safe-area-inset-bottom));
+      width: 56px; height: 56px; border-radius: 50%; display: none; align-items: center; justify-content: center;
+      background: linear-gradient(180deg, #e9c978 0%, #cfa64b 52%, #b98c37 100%); color: var(--accent-ink);
+      box-shadow: 0 10px 26px rgba(205,161,73,0.38), 0 0 0 1px rgba(240,212,136,0.45), inset 0 1px 0 rgba(255,255,255,0.5);
+      transition: transform 0.25s var(--spring);
+    }
+    .fab-rapido .ico { font-size: 26px; stroke-width: 2.4; }
+    .fab-rapido:active { transform: scale(0.9); }
+    body:has(#page-inicio.active) .fab-rapido { display: flex; }
+    body:has(.modal-overlay.open) .fab-rapido { display: none; }
+    .rapido-monto { font-size: 30px !important; font-weight: 800; letter-spacing: -0.8px; padding-top: 14px; padding-bottom: 14px; }
+    .rapido-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+    .rapido-chip {
+      display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 999px;
+      background: var(--card); border: 1px solid var(--border-md); color: var(--text-dim); font-size: 12.5px; font-weight: 600;
+      transition: transform 0.2s var(--spring), background 0.2s, border-color 0.2s;
+    }
+    .rapido-chip:active { transform: scale(0.94); }
+    .rapido-chip.sel { background: linear-gradient(180deg, #e9c978, #c9a04a); color: var(--accent-ink); border-color: transparent; font-weight: 800; box-shadow: 0 4px 14px rgba(205,161,73,0.3); }
+    .rapido-repetir {
+      width: 100%; display: flex; align-items: center; gap: 10px; padding: 11px 14px; margin-bottom: 14px; border-radius: var(--radius-sm);
+      background: var(--accent-bg); border: 1px dashed rgba(205,161,73,0.45); color: var(--accent); font-size: 12.5px; font-weight: 700; text-align: left;
+    }
+    .rapido-repetir .ico { font-size: 17px; flex: none; }
+    .rapido-repetir span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .modal-overlay {
       position: fixed; inset: 0; z-index: 100;
       background: rgba(5,8,16,0.55);
@@ -1670,6 +1697,32 @@
 <div class="toast" id="toast"></div>
 
 <!-- Modal Edición Gasto Semanal -->
+<button class="fab-rapido" id="fabRapido" onclick="abrirRapido()" aria-label="Registrar gasto rápido"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg></button>
+
+<div class="modal-overlay" id="rapidoOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Gasto rápido</span>
+      <button class="modal-close" onclick="cerrarRapido()"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
+    </div>
+    <button class="rapido-repetir" id="rapidoRepetir" onclick="repetirUltimoGasto()" style="display:none"><svg class="ico" aria-hidden="true"><use href="#i-repeat"/></svg><span id="rapidoRepetirTxt"></span></button>
+    <div class="form-row">
+      <div class="amount-wrap">
+        <span class="amount-prefix">$</span>
+        <input class="form-input rapido-monto" type="number" id="rapidoMonto" placeholder="0" inputmode="numeric" />
+      </div>
+    </div>
+    <div class="form-row">
+      <label class="form-label">Categoría</label>
+      <div class="rapido-chips" id="rapidoChips"></div>
+    </div>
+    <div class="form-row">
+      <input class="form-input" type="text" id="rapidoNota" placeholder="Nota (opcional)" />
+    </div>
+    <button class="btn-primary" onclick="guardarRapido()"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg> Registrar · hoy</button>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <div class="modal-header">
@@ -5372,6 +5425,64 @@ const agregarGasto = async () => {
   mostrarToast(`✓ ${formatCOP(cantidad)} registrado`,'success');
   renderTodo();
 };
+
+/* ══════════════════════════════════════════════
+   GASTO RÁPIDO
+══════════════════════════════════════════════ */
+let rapidoCat = null;
+const _ultimoGasto = () => (semanaActual.gastos || []).slice().sort((a, b) => (a.fecha < b.fecha ? 1 : a.fecha > b.fecha ? -1 : 0))[0] || null;
+const _catMasUsada = () => {
+  const n = {};
+  (semanaActual.gastos || []).forEach(g => { n[g.categoria] = (n[g.categoria] || 0) + 1; });
+  return Object.keys(n).sort((a, b) => n[b] - n[a])[0] || null;
+};
+const pintarChipsRapido = () => {
+  const cont = document.getElementById('rapidoChips');
+  cont.innerHTML = config.categorias.map(c => `<button type="button" class="rapido-chip ${c.nombre === rapidoCat ? 'sel' : ''}" data-cat="${String(c.nombre).replace(/"/g, '&quot;')}">${c.emoji || ''} ${c.nombre}</button>`).join('');
+  cont.querySelectorAll('.rapido-chip').forEach(b => b.addEventListener('click', () => { rapidoCat = b.dataset.cat; pintarChipsRapido(); if (navigator.vibrate) navigator.vibrate(10); }));
+};
+const abrirRapido = () => {
+  const ult = _ultimoGasto();
+  rapidoCat = _catMasUsada() || (config.categorias[0] && config.categorias[0].nombre) || null;
+  document.getElementById('rapidoMonto').value = '';
+  document.getElementById('rapidoNota').value = '';
+  const btn = document.getElementById('rapidoRepetir');
+  if (ult) {
+    const cat = config.categorias.find(c => c.nombre === ult.categoria);
+    document.getElementById('rapidoRepetirTxt').textContent = `Repetir: ${cat ? cat.emoji + ' ' : ''}${ult.categoria} · ${formatCOP(ult.cantidad)}${ult.nota ? ' · ' + ult.nota : ''}`;
+    btn.style.display = 'flex';
+  } else btn.style.display = 'none';
+  pintarChipsRapido();
+  document.getElementById('rapidoOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('rapidoMonto').focus(), 320);
+};
+const cerrarRapido = () => document.getElementById('rapidoOverlay').classList.remove('open');
+const _registrarRapido = async (cantidad, categoria, nota) => {
+  if (!cantidad || cantidad <= 0) { mostrarToast('Ingresa una cantidad válida', 'danger'); return false; }
+  const saldo = calcSaldo();
+  if (saldo > 0 && cantidad > saldo * 0.30) {
+    const ok = await uiConfirm(`Este gasto (${formatCOP(cantidad)}) supera el 30% de tu saldo disponible (${formatCOP(saldo)}). ¿Quieres registrarlo igual?`, { titulo: 'Gasto alto', ok: 'Registrar igual' });
+    if (!ok) return false;
+  }
+  semanaActual.gastos.push({ id: genId(), cantidad, categoria, nota, fecha: fechaStr(new Date()) });
+  guardarSemana();
+  if (navigator.vibrate) navigator.vibrate(40);
+  mostrarToast(`✓ ${formatCOP(cantidad)} registrado`, 'success');
+  renderTodo();
+  return true;
+};
+const guardarRapido = async () => {
+  if (!rapidoCat) { mostrarToast('Elige una categoría', 'danger'); return; }
+  const ok = await _registrarRapido(parseFloat(document.getElementById('rapidoMonto').value), rapidoCat, document.getElementById('rapidoNota').value.trim());
+  if (ok) cerrarRapido();
+};
+const repetirUltimoGasto = async () => {
+  const u = _ultimoGasto();
+  if (!u) return;
+  const ok = await _registrarRapido(u.cantidad, u.categoria, u.nota || '');
+  if (ok) cerrarRapido();
+};
+document.getElementById('rapidoMonto').addEventListener('keydown', e => { if (e.key === 'Enter') guardarRapido(); });
 
 /* ══════════════════════════════════════════════
    MODAL EDICIÓN GASTO (INTACTO)
