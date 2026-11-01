@@ -876,7 +876,7 @@
     .logo-tile {
       display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
       background: linear-gradient(140deg, #121a2e, #0b0f1a 60%, #1a150a);
-      border: 1px solid rgba(205,161,73,0.35);
+      border: 1.5px solid #cda149;
       border-radius: 9px;
       box-shadow: 0 4px 14px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.05);
       position: relative; overflow: hidden;
@@ -906,8 +906,8 @@
     #splashScreen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
     #splashScreen .logo-tile {
       width: 104px; height: 104px; border-radius: 28px;
-      animation: splashIn 0.8s var(--spring) both;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(205,161,73,0.15), inset 0 1px 0 rgba(255,255,255,0.06);
+      border-width: 2.5px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 28px rgba(205,161,73,0.28), 0 0 0 5px rgba(205,161,73,0.10), inset 0 0 0 1px rgba(240,212,136,0.35);
     }
     #splashScreen .logo-tile::after {
       content: ''; position: absolute; top: -20%; bottom: -20%; left: -80%; width: 50%;
@@ -916,7 +916,7 @@
       animation: splashSheen 1.4s var(--ease) 0.35s both;
     }
     #splashScreen .logo-mark { width: 100%; height: 100%; }
-    .splash-word { text-align: center; animation: splashWord 0.8s var(--ease) 0.2s both; }
+    .splash-word { position: absolute; left: 0; right: 0; top: calc(50% + 52px + 22px); text-align: center; animation: splashWord 0.8s var(--ease) 0.2s both; }
     .splash-word .name { font-size: 20px; font-weight: 800; letter-spacing: 5px; color: #e8eaf1; }
     .splash-word .name span { color: #cda149; }
     .splash-word .tagline { margin-top: 10px; font-size: 9.5px; font-weight: 600; letter-spacing: 2px; color: #6c7389; text-transform: uppercase; }
