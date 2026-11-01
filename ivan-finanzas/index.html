@@ -2914,7 +2914,7 @@
         <div class="config-row">
           <div>
             <div class="config-label">Iván Finanzas</div>
-            <div class="config-sublabel">Control financiero personal · v5.9.3</div>
+            <div class="config-sublabel">Control financiero personal · v5.9.4</div>
           </div>
         </div>
       </div>
@@ -8164,6 +8164,15 @@ const ocultarSplash = () => {
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.getElementById('informeOverlay')?.classList.contains('open')) cerrarInforme(); });
 
 inicializar();
+
+/* Atajo del ícono (mantén presionado el ícono → «Gasto rápido»): abre directo la hoja de gasto rápido */
+try {
+  const _qs = new URLSearchParams(location.search);
+  if (_qs.get('accion') === 'gasto') {
+    history.replaceState(null, '', location.pathname);
+    setTimeout(() => { irPagina('page-inicio'); abrirRapido(); }, 500);
+  }
+} catch (e) {}
 </script>
 </body>
 </html>
