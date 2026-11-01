@@ -156,6 +156,19 @@
     }
     .icon-btn:hover { background: var(--card-alt); color: var(--accent); }
     .icon-btn:active { transform: scale(0.92); }
+    .lema-dia { margin-top: 7px; font-size: 11px; font-weight: 600; letter-spacing: 0.4px; color: #b8913f; display: flex; align-items: center; gap: 7px; }
+    .lema-dia:empty { display: none; }
+    .lema-dia::before { content: ''; width: 14px; height: 2px; border-radius: 2px; background: linear-gradient(90deg, #cda149, transparent); }
+    .perfil-card {
+      margin: 20px 20px 0; padding: 16px; display: flex; align-items: center; gap: 14px; border-radius: var(--radius);
+      background: radial-gradient(260px 120px at 100% 0%, rgba(232,196,104,0.16), transparent 70%), linear-gradient(135deg, #131a30, #0b0f1c);
+      border: 1px solid rgba(205,161,73,0.35); box-shadow: 0 12px 30px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+    .perfil-card .logo-tile { width: 58px; height: 58px; border-radius: 15px; flex: none; }
+    .perfil-card .logo-mark { width: 100%; height: 100%; }
+    .perfil-nombre { font-size: 17px; font-weight: 800; color: #fff; letter-spacing: -0.3px; }
+    .perfil-nombre span { color: #d9b35f; }
+    .perfil-lema { margin-top: 3px; font-size: 10.5px; font-weight: 600; letter-spacing: 0.5px; color: rgba(255,255,255,0.55); }
     .week-label { font-size: 12px; color: var(--muted); letter-spacing: 0.1px; margin-top: 4px; font-weight: 500; }
 
     /* ─── Ciclo Financiero ─── */
@@ -2314,6 +2327,7 @@
         <div>
           <div class="greeting">Hola, <span>Iván</span></div>
           <div class="week-label" id="weekLabel">Cargando...</div>
+          <div class="lema-dia" id="lemaDia"></div>
         </div>
         <div class="header-actions">
           <button class="icon-btn" onclick="irPagina('page-config')" title="Ajustes" aria-label="Ajustes"><svg class="ico" aria-hidden="true"><use href="#i-sliders"/></svg></button>
@@ -2691,6 +2705,13 @@
           <div class="greeting"><span>Ajustes</span></div>
           <div class="week-label">Configuración de tu app</div>
         </div>
+      </div>
+    </div>
+    <div class="perfil-card">
+      <span class="logo-tile"><svg class="logo-mark"><use href="#logoMark"/></svg></span>
+      <div>
+        <div class="perfil-nombre" id="perfilNombre">Iván <span>Finanzas</span></div>
+        <div class="perfil-lema">Organizo · Invierto · Construyo libertad</div>
       </div>
     </div>
     <div class="section" style="padding-top:20px">
@@ -3706,6 +3727,12 @@ const renderSummary = () => {
   } else {
     subEl.textContent = 'Esta semana';
   }
+
+  const _lemas = ['Constancia sobre intensidad', 'Hoy el presupuesto manda, no el impulso', 'Lo que se mide, mejora', 'Paga primero a tu futuro', 'Gasta con intención', 'Cada peso tiene un destino', 'Disciplina hoy, libertad mañana'];
+  const _lemaEl = document.getElementById('lemaDia');
+  if (_lemaEl) _lemaEl.textContent = _lemas[new Date().getDay()];
+  const _pn = document.getElementById('perfilNombre');
+  if (_pn && config.nombre) _pn.innerHTML = `${String(config.nombre).replace(/[<>&]/g, '')} <span>Finanzas</span>`;
 
   if (semanaActual.inicioSemana && semanaActual.finSemana) {
     const carryLabel = '';
