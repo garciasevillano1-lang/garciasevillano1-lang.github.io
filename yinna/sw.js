@@ -1,8 +1,8 @@
 /* Service worker — hace que la app abra sin internet.
-   El generador reemplaza app-mis-finanzas-a3aca-v1.0 y ["./", "./index.html", "./manifest.json", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png"] para cada cliente. */
+   El generador reemplaza app-mis-finanzas-a3aca-v1.0 y ["./", "./index.html", "./manifest.json", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png", "./img/logo.jpg"] para cada cliente. */
 const CACHE = 'app-mis-finanzas-a3aca-v1.0';
 const PREFIJO = CACHE.replace(/-v[^-]*$/, '-');
-const ARCHIVOS = ["./", "./index.html", "./manifest.json", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png"];
+const ARCHIVOS = ["./", "./index.html", "./manifest.json", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png", "./img/logo.jpg"];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ARCHIVOS)).then(() => self.skipWaiting()));
