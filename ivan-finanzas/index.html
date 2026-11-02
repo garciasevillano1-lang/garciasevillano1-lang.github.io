@@ -2160,7 +2160,8 @@
         <option value="">Sin clasificar</option>
         <option value="necesidad">Necesidad (50%)</option>
         <option value="deseo">Deseo (30%)</option>
-        <option value="ahorro">Ahorro/Deuda (20%)</option>
+        <option value="ahorro">Ahorro e inversión (20%)</option>
+        <option value="deuda">Pago de deudas</option>
       </select>
     </div>
     <div class="modal-actions">
@@ -2914,7 +2915,7 @@
         <div class="config-row">
           <div>
             <div class="config-label">Iván Finanzas</div>
-            <div class="config-sublabel">Control financiero personal · v5.9.4</div>
+            <div class="config-sublabel">Control financiero personal · v5.10</div>
           </div>
         </div>
       </div>
@@ -3663,7 +3664,7 @@ const cargarDatos = () => {
   const legacyDefaults = {
     'Vivienda':{emoji:'🏠',grupo:'necesidad'}, 'Internet':{emoji:'🌐',grupo:'necesidad'},
     'Celular':{emoji:'📱',grupo:'necesidad'}, 'Streaming':{emoji:'🎬',grupo:'deseo'},
-    'Crédito':{emoji:'💳',grupo:'ahorro'}, 'Seguro':{emoji:'🛡️',grupo:'necesidad'},
+    'Crédito':{emoji:'💳',grupo:'deuda'}, 'Seguro':{emoji:'🛡️',grupo:'necesidad'},
     'Mercado base':{emoji:'🛒',grupo:'necesidad'}, 'Educación':{emoji:'📚',grupo:'necesidad'},
     'Otro':{emoji:'📦',grupo:null},
   };
@@ -4931,7 +4932,7 @@ document.getElementById('modalCategoria').addEventListener('click', e => {
 const renderLimitesAjustes = () => {
   const el = document.getElementById('limitesAjustesLista');
   if (!el) return;
-  const etiquetaGrupo = { necesidad:'Necesidad', deseo:'Deseo', ahorro:'Ahorro/Deuda' };
+  const etiquetaGrupo = { necesidad:'Necesidad', deseo:'Deseo', ahorro:'Ahorro e inversión', deuda:'Pago de deudas' };
   el.innerHTML = config.categorias.map(c => `
     <div class="config-row">
       <div>
@@ -5087,15 +5088,18 @@ const ingresosExtraDelCiclo = () => ingresosExtra.filter(ie => cicloDeFechaStr(i
 /* ══════════════════════════════════════════════
    INFORME 50/30/20 (NUEVO — reemplaza el Historial semanal)
 ══════════════════════════════════════════════ */
-const clasificarGasto50302 = (categoria, destino) => {
-  if (destino === 'ahorro' || destino === 'inversion' || destino === 'deuda') return 'ahorro';
+// Grupo de un gasto: el destino manda (ahorro/inversión/deuda); si no, el grupo de su categoría en Ajustes.
+const grupoDeGasto = (categoria, destino) => {
+  if (destino === 'ahorro' || destino === 'inversion') return 'ahorro';
+  if (destino === 'deuda') return 'deuda';
   const cat = config.categorias.find(c => c.nombre === categoria);
   return cat?.grupo || null;
 };
+const clasificarGasto50302 = (categoria, destino) => grupoDeGasto(categoria, destino);
 
 const calcInforme503020 = () => {
   const ciclo = cicloActualInicio();
-  const buckets = { necesidad: 0, deseo: 0, ahorro: 0, sinClasificar: 0 };
+  const buckets = { necesidad: 0, deseo: 0, ahorro: 0, deuda: 0, sinClasificar: 0 };
   const porCategoria = {};
   let totalFijos = 0, totalVariables = 0, totalUnicos = 0;
 
@@ -5132,7 +5136,8 @@ const renderInforme = () => {
   const metas = [
     { key:'necesidad', label:'Necesidades',   meta:50, color:'var(--salary)', tipo:'techo' },
     { key:'deseo',     label:'Deseos',        meta:30, color:'var(--gold)',   tipo:'techo' },
-    { key:'ahorro',    label:'Ahorro/Deuda',  meta:20, color:'var(--accent)', tipo:'piso' },
+    { key:'ahorro',    label:'Ahorro e inversión', meta:20, color:'var(--accent)', tipo:'piso' },
+    { key:'deuda',     label:'Pago de deudas', meta:null, color:'var(--salary)', tipo:'libre' },
   ];
   const el503020 = document.getElementById('informe503020');
   if (ingresoTotal <= 0) {
@@ -5141,10 +5146,12 @@ const renderInforme = () => {
     el503020.innerHTML = metas.map(m => {
       const monto = buckets[m.key] || 0;
       const pct = (monto/ingresoTotal)*100;
-      const diff = pct - m.meta;
-      const enLinea = Math.abs(diff) <= 3;
+      const diff = m.meta == null ? 0 : pct - m.meta;
+      const enLinea = m.meta != null && Math.abs(diff) <= 3;
       let colorEstado, estadoTexto;
-      if (enLinea) {
+      if (m.meta == null) {
+        colorEstado = 'var(--muted)'; estadoTexto = monto > 0 ? 'Sin referencia' : 'Sin pagos este ciclo';
+      } else if (enLinea) {
         colorEstado = 'var(--accent)'; estadoTexto = '✓ en línea';
       } else if (m.tipo === 'techo') {
         // Necesidades/Deseos: pasarse del techo es malo; quedarse debajo es bueno
@@ -5159,11 +5166,11 @@ const renderInforme = () => {
       <div class="port-dist-card" style="margin-bottom:10px">
         <div style="display:flex;justify-content:space-between;align-items:baseline">
           <span style="font-weight:800;font-size:13px">${m.label}</span>
-          <span style="font-family:var(--mono);font-weight:700;color:${colorEstado}">${pct.toFixed(1)}% <span style="color:var(--muted);font-weight:500">/ meta ${m.meta}%</span></span>
+          <span style="font-family:var(--mono);font-weight:700;color:${colorEstado}">${pct.toFixed(1)}%${m.meta != null ? ` <span style="color:var(--muted);font-weight:500">/ meta ${m.meta}%</span>` : ''}</span>
         </div>
         <div class="ahorro-bar-bg" style="margin-top:8px;position:relative">
           <div class="ahorro-bar-fill" style="width:${Math.min(100,pct)}%;background:${m.color}"></div>
-          <div title="Meta: ${m.meta}%" style="position:absolute;top:-3px;bottom:-3px;left:${m.meta}%;width:2px;background:var(--text);opacity:0.55;border-radius:1px"></div>
+          ${m.meta != null ? `<div title="Meta: ${m.meta}%" style="position:absolute;top:-3px;bottom:-3px;left:${m.meta}%;width:2px;background:var(--text);opacity:0.55;border-radius:1px"></div>` : ''}
         </div>
         <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:11px">
           <span style="color:var(--muted)">${formatCOP(monto)}</span>
@@ -5192,7 +5199,7 @@ const renderInforme = () => {
   // Gastos por categoría
   const catEl = document.getElementById('informeCategorias');
   const catsOrdenadas = Object.entries(porCategoria).sort((a,b)=>b[1]-a[1]);
-  const colorGrupo = { necesidad:'var(--salary)', deseo:'var(--gold)', ahorro:'var(--accent)' };
+  const colorGrupo = { necesidad:'var(--salary)', deseo:'var(--gold)', ahorro:'var(--accent)', deuda:'var(--muted)' };
   catEl.innerHTML = catsOrdenadas.length ? catsOrdenadas.map(([nombre,monto]) => {
     const cat = config.categorias.find(c=>c.nombre===nombre);
     const pct = totalGeneral>0 ? (monto/totalGeneral)*100 : 0;
@@ -7401,15 +7408,29 @@ const datosCicloInforme = (ciclo, lista = listaCiclosInforme()) => {
   const totalExtras = extras.reduce((s, ie) => s + (ie.monto || 0), 0);
   const ingreso = ingresoBase + totalExtras;
 
-  const esAporte = d => d === 'ahorro' || d === 'inversion';
-  const fijosConsumo = fijos.filter(g => !esAporte(g.destino) && g.destino !== 'deuda');
-  const totFijoConsumo = fijosConsumo.reduce((s, g) => s + (g.valor || 0), 0);
-  const aportesFijos = fijos.filter(g => esAporte(g.destino)).reduce((s, g) => s + (g.valor || 0), 0);
-  const pagoDeudas = fijos.filter(g => g.destino === 'deuda').reduce((s, g) => s + (g.valor || 0), 0);
-  const aportesExtra = extras.filter(ie => esAporte(ie.destino) && ie.destinoId).reduce((s, ie) => s + (ie.monto || 0), 0);
-  const aportes = aportesFijos + aportesExtra;
-  const totVariable = variables.reduce((s, g) => s + (g.cantidad || 0), 0);
-  const totUnicos = unicos.reduce((s, g) => s + (g.valor || 0), 0);
+  // ── Una sola clasificación para todo el informe ──
+  // Cada movimiento cae en UN grupo: necesidad, deseo, ahorro (ahorro e inversión), deuda o sin clasificar.
+  // Ahorro del ciclo = aportes con destino + ingresos extra aplicados + gastos en categorías del grupo «ahorro».
+  // Pago de deudas   = pagos con destino «deuda» + gastos en categorías del grupo «deuda».
+  // Gasto total (consumo) = todo lo demás: excluye esos dos grupos.
+  const esAporte = x => x === 'ahorro' || x === 'inversion';
+  const movs = [];
+  fijos.forEach(g => movs.push({ tipo: 'fijo', origen: 'Gasto fijo', fecha: null, categoria: g.categoria, nombre: g.nombre, monto: g.valor || 0, destino: g.destino || 'gasto', destinoId: g.destinoId, dest: nombreDestinoGF(g) }));
+  variables.forEach(g => movs.push({ tipo: 'variable', origen: 'Gasto variable', fecha: g.fecha, categoria: g.categoria, nombre: g.nota || '', monto: g.cantidad || 0, destino: 'gasto' }));
+  unicos.forEach(g => movs.push({ tipo: 'unico', origen: 'Gasto único', fecha: null, categoria: g.categoria, nombre: g.nombre, monto: g.valor || 0, destino: 'gasto' }));
+  extras.filter(ie => esAporte(ie.destino) && ie.destinoId).forEach(ie => movs.push({ tipo: 'extra', origen: 'Ingreso extra', fecha: ie.fecha, categoria: null, nombre: ie.nombre || 'Ingreso extra', monto: ie.monto || 0, destino: ie.destino, destinoId: ie.destinoId, dest: nombreDestinoGF(ie) }));
+  movs.forEach(m => { m.grupo = grupoDeGasto(m.categoria, m.destino); });
+  const suma = arr => arr.reduce((t, m) => t + m.monto, 0);
+  const movsAhorro = movs.filter(m => m.grupo === 'ahorro');
+  const movsDeuda = movs.filter(m => m.grupo === 'deuda');
+  const movsConsumo = movs.filter(m => m.grupo !== 'ahorro' && m.grupo !== 'deuda');
+  const aportes = suma(movsAhorro);
+  const pagoDeudas = suma(movsDeuda);
+  const aportesFijos = suma(movsAhorro.filter(m => m.tipo === 'fijo'));
+  const aportesExtra = suma(movsAhorro.filter(m => m.tipo === 'extra'));
+  const totFijoConsumo = suma(movsConsumo.filter(m => m.tipo === 'fijo'));
+  const totVariable = suma(movsConsumo.filter(m => m.tipo === 'variable'));
+  const totUnicos = suma(movsConsumo.filter(m => m.tipo === 'unico'));
   const consumo = totFijoConsumo + totVariable + totUnicos;
   const sinAsignar = ingreso - consumo - aportes - pagoDeudas;
   const hoyD = new Date(); hoyD.setHours(0, 0, 0, 0);
@@ -7418,16 +7439,13 @@ const datosCicloInforme = (ciclo, lista = listaCiclosInforme()) => {
   const grupos = { necesidad: 0, deseo: 0, ahorro: aportes, deudas: pagoDeudas, sinClasificar: 0 };
   const sinClasifCats = {};
   const porCategoria = {};
-  const contar = (cat, monto) => {
-    const gr = clasificarGasto50302(cat, null);
-    if (gr === 'necesidad' || gr === 'deseo') grupos[gr] += monto;
-    else if (gr === 'ahorro') grupos.ahorro += monto;
-    else { grupos.sinClasificar += monto; sinClasifCats[cat || 'Sin categoría'] = (sinClasifCats[cat || 'Sin categoría'] || 0) + monto; }
-    porCategoria[cat || 'Sin categoría'] = (porCategoria[cat || 'Sin categoría'] || 0) + monto;
-  };
-  fijosConsumo.forEach(g => contar(g.categoria, g.valor || 0));
-  variables.forEach(g => contar(g.categoria, g.cantidad || 0));
-  unicos.forEach(g => contar(g.categoria, g.valor || 0));
+  const porGrupoCat = { necesidad: {}, deseo: {} };
+  movsConsumo.forEach(m => {
+    const cat = m.categoria || 'Sin categoría';
+    if (m.grupo === 'necesidad' || m.grupo === 'deseo') { grupos[m.grupo] += m.monto; porGrupoCat[m.grupo][cat] = (porGrupoCat[m.grupo][cat] || 0) + m.monto; }
+    else { grupos.sinClasificar += m.monto; sinClasifCats[cat] = (sinClasifCats[cat] || 0) + m.monto; }
+    porCategoria[cat] = (porCategoria[cat] || 0) + m.monto;
+  });
 
   // Semanas del ciclo
   const semanas = historial.filter(s => s.inicioCiclo === ciclo).map(s => ({ ...s, actual: false }));
@@ -7440,24 +7458,34 @@ const datosCicloInforme = (ciclo, lista = listaCiclosInforme()) => {
 
   // Límites (gasto variable vs límite, igual que en Inicio)
   const varPorCat = {};
-  variables.forEach(g => { varPorCat[g.categoria] = (varPorCat[g.categoria] || 0) + (g.cantidad || 0); });
+  movsConsumo.filter(m => m.tipo === 'variable').forEach(m => { varPorCat[m.categoria] = (varPorCat[m.categoria] || 0) + m.monto; });
   const limPorCat = { ...varPorCat };
-  unicos.forEach(g => { limPorCat[g.categoria] = (limPorCat[g.categoria] || 0) + (g.valor || 0); });
+  movsConsumo.filter(m => m.tipo === 'unico').forEach(m => { limPorCat[m.categoria] = (limPorCat[m.categoria] || 0) + m.monto; });
   const limites = config.categorias.filter(c => c.limite > 0).map(c => ({ nombre: c.nombre, emoji: c.emoji, limite: c.limite, gastado: limPorCat[c.nombre] || 0 }));
 
-  const topGastos = [
-    ...variables.map(g => ({ fecha: g.fecha, categoria: g.categoria, nota: g.nota, monto: g.cantidad || 0, tipo: 'Variable' })),
-    ...unicos.map(g => ({ fecha: null, categoria: g.categoria, nota: g.nombre, monto: g.valor || 0, tipo: 'Único' })),
-  ].sort((a, b) => b.monto - a.monto).slice(0, 5);
+  const topGastos = movsConsumo.filter(m => m.tipo !== 'fijo')
+    .map(m => ({ fecha: m.fecha, categoria: m.categoria, nota: m.nombre, monto: m.monto, tipo: m.tipo === 'unico' ? 'Único' : 'Variable' }))
+    .sort((a, b) => b.monto - a.monto).slice(0, 5);
+
+  // Detalle por sección del informe
+  const fijosTodos = (esActual ? gastosFijos : fijos).map(g => ({
+    nombre: g.nombre, categoria: g.categoria, monto: g.valor || 0, destino: g.destino || 'gasto', dest: nombreDestinoGF(g), pagado: esActual ? !!g.pagado : true,
+  }));
+  const nVarConsumo = movsConsumo.filter(m => m.tipo === 'variable').length;
+  const pasivosInfo = pasivos.map(p => {
+    const abonos = suma(movsDeuda.filter(m => m.destino === 'deuda' && m.destinoId === p.id));
+    return { id: p.id, nombre: p.nombre, abonos, saldoActual: p.saldoActual || 0, saldoInicio: esActual ? (p.saldoActual || 0) + abonos : null, tasa: p.tasaInteres || null };
+  });
 
   const hayDatos = !!(variables.length || fijos.length || unicos.length || extras.length);
   return {
     ciclo, inicio: ciclo, fin: finDeCicloInforme(ciclo, lista), esActual, arch: !!arch, ingresoSupuesto, hayDatos,
     ingresoBase, totalExtras, extras, ingreso, totFijoConsumo, aportesFijos, aportesExtra, aportes, pagoDeudas,
     totVariable, totUnicos, consumo, sinAsignar, pendientes,
+    movsAhorro, movsDeuda, movsConsumo, porGrupoCat, fijosTodos, pasivosInfo,
     tasaAhorro: ingreso > 0 ? aportes / ingreso * 100 : 0,
     grupos, sinClasifCats, porCategoria, porCatVar: varPorCat, semanas: semanasRes, limites, topGastos,
-    nVariables: variables.length, fijosLista: fijos,
+    nVariables: nVarConsumo, fijosLista: fijos,
     diasRestantes: esActual ? Math.max(1, Math.round((parseFecha(finDeCicloInforme(ciclo, lista)) - hoyD) / 86400000) + 1) : 0,
   };
 };
@@ -7478,6 +7506,11 @@ const hallazgosInforme = (d, prev, plan, minimo) => {
     H.push(d.tasaAhorro >= 20
       ? { ok: true, txt: `Ahorraste e invertiste el <b>${pctRP(d.tasaAhorro)}</b> de tu ingreso (${fmtS(d.aportes)}), por encima del 20% de referencia.` }
       : { ok: false, txt: `Solo ahorraste el <b>${pctRP(d.tasaAhorro)}</b> de tu ingreso. Para el 20% faltaron <b>${fmtS(ideal20 - d.aportes)}</b>.` });
+  }
+  if (d.ingreso > 0) {
+    const deudaTotal = pasivos.reduce((t, p) => t + (p.saldoActual || 0), 0);
+    if (d.pagoDeudas > 0) H.push({ ok: true, txt: `Pagaste <b>${fmtS(d.pagoDeudas)}</b> a tus deudas (${pctRP(d.pagoDeudas / d.ingreso * 100)} del ingreso).${d.esActual && deudaTotal > 0 ? ` Todavía debes <b>${fmtS(deudaTotal)}</b>.` : ''}` });
+    else if (d.esActual && deudaTotal > 0) H.push({ ok: false, txt: `No registraste pagos a tus deudas este ciclo y aún debes <b>${fmtS(deudaTotal)}</b>.` });
   }
   if (d.sinAsignar < -1000) H.push({ ok: false, txt: `Gastaste y aportaste <b>${fmtS(-d.sinAsignar)}</b> más de lo que ingresó en el ciclo.` });
   if (prev && prev.consumo > 0) {
@@ -7590,9 +7623,9 @@ const rpPaginaResumen = (d, prev, hall) => {
   const { neto } = calcPatrimonioNeto();
   const vs = (a, b, bueno) => prev ? `vs ${fmtS(b)} el ciclo anterior` : '';
   const segs = [
-    { l: 'Gastos fijos', v: d.totFijoConsumo, c: RP.navy },
-    { l: 'Gastos variables', v: d.totVariable, c: RP.steel },
-    { l: 'Gastos únicos', v: d.totUnicos, c: RP.mist },
+    { l: 'Necesidades', v: d.grupos.necesidad, c: RP.navy },
+    { l: 'Deseos', v: d.grupos.deseo, c: RP.steel },
+    { l: 'Sin clasificar', v: d.grupos.sinClasificar, c: RP.tan },
     { l: 'Ahorro e inversión', v: d.aportes, c: RP.gold },
     { l: 'Pago de deudas', v: d.pagoDeudas, c: RP.bronze },
     { l: d.esActual ? 'Por gastar (resto del ciclo)' : 'Sin asignar', v: Math.max(0, d.sinAsignar), c: RP.goldL },
@@ -7612,8 +7645,8 @@ const rpPaginaResumen = (d, prev, hall) => {
     <div class="rp-tiles">
       ${rpTile('Ingreso del ciclo', fmtS(d.ingreso), d.totalExtras ? `${fmtS(d.ingresoBase)} base + ${fmtS(d.totalExtras)} extra` : (d.ingresoSupuesto ? 'Supuesto: ingreso actual' : 'Salario base'), RP.navy)}
       ${rpTile('Gasto total', fmtS(d.consumo), prev ? vs(d.consumo, prev.consumo) : `${d.nVariables} gastos variables`, RP.steel)}
-      ${rpTile('Ahorro e inversión', fmtS(d.aportes), d.pagoDeudas ? `+ ${fmtS(d.pagoDeudas)} a deudas` : 'Aportes del ciclo', RP.gold)}
-      ${rpTile('Tasa de ahorro', pctRP(d.tasaAhorro), 'Referencia: 20%', d.tasaAhorro >= 20 ? RP.gold : RP.amber)}
+      ${rpTile('Ahorro e inversión', fmtS(d.aportes), `Tasa de ahorro ${pctRP(d.tasaAhorro, 1)} · ref. 20%`, d.tasaAhorro >= 20 ? RP.gold : RP.amber)}
+      ${rpTile('Pago de deudas', fmtS(d.pagoDeudas), `${pctRP(d.ingreso > 0 ? d.pagoDeudas / d.ingreso * 100 : 0, 1)} del ingreso`, RP.bronze)}
       ${rpTile(etiquetaSinAsignar(d), fmtS(d.sinAsignar), d.sinAsignar < 0 ? 'Gastaste más de lo que ingresó' : (d.esActual ? (d.pendientes > 0 ? `Incluye ${fmtS(d.pendientes)} de pagos pendientes` : `Para los ${d.diasRestantes} días que quedan del ciclo`) : 'Ingreso que no tuvo destino'), d.sinAsignar >= 0 ? RP.goldL : RP.amber)}
       ${rpTile('Patrimonio neto', fmtS(neto), `Al ${hoy}`, RP.navy)}
     </div>
@@ -7644,6 +7677,7 @@ const rpPaginaGastos = (d, prev) => {
       ['Gastos variables', d.totVariable, prev.totVariable, false],
       ['Gastos fijos', d.totFijoConsumo, prev.totFijoConsumo, false],
       ['Ahorro e inversión', d.aportes, prev.aportes, true],
+      ['Pago de deudas', d.pagoDeudas, prev.pagoDeudas, true],
     ];
     comp = `<table class="rp-tabla"><thead><tr><th>Concepto</th><th>Ciclo anterior</th><th>Este ciclo</th><th>Cambio</th></tr></thead><tbody>
       ${filas.map(([n, a, b, bueno]) => `<tr><td>${n}</td><td>${fmtS(b)}</td><td><b>${fmtS(a)}</b></td><td>${rpDelta(a - b, bueno)}</td></tr>`).join('')}
@@ -7684,11 +7718,10 @@ const rpPagina503020 = d => {
     const p = s.v / base * 100;
     return `<div style="width:${p}%;background:${s.c}">${p >= 7 ? `<span style="color:${[RP.goldL, RP.gold, RP.tan].includes(s.c) ? RP.navy : '#fff'}">${pctRP(s.v / ing * 100)}</span>` : ''}</div>`;
   }).join('')}</div>`;
-  const ideal = [{ k: 'Necesidades', v: ing * 0.5, c: RP.navy }, { k: 'Deseos', v: ing * 0.3, c: RP.steel }, { k: 'Ahorro + deudas', v: ing * 0.2, c: RP.gold }];
+  const ideal = [{ k: 'Necesidades', v: ing * 0.5, c: RP.navy }, { k: 'Deseos', v: ing * 0.3, c: RP.steel }, { k: 'Ahorro e inversión', v: ing * 0.2, c: RP.gold }];
   const filas = [
     ['Necesidades', d.grupos.necesidad, 50, false], ['Deseos', d.grupos.deseo, 30, false],
-    ['Ahorro e inversión', d.grupos.ahorro, null], ['Pago de deudas', d.grupos.deudas || 0, null],
-    ['<b>Ahorro + deudas</b>', d.grupos.ahorro + (d.grupos.deudas || 0), 20, true, true],
+    ['Ahorro e inversión', d.grupos.ahorro, 20, true], ['Pago de deudas', d.grupos.deudas || 0, null],
     ['Sin clasificar', d.grupos.sinClasificar, null], [etiquetaSinAsignar(d), d.sinAsignar, null],
   ];
   const tabla = `<table class="rp-tabla"><thead><tr><th>Grupo</th><th>Monto</th><th>% del ingreso</th><th>Referencia</th><th>Frente a la referencia</th></tr></thead><tbody>
@@ -7725,11 +7758,136 @@ const rpPagina503020 = d => {
       <div class="rp-ley-h">${segReal.map(s => `<span><i style="background:${s.c}"></i>${s.k}</span>`).join('')}</div>
     </div>
     ${tabla}
-    <div class="rp-nota">Usa el grupo que le diste a cada categoría en Ajustes. Ahorro e inversión y pago de deudas se muestran por separado; la referencia del 20% se compara con su suma.${d.esActual ? ' "Por gastar" es lo que queda para el resto del ciclo, no un sobrante.' : ''}
+    <div class="rp-nota">Usa el grupo que le diste a cada categoría en Ajustes. El ahorro e inversión se compara solo con el 20%; el pago de deudas va aparte, sin referencia.${d.esActual ? ' "Por gastar" es lo que queda para el resto del ciclo, no un sobrante.' : ''}
       ${sc.length ? ` Sin clasificar: ${sc.slice(0, 6).map(([c, v]) => `${esc(c)} (${fmtS(v)})`).join(', ')}${sc.length > 6 ? '…' : ''}.` : ''}</div>
     <h2 class="rp-h2">Semana a semana</h2>
     ${semanas}
     ${lims ? `<h2 class="rp-h2">Límites por categoría</h2>${lims}<div class="rp-nota">Cuenta gastos variables y únicos pagados, igual que en Inicio.</div>` : ''}`;
+};
+
+/* ─── Secciones por grupo ─── */
+const rpCambio = (v, prevV, buenoSiSube) => prevV == null ? '<span class="rp-delta">—</span>' : rpDelta(v - prevV, buenoSiSube);
+const rpTilesGrupo = (d, prev, total, prevTotal, refTxt, buenoSiSube = false, etiqueta = 'Total del grupo') => `
+  <div class="rp-tiles rp-tiles-3">
+    ${rpTile(etiqueta, fmtS(total), refTxt || '', RP.navy)}
+    ${rpTile('% del ingreso', pctRP(d.ingreso > 0 ? total / d.ingreso * 100 : 0, 1), `Ingreso ${fmtS(d.ingreso)}`, RP.gold)}
+    ${rpTile('Cambio vs ciclo anterior', prev ? rpCambio(total, prevTotal, buenoSiSube) : '—', prev ? `Antes: ${fmtS(prevTotal)}` : 'Sin ciclo anterior', RP.steel)}
+  </div>`;
+const rpSinMov = () => rpVacio('Sin movimientos en este ciclo.');
+
+const rpPaginaGrupo = (d, prev, grupo, ref) => {
+  const mapa = d.porGrupoCat[grupo] || {};
+  const total = d.grupos[grupo];
+  const filas = Object.entries(mapa).sort((a, b) => b[1] - a[1]);
+  const tabla = filas.length ? `<table class="rp-tabla"><thead><tr><th>Categoría</th><th>Monto</th><th>% ingreso</th><th>% del grupo</th><th>Cambio</th><th>Límite · usado</th></tr></thead><tbody>
+    ${filas.map(([c, v]) => {
+      const cat = config.categorias.find(x => x.nombre === c);
+      const lim = d.limites.find(l => l.nombre === c);
+      const antes = prev ? ((prev.porGrupoCat[grupo] || {})[c] || 0) : null;
+      return `<tr><td>${cat?.emoji ? cat.emoji + ' ' : ''}${esc(c)}</td><td><b>${fmtS(v)}</b></td><td>${pctRP(d.ingreso > 0 ? v / d.ingreso * 100 : 0, 1)}</td><td>${pctRP(total > 0 ? v / total * 100 : 0)}</td><td>${antes == null ? '—' : rpDelta(v - antes, false)}</td><td>${lim ? `${fmtS(lim.limite)} · ${pctRP(lim.limite ? lim.gastado / lim.limite * 100 : 0)}` : '—'}</td></tr>`;
+    }).join('')}
+    <tr class="rp-subtotal"><td><b>Total</b></td><td><b>${fmtS(total)}</b></td><td>${pctRP(d.ingreso > 0 ? total / d.ingreso * 100 : 0, 1)}</td><td>100%</td><td>${prev ? rpDelta(total - prev.grupos[grupo], false) : '—'}</td><td>—</td></tr>
+    </tbody></table>` : rpSinMov();
+  return `${rpTilesGrupo(d, prev, total, prev ? prev.grupos[grupo] : null, `Referencia: ${ref}% del ingreso`)}
+    <h2 class="rp-h2">Detalle por categoría</h2>${tabla}
+    <div class="rp-nota">Incluye gastos fijos, variables y únicos de las categorías que marcaste en este grupo en Ajustes. El límite y su uso cuentan gastos variables y únicos.</div>`;
+};
+const rpPaginaNecesidades = (d, prev) => rpPaginaGrupo(d, prev, 'necesidad', 50);
+const rpPaginaDeseos = (d, prev) => rpPaginaGrupo(d, prev, 'deseo', 30);
+
+const rpPaginaFijos = d => {
+  const lista = d.fijosTodos.slice().sort((a, b) => Number(a.pagado) - Number(b.pagado) || b.monto - a.monto);
+  const pag = lista.filter(g => g.pagado).reduce((t, g) => t + g.monto, 0);
+  const pen = lista.filter(g => !g.pagado).reduce((t, g) => t + g.monto, 0);
+  const tag = g => g.pagado ? `<span style="color:${RP.bronze};font-weight:800">Pagado</span>` : `<span style="color:${RP.amber};font-weight:800">Pendiente</span>`;
+  const destTxt = g => g.destino === 'ahorro' ? 'Ahorro' : g.destino === 'inversion' ? 'Inversión' : g.destino === 'deuda' ? 'Deuda' : esc(g.categoria || '—');
+  return `
+    <div class="rp-tiles rp-tiles-3">
+      ${rpTile('Total pagado', fmtS(pag), `${lista.filter(g => g.pagado).length} gastos`, RP.gold)}
+      ${rpTile('Total pendiente', fmtS(pen), `${lista.filter(g => !g.pagado).length} gastos`, RP.amber)}
+      ${rpTile('Total fijos', fmtS(pag + pen), `${pctRP(d.ingreso > 0 ? (pag + pen) / d.ingreso * 100 : 0, 1)} del ingreso`, RP.navy)}
+    </div>
+    <h2 class="rp-h2">Cada gasto fijo</h2>
+    ${lista.length ? `<table class="rp-tabla"><thead><tr><th>Nombre</th><th>Categoría o destino</th><th>Monto</th><th>Estado</th></tr></thead><tbody>
+      ${lista.map(g => `<tr><td>${esc(g.nombre)}</td><td>${destTxt(g)}${g.dest && g.destino !== 'gasto' ? ` · ${esc(g.dest)}` : ''}</td><td><b>${fmtS(g.monto)}</b></td><td>${tag(g)}</td></tr>`).join('')}
+      </tbody></table>` : rpSinMov()}
+    <div class="rp-nota">${d.esActual ? 'Ciclo en curso: los pendientes aún no se descuentan del ingreso.' : 'Ciclo cerrado: solo quedan archivados los gastos fijos que se marcaron como pagados.'} Las fechas de pago de los gastos fijos no se guardan.</div>`;
+};
+
+const rpPaginaVariables = (d, prev) => {
+  const vars = d.movsConsumo.filter(m => m.tipo === 'variable');
+  const porCat = {};
+  vars.forEach(m => { const k = m.categoria || 'Sin categoría'; (porCat[k] = porCat[k] || { v: 0, n: 0 }); porCat[k].v += m.monto; porCat[k].n++; });
+  const filasCat = Object.entries(porCat).sort((a, b) => b[1].v - a[1].v);
+  const total = d.totVariable;
+  const prom = vars.length ? total / vars.length : 0;
+  const tabla = filasCat.length ? `<table class="rp-tabla"><thead><tr><th>Categoría</th><th>Monto</th><th>Registros</th><th>Promedio</th><th>Cambio</th></tr></thead><tbody>
+    ${filasCat.map(([c, o]) => { const cat = config.categorias.find(x => x.nombre === c); const antes = prev ? (prev.porCatVar[c] || 0) : null;
+      return `<tr><td>${cat?.emoji ? cat.emoji + ' ' : ''}${esc(c)}</td><td><b>${fmtS(o.v)}</b></td><td>${o.n}</td><td>${fmtS(o.v / o.n)}</td><td>${antes == null ? '—' : rpDelta(o.v - antes, false)}</td></tr>`; }).join('')}
+    </tbody></table>` : rpSinMov();
+  const orden = vars.slice().sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
+  const lista = orden.length ? `<table class="rp-tabla"><thead><tr><th>Fecha</th><th>Categoría</th><th>Detalle</th><th>Monto</th></tr></thead><tbody>
+    ${orden.map(m => `<tr><td>${m.fecha ? fechaLegible(m.fecha) : '—'}</td><td>${esc(m.categoria || '—')}</td><td class="rp-td-nota">${esc(m.nombre || '—')}</td><td><b>${fmtS(m.monto)}</b></td></tr>`).join('')}
+    </tbody></table>` : rpSinMov();
+  const aparte = d.movsAhorro.concat(d.movsDeuda).filter(m => m.tipo === 'variable').length;
+  return `
+    <div class="rp-tiles rp-tiles-3">
+      ${rpTile('Total variables', fmtS(total), `${pctRP(d.ingreso > 0 ? total / d.ingreso * 100 : 0, 1)} del ingreso`, RP.steel)}
+      ${rpTile('Registros', String(vars.length), 'Movimientos del día a día', RP.navy)}
+      ${rpTile('Promedio por registro', fmtS(prom), prev ? `Ciclo anterior: ${fmtS(prev.totVariable)} en total` : '', RP.gold)}
+    </div>
+    <h2 class="rp-h2">Por categoría</h2>${tabla}
+    <h2 class="rp-h2">Todos los movimientos del ciclo</h2>${lista}
+    ${aparte ? `<div class="rp-nota">${aparte} movimiento(s) en categorías de ahorro o deudas no se listan aquí: están en sus secciones.</div>` : ''}`;
+};
+
+const rpPaginaAhorro = (d, prev) => {
+  const movs = d.movsAhorro.slice().sort((a, b) => (a.fecha || '9999').localeCompare(b.fecha || '9999') || b.monto - a.monto);
+  const destinoDe = m => m.dest || (m.tipo === 'extra' ? '—' : (m.categoria || 'Ahorro'));
+  const porDest = {};
+  movs.forEach(m => { const k = destinoDe(m); porDest[k] = (porDest[k] || 0) + m.monto; });
+  const filasDest = Object.entries(porDest).sort((a, b) => b[1] - a[1]);
+  const tabla = movs.length ? `<table class="rp-tabla"><thead><tr><th>Fecha</th><th>Origen</th><th>Destino</th><th>Monto</th></tr></thead><tbody>
+    ${movs.map(m => `<tr><td>${m.fecha ? fechaLegible(m.fecha) : '—'}</td><td>${esc(m.origen)}${m.nombre ? `<br><small>${esc(m.nombre)}</small>` : ''}</td><td>${esc(destinoDe(m))}</td><td><b>${fmtS(m.monto)}</b></td></tr>`).join('')}
+    </tbody></table>` : rpSinMov();
+  const sub = filasDest.length ? `<table class="rp-tabla"><thead><tr><th>Destino</th><th>Subtotal</th><th>% del ahorro</th></tr></thead><tbody>
+    ${filasDest.map(([k, v]) => `<tr><td>${esc(k)}</td><td><b>${fmtS(v)}</b></td><td>${pctRP(d.aportes > 0 ? v / d.aportes * 100 : 0)}</td></tr>`).join('')}
+    <tr class="rp-subtotal"><td><b>Total</b></td><td><b>${fmtS(d.aportes)}</b></td><td>100%</td></tr></tbody></table>` : '';
+  const emerg = ahorrosInversiones.find(a => /emergencia/i.test(a.nombre || ''));
+  const pe = emerg && emerg.objetivo > 0 ? Math.min(100, (emerg.actual || 0) / emerg.objetivo * 100) : null;
+  const bloqueEmerg = emerg
+    ? `<div class="rp-fondo"><div class="rp-fondo-t"><span>${esc(emerg.nombre)}</span><b>${fmtS(emerg.actual || 0)}${emerg.objetivo > 0 ? `<small> de ${fmtS(emerg.objetivo)} · ${pctRP(pe)}</small>` : ''}</b></div>${pe != null ? rpBarra(pe, 100, RP.gold, 9) : '<div class="rp-nota">Este fondo no tiene meta de monto definida.</div>'}</div>`
+    : rpVacio('No hay un fondo llamado «emergencia» para mostrar su progreso.');
+  return `
+    <div class="rp-tiles rp-tiles-3">
+      ${rpTile('Ahorro e inversión', fmtS(d.aportes), `${pctRP(d.tasaAhorro, 1)} del ingreso · ref. 20%`, d.tasaAhorro >= 20 ? RP.gold : RP.amber)}
+      ${rpTile('Tasa de ahorro', pctRP(d.tasaAhorro, 1), d.tasaAhorro >= 20 ? 'Sobre la referencia' : `Faltan ${fmtS(d.ingreso * 0.2 - d.aportes)} para el 20%`, RP.gold)}
+      ${rpTile('Cambio vs ciclo anterior', prev ? rpCambio(d.aportes, prev.aportes, true) : '—', prev ? `Antes: ${fmtS(prev.aportes)}` : 'Sin ciclo anterior', RP.steel)}
+    </div>
+    <h2 class="rp-h2">Movimientos del ciclo</h2>${tabla}
+    ${sub ? `<h2 class="rp-h2">Subtotal por destino</h2>${sub}` : ''}
+    <h2 class="rp-h2">Fondo de emergencia</h2>${bloqueEmerg}
+    <div class="rp-nota">Suma aportes con destino, ingresos extra aplicados y gastos en categorías del grupo «Ahorro e inversión». Los gastos fijos no guardan fecha de pago.</div>`;
+};
+
+const rpPaginaDeudas = (d, prev) => {
+  const pagos = d.movsDeuda.slice().sort((a, b) => (a.fecha || '9999').localeCompare(b.fecha || '9999') || b.monto - a.monto);
+  const nombreDeuda = m => m.destino === 'deuda' ? (m.dest || 'Deuda') : `${m.categoria || 'Categoría'} (categoría)`;
+  const tablaP = d.pasivosInfo.length ? `<table class="rp-tabla"><thead><tr><th>Deuda</th><th>Saldo al inicio</th><th>Abonos</th><th>Saldo actual</th><th>Tasa</th></tr></thead><tbody>
+    ${d.pasivosInfo.map(p => `<tr><td>${esc(p.nombre)}</td><td>${p.saldoInicio == null ? '—' : fmtS(p.saldoInicio)}</td><td><b>${fmtS(p.abonos)}</b></td><td>${fmtS(p.saldoActual)}</td><td>${p.tasa ? pctRP(p.tasa, 1) : '—'}</td></tr>`).join('')}
+    </tbody></table>` : rpVacio('No tienes deudas registradas en Deudas.');
+  const lista = pagos.length ? `<table class="rp-tabla"><thead><tr><th>Fecha</th><th>Deuda</th><th>Monto</th></tr></thead><tbody>
+    ${pagos.map(m => `<tr><td>${m.fecha ? fechaLegible(m.fecha) : '—'}</td><td>${esc(nombreDeuda(m))}${m.nombre ? `<br><small>${esc(m.nombre)}</small>` : ''}</td><td><b>${fmtS(m.monto)}</b></td></tr>`).join('')}
+    <tr class="rp-subtotal"><td colspan="2"><b>Total pagado</b></td><td><b>${fmtS(d.pagoDeudas)}</b></td></tr></tbody></table>` : rpSinMov();
+  return `
+    <div class="rp-tiles rp-tiles-3">
+      ${rpTile('Total pagado', fmtS(d.pagoDeudas), `${pctRP(d.ingreso > 0 ? d.pagoDeudas / d.ingreso * 100 : 0, 1)} del ingreso`, RP.bronze)}
+      ${rpTile('Deuda actual', fmtS(pasivos.reduce((t, p) => t + (p.saldoActual || 0), 0)), `${pasivos.length} pasivo(s)`, RP.steel)}
+      ${rpTile('Cambio vs ciclo anterior', prev ? rpCambio(d.pagoDeudas, prev.pagoDeudas, true) : '—', prev ? `Antes: ${fmtS(prev.pagoDeudas)}` : 'Sin ciclo anterior', RP.navy)}
+    </div>
+    <h2 class="rp-h2">Cada deuda</h2>${tablaP}
+    <h2 class="rp-h2">Pagos del ciclo</h2>${lista}
+    <div class="rp-nota">${d.esActual ? 'Saldo al inicio = saldo actual + abonos del ciclo. ' : 'El saldo al inicio solo se calcula para el ciclo en curso. '}Cuenta pagos con destino «deuda» y gastos en categorías del grupo «Pago de deudas». Los gastos fijos no guardan fecha de pago.</div>`;
 };
 
 const rpPaginaPatrimonio = () => {
@@ -7842,7 +8000,7 @@ const rpPaginaRecomendaciones = (d, recs) => {
     <ul class="rp-notas">${notas.map(n => `<li>${n}</li>`).join('')}</ul>
     <div class="rp-cierre">
       <span class="logo-tile rp-logo-s"><svg class="logo-mark"><use href="#logoMark"/></svg></span>
-      <div><b>Iván Finanzas</b><span>Informe generado por la app · v5.8</span></div>
+      <div><b>Iván Finanzas</b><span>Informe generado por la app · v5.10</span></div>
     </div>`;
 };
 
@@ -7861,7 +8019,13 @@ const construirInforme = ciclo => {
     { t: '', c: rpPaginaResumen(d, prev, hall), portada: true },
     { t: 'Ingresos y gastos', c: rpPaginaGastos(d, prev) },
     { t: 'Regla 50/30/20 y semanas', c: rpPagina503020(d) },
-    { t: 'Ahorro, inversión y patrimonio', c: rpPaginaPatrimonio() },
+    { t: 'Necesidades', c: rpPaginaNecesidades(d, prev) },
+    { t: 'Deseos', c: rpPaginaDeseos(d, prev) },
+    { t: 'Gastos fijos', c: rpPaginaFijos(d) },
+    { t: 'Gastos variables', c: rpPaginaVariables(d, prev) },
+    { t: 'Ahorro e inversión', c: rpPaginaAhorro(d, prev) },
+    { t: 'Deudas', c: rpPaginaDeudas(d, prev) },
+    { t: 'Patrimonio y portafolio', c: rpPaginaPatrimonio() },
   ];
   if (plan) paginas.push({ t: 'Metas', c: rpPaginaMetas(d, plan, minimo) });
   paginas.push({ t: 'Recomendaciones', c: rpPaginaRecomendaciones(d, recs) });
