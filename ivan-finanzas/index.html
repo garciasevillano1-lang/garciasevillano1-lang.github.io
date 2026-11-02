@@ -2915,7 +2915,7 @@
         <div class="config-row">
           <div>
             <div class="config-label">Iván Finanzas</div>
-            <div class="config-sublabel">Control financiero personal · v5.10</div>
+            <div class="config-sublabel">Control financiero personal · v5.10.1</div>
           </div>
         </div>
       </div>
@@ -6430,7 +6430,7 @@ const exportarExcelCompleto = () => {
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(filasConfig), 'Configuración');
 
   // Categorías (con clasificación 50/30/20, para que un análisis externo ya sepa a qué grupo pertenece cada una)
-  const etiquetaGrupoExport = { necesidad:'Necesidad', deseo:'Deseo', ahorro:'Ahorro/Deuda' };
+  const etiquetaGrupoExport = { necesidad:'Necesidad', deseo:'Deseo', ahorro:'Ahorro e inversión', deuda:'Pago de deudas' };
   const filasCategorias = [['Categoría','Emoji','Grupo (50/30/20)','Límite mensual (COP)']];
   config.categorias.forEach(c => filasCategorias.push([c.nombre, c.emoji, etiquetaGrupoExport[c.grupo] || 'Sin clasificar', c.limite||0]));
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(filasCategorias), 'Categorías');
@@ -7351,7 +7351,7 @@ const renderResumenMetasInicio = () => {
    Solo lee datos: no modifica nada.
 ══════════════════════════════════════════════ */
 const RP = { navy:'#17203a', steel:'#5f6d92', mist:'#7c8db3', gold:'#cda149', goldL:'#e8c468', bronze:'#a9791f',
-             tan:'#b9a06a', night:'#4a5670', amber:'#d99a4e', ink:'#20222c', muted:'#767b88', line:'#e6e4de', track:'#eef0f5' };
+             tan:'#b9a06a', night:'#4a5670', deuda:'#7a5f9a', amber:'#d99a4e', ink:'#20222c', muted:'#767b88', line:'#e6e4de', track:'#eef0f5' };
 const PALETA_RP = [RP.navy, RP.gold, RP.steel, RP.goldL, RP.bronze, RP.mist, RP.tan, RP.night, '#9a8a6a'];
 const fmtS = n => (n < -0.5 ? '-' : '') + formatCOP(n);
 const fmtCorto = n => {
@@ -7627,7 +7627,7 @@ const rpPaginaResumen = (d, prev, hall) => {
     { l: 'Deseos', v: d.grupos.deseo, c: RP.steel },
     { l: 'Sin clasificar', v: d.grupos.sinClasificar, c: RP.tan },
     { l: 'Ahorro e inversión', v: d.aportes, c: RP.gold },
-    { l: 'Pago de deudas', v: d.pagoDeudas, c: RP.bronze },
+    { l: 'Pago de deudas', v: d.pagoDeudas, c: RP.deuda },
     { l: d.esActual ? 'Por gastar (resto del ciclo)' : 'Sin asignar', v: Math.max(0, d.sinAsignar), c: RP.goldL },
   ];
   const totalSegs = segs.reduce((s, x) => s + Math.max(0, x.v), 0);
@@ -7646,7 +7646,7 @@ const rpPaginaResumen = (d, prev, hall) => {
       ${rpTile('Ingreso del ciclo', fmtS(d.ingreso), d.totalExtras ? `${fmtS(d.ingresoBase)} base + ${fmtS(d.totalExtras)} extra` : (d.ingresoSupuesto ? 'Supuesto: ingreso actual' : 'Salario base'), RP.navy)}
       ${rpTile('Gasto total', fmtS(d.consumo), prev ? vs(d.consumo, prev.consumo) : `${d.nVariables} gastos variables`, RP.steel)}
       ${rpTile('Ahorro e inversión', fmtS(d.aportes), `Tasa de ahorro ${pctRP(d.tasaAhorro, 1)} · ref. 20%`, d.tasaAhorro >= 20 ? RP.gold : RP.amber)}
-      ${rpTile('Pago de deudas', fmtS(d.pagoDeudas), `${pctRP(d.ingreso > 0 ? d.pagoDeudas / d.ingreso * 100 : 0, 1)} del ingreso`, RP.bronze)}
+      ${rpTile('Pago de deudas', fmtS(d.pagoDeudas), `${pctRP(d.ingreso > 0 ? d.pagoDeudas / d.ingreso * 100 : 0, 1)} del ingreso`, RP.deuda)}
       ${rpTile(etiquetaSinAsignar(d), fmtS(d.sinAsignar), d.sinAsignar < 0 ? 'Gastaste más de lo que ingresó' : (d.esActual ? (d.pendientes > 0 ? `Incluye ${fmtS(d.pendientes)} de pagos pendientes` : `Para los ${d.diasRestantes} días que quedan del ciclo`) : 'Ingreso que no tuvo destino'), d.sinAsignar >= 0 ? RP.goldL : RP.amber)}
       ${rpTile('Patrimonio neto', fmtS(neto), `Al ${hoy}`, RP.navy)}
     </div>
@@ -7708,7 +7708,7 @@ const rpPagina503020 = d => {
     { k: 'Necesidades', v: d.grupos.necesidad, c: RP.navy },
     { k: 'Deseos', v: d.grupos.deseo, c: RP.steel },
     { k: 'Ahorro e inversión', v: d.grupos.ahorro, c: RP.gold },
-    { k: 'Pago de deudas', v: d.grupos.deudas || 0, c: RP.bronze },
+    { k: 'Pago de deudas', v: d.grupos.deudas || 0, c: RP.deuda },
     { k: 'Sin clasificar', v: d.grupos.sinClasificar, c: RP.tan },
     { k: etiquetaSinAsignar(d) === 'Déficit' ? 'Sin asignar' : etiquetaSinAsignar(d), v: Math.max(0, d.sinAsignar), c: RP.goldL },
   ];
@@ -7881,7 +7881,7 @@ const rpPaginaDeudas = (d, prev) => {
     <tr class="rp-subtotal"><td colspan="2"><b>Total pagado</b></td><td><b>${fmtS(d.pagoDeudas)}</b></td></tr></tbody></table>` : rpSinMov();
   return `
     <div class="rp-tiles rp-tiles-3">
-      ${rpTile('Total pagado', fmtS(d.pagoDeudas), `${pctRP(d.ingreso > 0 ? d.pagoDeudas / d.ingreso * 100 : 0, 1)} del ingreso`, RP.bronze)}
+      ${rpTile('Total pagado', fmtS(d.pagoDeudas), `${pctRP(d.ingreso > 0 ? d.pagoDeudas / d.ingreso * 100 : 0, 1)} del ingreso`, RP.deuda)}
       ${rpTile('Deuda actual', fmtS(pasivos.reduce((t, p) => t + (p.saldoActual || 0), 0)), `${pasivos.length} pasivo(s)`, RP.steel)}
       ${rpTile('Cambio vs ciclo anterior', prev ? rpCambio(d.pagoDeudas, prev.pagoDeudas, true) : '—', prev ? `Antes: ${fmtS(prev.pagoDeudas)}` : 'Sin ciclo anterior', RP.navy)}
     </div>
