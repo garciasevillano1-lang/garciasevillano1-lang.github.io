@@ -2915,7 +2915,7 @@
         <div class="config-row">
           <div>
             <div class="config-label">Iván Finanzas</div>
-            <div class="config-sublabel">Control financiero personal · v5.10.1</div>
+            <div class="config-sublabel">Control financiero personal · v5.10.2</div>
           </div>
         </div>
       </div>
@@ -4719,12 +4719,13 @@ const drawEvolucionNeto = () => {
   const W = canvas.offsetWidth || 300, H = 170;
   const ctx = prepCanvas(canvas, W, H);
   ctx.clearRect(0, 0, W, H);
-  if (historialPatrimonio.length < 1) {
-    ctx.fillStyle = chartInk(0.35); ctx.font = '12px DM Sans, sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('Registra tu primer mes para ver la evolución', W / 2, H / 2);
-    return;
+  // Serie = meses registrados + punto vivo del mes actual (así nunca queda en blanco)
+  const datos = historialPatrimonio.slice(-12).map(d => ({ mes: d.mes, neto: d.neto }));
+  const mesAct = mesActualKey();
+  if (!datos.length || datos[datos.length - 1].mes < mesAct) {
+    try { datos.push({ mes: mesAct, neto: calcPatrimonioNeto().neto }); } catch (e) {}
+    if (datos.length > 12) datos.shift();
   }
-  const datos = historialPatrimonio.slice(-12);
   const n = datos.length;
   const vals = datos.map(d => d.neto);
   let lo = Math.min(...vals), hi = Math.max(...vals);
@@ -4814,7 +4815,7 @@ const renderEvolucionPatrimonio = () => {
   const mpEl = document.getElementById('netoMejorPeorMes');
   if (!mpEl) return;
   if (historialPatrimonio.length < 2) {
-    mpEl.innerHTML = `<div style="font-size:11px;color:var(--muted)">Necesitas al menos 2 meses registrados para comparar.</div>`;
+    mpEl.innerHTML = `<div style="font-size:11px;color:var(--muted)">Registra tu patrimonio cada mes: con 2 meses verás la línea de evolución y la variación.</div>`;
   } else {
     const variaciones = historialPatrimonio.slice(1).map((d,i) => ({
       mes: d.mes, cambio: d.neto - historialPatrimonio[i].neto
