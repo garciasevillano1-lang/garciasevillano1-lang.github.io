@@ -21,7 +21,7 @@
 <script id="app-config" type="application/json">
 {
  "id": "mis-finanzas-a3aca",
- "version": "1.2",
+ "version": "1.3",
  "appNombre": "Mis finanzas",
  "appCorto": "Mis finanzas",
  "usuario": "Yinna",
@@ -359,6 +359,7 @@ nav.bot{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + va
 nav.bot button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 0;font-size:10.5px;font-weight:700;color:var(--muted);transition:color .2s}
 nav.bot button .ico{font-size:22px}
 nav.bot button.on{color:var(--accent)}
+nav.bot.seis button{font-size:9.5px;letter-spacing:-.1px}nav.bot.seis button .ico{font-size:21px}nav.bot.seis .fab{margin:-26px 3px 0}
 nav.bot .fab{flex:0 0 auto;width:54px;height:54px;border-radius:18px;margin:-26px 6px 0;background:var(--fab-bg);color:var(--fab-ink);box-shadow:0 10px 24px -8px var(--hero1);justify-content:center}
 nav.bot .fab .ico{font-size:26px;stroke-width:2.5}
 
@@ -636,6 +637,7 @@ body.privado .m{filter:blur(9px);user-select:none}
 .kp-cat{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:66px;font-size:11.5px;font-weight:600;color:var(--muted);padding:6px 2px;border-radius:14px;border:1.5px solid transparent}
 .kp-cat.on{color:var(--text);border-color:var(--c);background:color-mix(in srgb,var(--c) 7%,transparent)}
 .kp-cat span{max-width:68px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kp-sep{flex:0 0 1.5px;align-self:stretch;margin:8px 4px;background:var(--line);border-radius:2px}
 .kp-teclas{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
 .kp-teclas button{height:56px;border-radius:var(--r-sm);background:var(--card2);font-family:var(--font-n);font-size:24px;font-weight:600;display:grid;place-items:center;transition:transform .08s,background .15s}
 .kp-teclas button:active{transform:scale(.94);background:color-mix(in srgb,var(--accent) 16%,var(--card2))}
@@ -747,6 +749,7 @@ body.privado .m{filter:blur(9px);user-select:none}
   <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></symbol>
   <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M20 7V5a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H5a2 2 0 0 1-2-2V6"/><circle cx="16.5" cy="13.5" r="1.3"/></symbol>
   <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/></symbol>
+  <symbol id="i-card" viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6.5 15h4"/></symbol>
   <symbol id="i-clock" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/><path d="M12 7v5l3 2"/></symbol>
   <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
@@ -827,6 +830,7 @@ body.privado .m{filter:blur(9px);user-select:none}
   <section class="pagina" id="pg-inicio"></section>
   <section class="pagina" id="pg-presupuesto"></section>
   <section class="pagina" id="pg-metas"></section>
+  <section class="pagina" id="pg-deudas"></section>
   <section class="pagina" id="pg-historial"></section>
   <section class="pagina" id="pg-ajustes"></section>
 </main>
@@ -836,6 +840,7 @@ body.privado .m{filter:blur(9px);user-select:none}
   <button data-pg="presupuesto" onclick="irA('presupuesto')"><svg class="ico"><use href="#i-wallet"/></svg>Presupuesto</button>
   <button class="fab" aria-label="Registrar gasto" onclick="hojaGasto()"><svg class="ico"><use href="#i-plus"/></svg></button>
   <button data-pg="metas" id="navMetas" onclick="irA('metas')"><svg class="ico"><use href="#i-target"/></svg>Metas</button>
+  <button data-pg="deudas" id="navDeudas" onclick="irA('deudas')"><svg class="ico"><use href="#i-card"/></svg>Deudas</button>
   <button data-pg="historial" onclick="irA('historial')"><svg class="ico"><use href="#i-clock"/></svg>Historial</button>
 </nav>
 
@@ -1319,7 +1324,7 @@ function contar(el) {
 ══════════════════════════════════════════ */
 let pagina = 'inicio';
 function irA(pg) {
-  if (pg === 'metas' && !S.perfil.modulos.metas && !S.perfil.modulos.deudas) pg = 'inicio';
+  if ((pg === 'metas' || pg === 'deudas') && !S.perfil.modulos[pg]) pg = 'inicio';
   pagina = pg;
   document.querySelectorAll('.pagina').forEach(p => p.classList.toggle('activa', p.id === 'pg-' + pg));
   document.querySelectorAll('nav.bot [data-pg]').forEach(b => b.classList.toggle('on', b.dataset.pg === pg));
@@ -1332,8 +1337,10 @@ function render() {
   $('topNombre').textContent = S.perfil.usuario || S.perfil.appNombre;
   $('btnPrivado').innerHTML = ico(S.perfil.privado ? 'eyeoff' : 'eye');
   $('btnPrivado').classList.toggle('on', !!S.perfil.privado);
-  const nm = $('navMetas'); nm.style.display = (S.perfil.modulos.metas || S.perfil.modulos.deudas) ? '' : 'none';
-  ({inicio: renderInicio, presupuesto: renderPresupuesto, metas: renderMetas, historial: renderHistorial, ajustes: renderAjustes})[pagina]();
+  const mm = S.perfil.modulos; $('navMetas').style.display = mm.metas ? '' : 'none'; $('navDeudas').style.display = mm.deudas ? '' : 'none';
+  document.querySelector('nav.bot').classList.toggle('seis', !!(mm.metas && mm.deudas));
+  if ((pagina === 'metas' || pagina === 'deudas') && !mm[pagina]) return irA('inicio');
+  ({inicio: renderInicio, presupuesto: renderPresupuesto, metas: renderMetas, deudas: renderDeudas, historial: renderHistorial, ajustes: renderAjustes})[pagina]();
   document.querySelectorAll('.pagina.activa [data-v]').forEach(contar);
   if (window.EXTRAS && EXTRAS.alRender) try { EXTRAS.alRender(pagina); } catch (e) { console.error(e); }
 }
@@ -1384,7 +1391,9 @@ function renderInicio() {
   const tono = (TONOS[estiloKey()] || TONOS.base)[est];
   const pend = fijosCiclo(c).filter(f => !f.pagado && f.vence <= hoyStr());
   const favs = S.categorias.filter(x => x.favorita);
-  const gastosCiclo = S.gastos.filter(g => enRango(g.fecha, c.ini, c.fin)).sort((a, b) => (b.fecha + b.t).localeCompare(a.fecha + a.t));
+  const gastosCiclo = [...S.gastos.filter(g => enRango(g.fecha, c.ini, c.fin)),
+    ...S.abonos.filter(a => a.origen === 'manual' && a.delPresupuesto && enRango(a.fecha, c.ini, c.fin)).map(a => ({...a, esAbono: true, t: a.t || ''}))]
+    .sort((a, b) => (b.fecha + b.t).localeCompare(a.fecha + a.t));
   let html = '';
   if (false) html += `<div class="aviso">${ico('spark')}<div><b>${S.perfil.usuario ? esc(S.perfil.usuario) + ', tu' : 'Tu'} app está lista.</b><br>Cada vez que gastes, toca el <b>+</b> o una categoría. Aquí verás si tu plata alcanza hasta el próximo pago.${esInstalable() ? '<br><button onclick="instalar()">Instalar en mi celular</button>' : ''}<br><button onclick="S.estado.bienvenida=true;guardar(\'estado\');render()">Entendido</button></div></div>`;
   html += `<section class="hero">
@@ -1419,6 +1428,8 @@ function nombreDia(f) {
   const x = fparse(f); const n = DIAS_SEM[x.getDay()]; return `${n[0].toUpperCase() + n.slice(1)} ${x.getDate()} de ${MESES_L[x.getMonth()]}`;
 }
 function itemGasto(g) {
+  if (g.esAbono) { const d = S.deudas.find(x => x.id === g.deudaId) || {nombre: 'Deuda'};
+    return `<div class="mov" onclick="hojaDeudaDetalle('${g.deudaId}')">${tileCat({id: '_deuda', emoji: '💳'}, 42)}<div class="tx"><b>${esc(g.nota || 'Pago a ' + d.nombre)}</b><small>Pago a deuda</small></div><div class="val m">−${fmt(g.monto)}</div></div>`; }
   const k = cat(g.cat);
   return `<div class="mov" onclick="hojaGasto('${g.id}')">${tileCat(k, 42)}<div class="tx"><b>${esc(g.nota || k.nombre)}</b><small>${esc(k.nombre)}</small></div><div class="val m">−${fmt(g.monto)}</div></div>`;
 }
@@ -1445,11 +1456,11 @@ function hojaGasto(id, catPre) {
   KP.cat = g ? g.cat : (catPre || (S.categorias.some(x => x.id === S.perfil.ultimaCat) ? S.perfil.ultimaCat : (S.categorias[0] || {}).id));
   KP.fecha = g ? g.fecha : hoyStr();
   const ayer = fstr(addDias(new Date(), -1));
-  abrirHoja(`<div class="kp-top"><h3 style="margin:0">${g ? 'Editar gasto' : 'Nuevo gasto'}</h3>
+  abrirHoja(`<div class="kp-top"><h3 style="margin:0" id="kpTit">${g ? 'Editar gasto' : 'Nuevo gasto'}</h3>
       <div class="kp-fechas" id="kpFechas"><button data-f="${hoyStr()}">Hoy</button><button data-f="${ayer}">Ayer</button><button data-f="otra" onclick="$('kpFechaIn').showPicker ? $('kpFechaIn').showPicker() : $('kpFechaIn').click()">Otro día</button><input type="date" id="kpFechaIn" value="${KP.fecha}" onchange="KP.fecha=this.value||hoyStr();kpPintar()"></div></div>
     <div class="kp-monto"><span>$</span><b id="kpVal">0</b></div>
     <input class="kp-nota" id="kpNota" placeholder="Añade una nota (opcional)" maxlength="60" value="${esc(g ? g.nota : '')}">
-    <div class="kp-cats" id="kpCats">${S.categorias.map(k => `<button class="kp-cat" data-c="${k.id}" style="--c:${colorCat(k)}" onclick="KP.cat='${k.id}';vibrar();kpPintar()">${tileCat(k, 44)}<span>${esc(k.nombre)}</span></button>`).join('')}</div>
+    <div class="kp-cats" id="kpCats">${!g && S.perfil.modulos.deudas && S.deudas.some(d => saldoDeuda(d) > 0) ? S.deudas.filter(d => saldoDeuda(d) > 0).map(d => `<button class="kp-cat" data-c="deuda:${d.id}" style="--c:var(--accent)" onclick="KP.cat='deuda:${d.id}';vibrar();kpPintar()">${tileCat({id: '_deuda', emoji: '💳'}, 44)}<span>${esc(d.nombre)}</span></button>`).join('') + '<i class="kp-sep"></i>' : ''}${S.categorias.map(k => `<button class="kp-cat" data-c="${k.id}" style="--c:${colorCat(k)}" onclick="KP.cat='${k.id}';vibrar();kpPintar()">${tileCat(k, 44)}<span>${esc(k.nombre)}</span></button>`).join('')}</div>
     <div class="kp-teclas">${['1','2','3','4','5','6','7','8','9','000','0','⌫'].map(t => `<button data-t="${t}" aria-label="${t === '⌫' ? 'Borrar' : t}" onclick="kpTecla('${t}')">${t === '⌫' ? `<svg class="ico"><use href="#c-backspace"/></svg>` : t}</button>`).join('')}</div>
     <div class="kp-acc">${g ? `<button class="btn sec2" style="flex:0 0 auto" aria-label="Borrar gasto" onclick="borrarGasto('${g.id}')">${ico('trash')}</button>` : ''}<button class="btn" id="kpOk" onclick="kpGuardar()">${g ? 'Guardar cambios' : 'Guardar gasto'}</button></div>`);
   document.querySelectorAll('#kpFechas button[data-f]').forEach(b => { if (b.dataset.f !== 'otra') b.onclick = () => { KP.fecha = b.dataset.f; vibrar(); kpPintar(); }; });
@@ -1465,6 +1476,25 @@ function kpPintar() {
   document.querySelectorAll('#kpFechas button').forEach(b => b.classList.toggle('on', b.dataset.f === KP.fecha || (b.dataset.f === 'otra' && KP.fecha !== hoyStr() && KP.fecha !== ayer)));
   const otra = document.querySelector('#kpFechas [data-f=otra]'); if (otra) otra.textContent = KP.fecha !== hoyStr() && KP.fecha !== ayer ? fCorta(KP.fecha) : 'Otro día';
   $('kpOk').disabled = !n;
+  const dd = deudaKP(); if (!KP.id) { $('kpOk').textContent = dd ? `Guardar pago a ${dd.nombre}` : 'Guardar gasto'; $('kpTit').textContent = dd ? 'Pago de deuda' : 'Nuevo gasto'; }
+}
+const deudaKP = () => KP.cat && KP.cat.startsWith('deuda:') ? S.deudas.find(d => d.id === KP.cat.slice(6)) : null;
+/* Pago a una deuda desde el teclado: baja el saldo de la deuda y sale del presupuesto de la semana */
+function registrarAbono(deudaId, monto, fecha, nota) {
+  fecha = fecha || hoyStr();
+  /* Si la cuota de esta deuda ya está en los gastos fijos y no se ha pagado en el periodo, se marca ese fijo
+     (ya estaba descontado del presupuesto): así no se descuenta dos veces. */
+  const c = cicloDe(fecha), fx = S.fijos.find(f => f.destino === 'deuda' && f.destinoId === deudaId && vencimientoEn(f, c) && !pagoDe(f, c));
+  if (fx) {
+    marcarPago({...fx, valor: monto}, c, fecha); guardar('pagos', 'abonos');
+    const d = S.deudas.find(x => x.id === deudaId), s = saldoDeuda(d);
+    toast(`Cuota de ${d.nombre} pagada. Ya estaba en tus gastos fijos, no se descuenta otra vez.`); render(); return;
+  }
+  S.abonos.push({id: genId(), t: Date.now().toString(36), deudaId, monto, fecha, origen: 'manual', delPresupuesto: true, nota: nota || ''});
+  guardar('abonos');
+  const d = S.deudas.find(x => x.id === deudaId), s = saldoDeuda(d);
+  toast(s <= 0 ? `¡${d.nombre} quedó pagada! 🎉` : `Pago registrado. Te quedan ${fmt(s)} de ${d.nombre}`);
+  render();
 }
 function kpTecla(t) {
   vibrar();
@@ -1475,7 +1505,8 @@ function kpTecla(t) {
 function kpGuardar() {
   const monto = Number(KP.v) || 0; if (!monto) return;
   const datos = {monto, cat: KP.cat, fecha: KP.fecha || hoyStr(), nota: $('kpNota').value.trim()};
-  const id = KP.id; cerrarHoja();
+  const id = KP.id, dd = deudaKP(); cerrarHoja();
+  if (dd && !id) return registrarAbono(dd.id, monto, datos.fecha, datos.nota);
   if (id) { Object.assign(S.gastos.find(x => x.id === id), datos); guardar('gastos'); toast('Gasto actualizado'); render(); }
   else agregarGasto(datos);
 }
@@ -1707,7 +1738,6 @@ async function borrarIngreso(id) {
 /* ══════════════════════════════════════════
    METAS Y DEUDAS
 ══════════════════════════════════════════ */
-let segMetas = 'metas';
 function anillo(p, emoji, size = 96) {
   const R = 42, C = 2 * Math.PI * R;
   return `<div class="anillo" style="width:${size}px;height:${size}px"><svg viewBox="0 0 100 100"><circle class="pista" cx="50" cy="50" r="${R}" fill="none" stroke-width="9"/>
@@ -1727,29 +1757,29 @@ function filaMeta(m) {
     <span class="mf-tip">${i.lograda ? '¡Cumplida!' : i.porPago != null ? `Aparta <span class="m">${fmt(i.porPago)}</span> cada pago para llegar en ${mes}` : 'Ponle fecha para saber cuánto apartar'}</span></div></div>`;
 }
 function renderMetas() {
-  const mm = S.perfil.modulos;
-  if (!mm.metas) segMetas = 'deudas'; if (!mm.deudas) segMetas = 'metas';
-  let html = `<h2 class="titulo-pag">${mm.metas && mm.deudas ? 'Metas y deudas' : mm.metas ? 'Tus metas' : 'Tus deudas'}</h2>`;
-  if (mm.metas && mm.deudas) html += `<div class="seg"><button class="${segMetas === 'metas' ? 'on' : ''}" onclick="segMetas='metas';render()">Metas</button><button class="${segMetas === 'deudas' ? 'on' : ''}" onclick="segMetas='deudas';render()">Deudas</button></div>`;
-  if (segMetas === 'metas') {
-    const tot = sum(S.metas, actualMeta), obj = sum(S.metas, m => m.objetivo);
-    if (S.metas.length) html += `<section class="hero"><p class="v-eti">Llevas ahorrado</p><p class="v-monto"><span class="m" data-v="${tot}">${fmt(tot)}</span></p>
-      <p class="v-sub">de <b class="m">${fmt(obj)}</b> ${S.metas.length > 1 ? 'entre tus ' + S.metas.length + ' metas' : 'de tu meta'}.</p><div class="barra"><i style="width:${Math.min(100, pct(tot, obj))}%"></i></div></section>`;
-    html += S.metas.map(filaMeta).join('') || `<div class="vacio">Una meta con fecha te dice cuánto apartar en cada pago.</div>`;
-    html += `<button class="btn sec2 full" style="margin-top:6px" onclick="hojaMeta()">${ico('plus')}Nueva meta</button>`;
-  } else {
-    const tot = sum(S.deudas, saldoDeuda), ini = sum(S.deudas, d => d.saldoInicial);
-    if (S.deudas.length) html += `<section class="hero"><p class="v-eti">Debes en total</p><p class="v-monto"><span class="m" data-v="${tot}">${fmt(tot)}</span></p>
-      <p class="v-sub">Ya pagaste <b class="m">${fmt(ini - tot)}</b>, el ${pct(ini - tot, ini)}% de lo que debías.</p><div class="barra"><i style="width:${Math.min(100, pct(ini - tot, ini))}%"></i></div></section>`;
-    html += S.deudas.map(d => {
-      const s = saldoDeuda(d), n = mesesDeuda(d), h = new Date();
-      const cuando = n === 0 ? 'Pagada' : n == null ? 'Sin cuota definida' : n === Infinity ? 'La cuota no alcanza a cubrir los intereses' : `Quedas libre en ${MESES_L[(h.getMonth() + n) % 12]} de ${h.getFullYear() + Math.floor((h.getMonth() + n) / 12)}`;
-      return `<div class="mov" onclick="hojaDeudaDetalle('${d.id}')">${tileCat({id: '_deuda', emoji: '💳'}, 44)}<div class="tx"><b>${esc(d.nombre)}</b><small>${cuando}</small><div class="lim" style="--c:var(--accent)"><i style="width:${pct(d.saldoInicial - s, d.saldoInicial)}%"></i></div></div><div class="val m">${fmt(s)}</div></div>`;
-    }).join('') || '<div class="vacio">No tienes deudas registradas.</div>';
-    html += `<button class="btn sec2 full" style="margin-top:10px" onclick="hojaDeuda()">${ico('plus')}Agregar deuda</button>`;
-  }
+  let html = `<h2 class="titulo-pag">Tus metas</h2>`;
+  const tot = sum(S.metas, actualMeta), obj = sum(S.metas, m => m.objetivo);
+  if (S.metas.length) html += `<section class="hero"><p class="v-eti">Llevas ahorrado</p><p class="v-monto"><span class="m" data-v="${tot}">${fmt(tot)}</span></p>
+    <p class="v-sub">de <b class="m">${fmt(obj)}</b> ${S.metas.length > 1 ? 'entre tus ' + S.metas.length + ' metas' : 'de tu meta'}.</p><div class="barra"><i style="width:${Math.min(100, pct(tot, obj))}%"></i></div></section>`;
+  html += S.metas.map(filaMeta).join('') || `<div class="vacio">Una meta con fecha te dice cuánto apartar en cada pago.</div>`;
+  html += `<button class="btn sec2 full" style="margin-top:6px" onclick="hojaMeta()">${ico('plus')}Nueva meta</button>`;
   $('pg-metas').innerHTML = html;
   animarAnillos();
+}
+function renderDeudas() {
+  let html = `<h2 class="titulo-pag">Tus deudas</h2>`;
+  const tot = sum(S.deudas, saldoDeuda), ini = sum(S.deudas, d => d.saldoInicial);
+  if (S.deudas.length) html += `<section class="hero"><p class="v-eti">Debes en total</p><p class="v-monto"><span class="m" data-v="${tot}">${fmt(tot)}</span></p>
+    <p class="v-sub">Ya pagaste <b class="m">${fmt(ini - tot)}</b>, el ${pct(ini - tot, ini)}% de lo que debías.</p><div class="barra"><i style="width:${Math.min(100, pct(ini - tot, ini))}%"></i></div></section>`;
+  html += S.deudas.map(d => {
+    const s = saldoDeuda(d), n = mesesDeuda(d), h = new Date();
+    const cuando = n === 0 ? 'Pagada' : n == null ? 'Sin cuota definida' : n === Infinity ? 'La cuota no alcanza a cubrir los intereses' : `Quedas libre en ${MESES_L[(h.getMonth() + n) % 12]} de ${h.getFullYear() + Math.floor((h.getMonth() + n) / 12)}`;
+    return `<div class="mov" onclick="hojaDeudaDetalle('${d.id}')">${tileCat({id: '_deuda', emoji: '💳'}, 44)}<div class="tx"><b>${esc(d.nombre)}</b><small>${cuando}</small><div class="lim" style="--c:var(--accent)"><i style="width:${pct(d.saldoInicial - s, d.saldoInicial)}%"></i></div></div><div class="val m">${fmt(s)}</div></div>
+      ${s > 0 ? `<button class="btn sec2 full" style="margin:-2px 0 12px;padding:9px" onclick="hojaGasto(null,'deuda:${d.id}')">${ico('plus')}Registrar pago a ${esc(d.nombre)}</button>` : ''}`;
+  }).join('') || '<div class="vacio">No tienes deudas registradas.</div>';
+  if (S.deudas.length) html += `<p style="font-size:12.5px;color:var(--muted);margin:4px 2px 12px">Los pagos que registras aquí, o con el <b>+</b> eligiendo la deuda, bajan el saldo. Si la cuota ya está en tus gastos fijos, se marca como pagada y no se descuenta dos veces; si no, sale del presupuesto de la semana.</p>`;
+  html += `<button class="btn sec2 full" style="margin-top:10px" onclick="hojaDeuda()">${ico('plus')}Agregar deuda</button>`;
+  $('pg-deudas').innerHTML = html;
 }
 function hojaMeta(id) {
   const m = id ? S.metas.find(x => x.id === id) : null;
@@ -1814,17 +1844,30 @@ function borrarAporte(id, metaId) { S.aportes = S.aportes.filter(a => a.id !== i
 function hojaDeuda(id) {
   const d = id ? S.deudas.find(x => x.id === id) : null;
   abrirHoja(`<h3>${d ? 'Editar deuda' : 'Nueva deuda'}</h3><p class="desc">Tarjeta, préstamo, crédito… Para que veas cuándo quedas libre.</p>
-    <div class="campo"><label>Nombre</label><input class="in" id="hdNombre" value="${esc(d ? d.nombre : '')}" placeholder="Ej. Tarjeta de crédito" maxlength="40"></div>
+    <div class="campo"><label>Nombre</label><input class="in" id="hdNombre" value="${esc(d ? d.nombre : '')}" placeholder="Ej. Tarjeta de crédito" maxlength="40" oninput="hdAutoFijo()"></div>
     <div class="dos"><div class="campo"><label>${d ? 'Saldo inicial' : '¿Cuánto debes hoy?'}</label><input class="in" id="hdSaldo" data-monto value="${d ? d.saldoInicial : ''}"></div>
     <div class="campo"><label>Cuota mensual</label><input class="in" id="hdCuota" data-monto value="${d ? d.cuota : ''}"></div></div>
     <div class="campo"><label>Interés mensual % (opcional)</label><input class="in" id="hdTasa" inputmode="decimal" value="${d && d.tasa ? d.tasa : ''}" placeholder="Ej. 2,1"></div>
+    ${S.fijos.some(f => f.destino !== 'meta') ? `<div class="campo"><label>¿La cuota ya está en tus gastos fijos?</label><select class="in" id="hdFijo" onchange="this.dataset.tocado=1"><option value="">No</option>${S.fijos.filter(f => f.destino !== 'meta').map(f => `<option value="${f.id}" ${d && f.destino === 'deuda' && f.destinoId === d.id ? 'selected' : ''}>${esc(f.nombre)} · ${M(f.valor)}</option>`).join('')}</select></div>` : ''}
     <div class="acciones">${d ? `<button class="btn sec2" onclick="borrarDeuda('${d.id}')">${ico('trash')}</button>` : ''}<button class="btn" onclick="guardarDeuda('${d ? d.id : ''}')">Guardar</button></div>`);
+}
+function hdAutoFijo() {   // si el nombre coincide con un gasto fijo, lo propone
+  const sel = $('hdFijo'); if (!sel || sel.dataset.tocado) return;
+  const n = $('hdNombre').value.trim().toLowerCase(), f = n.length > 2 && S.fijos.find(x => x.destino !== 'meta' && x.nombre.toLowerCase().includes(n));
+  sel.value = f ? f.id : '';
+  if (f && !$('hdCuota').value) $('hdCuota').value = f.valor.toLocaleString('es-CO');
 }
 function guardarDeuda(id) {
   const nombre = $('hdNombre').value.trim(), saldoInicial = parseMonto($('hdSaldo').value);
   if (!nombre || !saldoInicial) { toast('Pon nombre y saldo'); return; }
   const datos = {nombre, saldoInicial, cuota: parseMonto($('hdCuota').value), tasa: Number(String($('hdTasa').value).replace(',', '.')) || 0};
-  if (id) Object.assign(S.deudas.find(x => x.id === id), datos); else S.deudas.push({id: genId(), ...datos});
+  if (id) Object.assign(S.deudas.find(x => x.id === id), datos); else S.deudas.push({id: id = genId(), ...datos});
+  if ($('hdFijo')) {
+    const fid = $('hdFijo').value;
+    S.fijos.forEach(f => { if (f.destino === 'deuda' && f.destinoId === id && f.id !== fid) { f.destino = 'gasto'; f.destinoId = null; } });
+    const f = S.fijos.find(x => x.id === fid); if (f) { f.destino = 'deuda'; f.destinoId = id; }
+    guardar('fijos');
+  }
   guardar('deudas'); cerrarHoja(); toast('Deuda guardada'); render();
 }
 async function borrarDeuda(id) {
@@ -1843,8 +1886,7 @@ function hojaDeudaDetalle(id) {
 }
 function abonar(id) {
   const v = parseMonto($('hdAbono').value); if (!v) return;
-  S.abonos.push({id: genId(), deudaId: id, monto: v, fecha: hoyStr(), origen: 'manual', delPresupuesto: true});
-  guardar('abonos'); toast('Abono registrado'); render(); hojaDeudaDetalle(id);
+  registrarAbono(id, v, hoyStr(), ''); hojaDeudaDetalle(id);
 }
 
 /* ══════════════════════════════════════════
