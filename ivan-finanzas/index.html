@@ -1800,6 +1800,13 @@
     .btn-primary .ico, .btn-save .ico { opacity: 1; color: #e3c47c; }
     :root[data-theme="light"] .btn-primary, :root[data-theme="light"] .btn-save { background: #fffdf8; color: #8a6a22; border-color: rgba(180,138,58,.6); box-shadow: 0 0 0 4px rgba(180,138,58,.08); }
     :root[data-theme="light"] .btn-primary .ico, :root[data-theme="light"] .btn-save .ico { color: #8a6a22; }
+
+    /* ═══ v8.2 · Checklist: mismo lenguaje (oscuro + filo dorado) ═══ */
+    .gf-checkbox { width: 26px; height: 26px; border-radius: 9px; border: 1.5px solid var(--border-md); background: transparent; }
+    .gf-checkbox.checked, .cierre-fila.on .cierre-box { background: linear-gradient(180deg,#141821,#0d1017); border-color: rgba(205,161,73,.7); box-shadow: 0 0 0 3px rgba(205,161,73,.07); }
+    .gf-checkbox.checked::after, .cierre-fila.on .cierre-box::after { background: #e3c47c; width: 14px; height: 14px; }
+    :root[data-theme="light"] .gf-checkbox.checked, :root[data-theme="light"] .cierre-fila.on .cierre-box { background: #fffdf8; border-color: rgba(180,138,58,.7); }
+    :root[data-theme="light"] .gf-checkbox.checked::after, :root[data-theme="light"] .cierre-fila.on .cierre-box::after { background: #8a6a22; }
   </style>
 </head>
 <body>
@@ -3019,7 +3026,7 @@
         <div class="config-row">
           <div>
             <div class="config-label">Iván Finanzas</div>
-            <div class="config-sublabel">Control financiero personal · v5.13.1</div>
+            <div class="config-sublabel">Control financiero personal · v5.13.2</div>
           </div>
         </div>
       </div>
