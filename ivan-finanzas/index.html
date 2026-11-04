@@ -1727,6 +1727,32 @@
     #splashScreen { background: #06080d; }
     #splashScreen .logo-tile { box-shadow: none; border-color: rgba(205,161,73,0.45); border-width: 1px; }
     #splashScreen .logo-tile::after { display: none; }
+    /* Detalles plegables */
+    #page-inicio .header { position: static; background: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+    .acc-sec { padding-top: 0; padding-bottom: 0; }
+    .acc { border-top: 1px solid var(--hairline); }
+    .acc-sec:last-of-type .acc, .acc:last-child { border-bottom: 0; }
+    .acc > summary { list-style: none; display: flex; align-items: center; gap: 10px; padding: 18px 2px; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--text-dim); }
+    .acc > summary::-webkit-details-marker { display: none; }
+    .acc > summary span { flex: 1; }
+    .acc > summary b { font-weight: 600; color: var(--text); font-size: 14px; }
+    .acc > summary i { width: 8px; height: 8px; border-right: 1.6px solid var(--muted); border-bottom: 1.6px solid var(--muted); transform: rotate(45deg); transition: transform .25s var(--ease); margin: -3px 4px 0 2px; }
+    .acc[open] > summary i { transform: rotate(-135deg); margin-top: 3px; }
+    .acc-body { padding: 0 0 18px; }
+    .acc-body .section { padding-left: 0; padding-right: 0; }
+    .acc-body .mini-chart-wrap { padding: 0; }
+    .acc-body .insights { margin: 0 0 14px; padding: 0; }
+    .acc-body .form-card { padding: 0; background: none; border: 0; }
+    #page-inicio .gasto-item, #page-inicio .gastos-lista > div { box-shadow: none; }
+    /* Gastos como lista limpia (todas las pantallas) */
+    .gastos-lista { gap: 0; }
+    .gasto-item { background: none; border: 0; border-bottom: 1px solid var(--hairline); border-radius: 0; padding: 13px 2px; box-shadow: none; }
+    .gasto-item:active { background: none; transform: none; opacity: .7; }
+    .cat-icon { width: 34px; height: 34px; border-radius: 50%; background: var(--card-alt); border: 0; font-size: 16px; }
+    .gasto-cat { font-weight: 500; font-size: 14px; }
+    .gasto-amount { font-weight: 600; font-size: 14px; }
+    .mini-chart-card { padding: 18px; }
+    .cat-filas .cat-fila-bar, .cat-filas [class*="bar"] { height: 4px; }
   </style>
 </head>
 <body>
@@ -2564,6 +2590,10 @@
     </div>
     <div class="pago-fila"><button class="min-link" onclick="confirmarPagoHoy()"><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg> Hoy me pagaron</button></div>
 
+    <!-- Detalles (cerrados por defecto: se abren solo cuando los quieres ver) -->
+    <div class="section acc-sec">
+      <details class="acc" id="accSemana"><summary><span>Gastos de la semana</span><b id="accSemTotal">$0</b><i></i></summary>
+      <div class="acc-body">
     <!-- Insights -->
     <div class="insights">
       <div class="insight-chip">
@@ -2584,6 +2614,17 @@
       </div>
     </div>
 
+
+    <!-- Lista de gastos -->
+    <div class="section">
+      <div class="gastos-lista" id="gastosLista">
+        <div class="empty-state">
+          <div class="icon"><svg class="ico" aria-hidden="true"><use href="#i-wallet"/></svg></div>
+          <p>Sin gastos registrados.<br>¡Empieza registrando tu primer gasto!</p>
+        </div>
+      </div>
+    </div>
+
     <!-- Mini chart gastos semanal -->
     <div class="mini-chart-wrap">
       <div class="mini-chart-card">
@@ -2597,15 +2638,20 @@
       </div>
     </div>
 
-    <!-- Límites de presupuesto por categoría (solo si hay alguno configurado) -->
-    <div class="section" id="limitesCategoriaSection" style="display:none">
-      <div class="section-title">Límites de categoría · Este ciclo de pago</div>
-      <div class="port-dist-card" id="limitesCategoriaLista"></div>
+
+      </div></details>
     </div>
 
+    <!-- Límites de presupuesto por categoría (solo si hay alguno configurado) -->
+    <div class="section" id="limitesCategoriaSection" style="display:none">
+      <details class="acc"><summary><span>Límites por categoría</span><i></i></summary>
+      <div class="acc-body"><div class="port-dist-card" id="limitesCategoriaLista"></div></div></details>
+    </div>
+
+
     <!-- Formulario añadir gasto -->
-    <div class="section">
-      <div class="section-title">Registrar gasto</div>
+    <div class="section acc-sec">
+      <details class="acc"><summary><span>Registrar gasto con detalle</span><i></i></summary><div class="acc-body">
       <div class="form-card">
         <div class="form-row">
           <div class="amount-wrap">
@@ -2628,19 +2674,8 @@
           <button class="btn-primary" onclick="agregarGasto()"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg> Registrar gasto</button>
         </div>
       </div>
+    </div></details>
     </div>
-
-    <!-- Lista de gastos -->
-    <div class="section">
-      <div class="section-title">Gastos de esta semana</div>
-      <div class="gastos-lista" id="gastosLista">
-        <div class="empty-state">
-          <div class="icon"><svg class="ico" aria-hidden="true"><use href="#i-wallet"/></svg></div>
-          <p>Sin gastos registrados.<br>¡Empieza registrando tu primer gasto!</p>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- ══ Página: Ahorro e Inversión ══ -->
   <div class="page" id="page-ahorro">
@@ -2936,7 +2971,7 @@
         <div class="config-row">
           <div>
             <div class="config-label">Iván Finanzas</div>
-            <div class="config-sublabel">Control financiero personal · v5.12.0</div>
+            <div class="config-sublabel">Control financiero personal · v5.12.1</div>
           </div>
         </div>
       </div>
@@ -3966,6 +4001,7 @@ const renderChartCategorias = () => {
   // Gasto por día de la semana
   const total = semanaActual.gastos.reduce((t, g) => t + g.cantidad, 0);
   const totEl = document.getElementById('chartSemTotal'); if (totEl) totEl.textContent = formatCOP(total);
+  const accT = document.getElementById('accSemTotal'); if (accT) accT.textContent = formatCOP(total);
   const ini = semanaActual.inicioSemana ? parseFecha(semanaActual.inicioSemana) : null;
   if (!ini || isNaN(ini)) { ctx.fillStyle = chartInk(0.35); ctx.font = '12px DM Sans, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Sin datos de la semana', W / 2, H / 2); }
   else {
@@ -5868,6 +5904,7 @@ const confirmarMovimiento = () => {
   renderAhorros(); renderPatrimonio();
 };
 
+document.getElementById('accSemana')?.addEventListener('toggle', e => { if (e.target.open) requestAnimationFrame(() => { try { renderChartCategorias(); } catch (_) {} }); });
 document.getElementById('modalMovAhorro').addEventListener('click', e=>{
   if (e.target===document.getElementById('modalMovAhorro')) cerrarModalMov();
 });
