@@ -1788,6 +1788,18 @@
     /* Enlaces de texto con flecha */
     .patr-reg, .pago-fila { font-weight: 500; }
     .patr-reg button, .pago-fila button { color: var(--accent); background: transparent; border: 0; }
+
+    /* ═══ v8.1 · Botón principal: oscuro con filo dorado ═══ */
+    .btn-primary, .btn-save {
+      background: linear-gradient(180deg, #141821, #0d1017); color: #e3c47c;
+      border: 1px solid rgba(205,161,73,.55); border-radius: 14px; min-height: 50px;
+      font-size: 14px; font-weight: 600; letter-spacing: .3px;
+      box-shadow: 0 0 0 4px rgba(205,161,73,.06), inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    .btn-primary:active, .btn-save:active { transform: scale(.985); filter: none; background: linear-gradient(180deg, #1a1f2a, #11151d); border-color: rgba(205,161,73,.8); box-shadow: 0 0 0 4px rgba(205,161,73,.10); }
+    .btn-primary .ico, .btn-save .ico { opacity: 1; color: #e3c47c; }
+    :root[data-theme="light"] .btn-primary, :root[data-theme="light"] .btn-save { background: #fffdf8; color: #8a6a22; border-color: rgba(180,138,58,.6); box-shadow: 0 0 0 4px rgba(180,138,58,.08); }
+    :root[data-theme="light"] .btn-primary .ico, :root[data-theme="light"] .btn-save .ico { color: #8a6a22; }
   </style>
 </head>
 <body>
@@ -3007,7 +3019,7 @@
         <div class="config-row">
           <div>
             <div class="config-label">Iván Finanzas</div>
-            <div class="config-sublabel">Control financiero personal · v5.13.0</div>
+            <div class="config-sublabel">Control financiero personal · v5.13.1</div>
           </div>
         </div>
       </div>
