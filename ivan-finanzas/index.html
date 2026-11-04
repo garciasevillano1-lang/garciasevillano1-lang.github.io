@@ -1753,6 +1753,13 @@
     .gasto-amount { font-weight: 600; font-size: 14px; }
     .mini-chart-card { padding: 18px; }
     .cat-filas .cat-fila-bar, .cat-filas [class*="bar"] { height: 4px; }
+    /* Conteo de montos estable: cifras tabulares y columnas que no se mueven */
+    .hero-big, .patr-big, .hero-row b, .pat-card-value, .port-hero-value, .card-value, .ahorro-hero-value { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+    .patr-card .patrimonio-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .hero-row b { display: inline-block; text-align: right; }
+    .hero-row span:first-child b { text-align: left; }
+    /* Pantalla de carga: solo el monograma, sin recuadro */
+    #splashScreen .logo-tile { background: none; border: 0; box-shadow: none; width: 92px; height: 92px; border-radius: 0; overflow: visible; }
   </style>
 </head>
 <body>
@@ -2972,7 +2979,7 @@
         <div class="config-row">
           <div>
             <div class="config-label">Iván Finanzas</div>
-            <div class="config-sublabel">Control financiero personal · v5.12.2</div>
+            <div class="config-sublabel">Control financiero personal · v5.12.3</div>
           </div>
         </div>
       </div>
@@ -3112,7 +3119,7 @@ const instalarArrastreModales = () => {
 };
 
 /* ─── Montos que cuentan hacia arriba (solo visual) ─── */
-let _retrasoConteo = 1000; // en el primer arranque espera a que se oculte la pantalla de carga
+let _retrasoConteo = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ? 150 : 1000; // en el navegador espera a que se oculte la pantalla de carga; instalada no hay pantalla propia
 const _parseMonto = t => {
   const m = /^(-?)\$([\d.]+)$/.exec((t || '').trim());
   if (!m) return null;
@@ -3125,6 +3132,10 @@ const animarMonto = (el, desde, hasta, textoFinal) => {
   const reducir = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reducir || desde === hasta || Math.abs(hasta - desde) < 2) { el._escrito = textoFinal; el.textContent = textoFinal; return; }
   const dur = 750, retraso = _retrasoConteo;
+  // Fija el ancho del número final para que nada alrededor se desplace mientras cuenta
+  el.textContent = textoFinal;
+  const _w = el.getBoundingClientRect().width;
+  if (_w) { if (getComputedStyle(el).display === 'inline') { el.style.display = 'inline-block'; el._inl = true; } el.style.minWidth = _w + 'px'; }
   el._escrito = _fmtMonto(desde); el.textContent = el._escrito;
   const t0 = performance.now() + retraso;
   const paso = now => {
@@ -3132,7 +3143,8 @@ const animarMonto = (el, desde, hasta, textoFinal) => {
     const e = 1 - Math.pow(1 - p, 3);
     const txt = p >= 1 ? textoFinal : _fmtMonto(Math.round(desde + (hasta - desde) * e));
     el._escrito = txt; el.textContent = txt;
-    if (p < 1) el._raf = requestAnimationFrame(paso); else el._raf = null;
+    if (p < 1) el._raf = requestAnimationFrame(paso);
+    else { el._raf = null; el.style.minWidth = ''; if (el._inl) { el.style.display = ''; el._inl = false; } }
   };
   el._raf = requestAnimationFrame(paso);
 };
