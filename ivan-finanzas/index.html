@@ -1807,6 +1807,18 @@
     .gf-checkbox.checked::after, .cierre-fila.on .cierre-box::after { background: #e3c47c; width: 14px; height: 14px; }
     :root[data-theme="light"] .gf-checkbox.checked, :root[data-theme="light"] .cierre-fila.on .cierre-box { background: #fffdf8; border-color: rgba(180,138,58,.7); }
     :root[data-theme="light"] .gf-checkbox.checked::after, :root[data-theme="light"] .cierre-fila.on .cierre-box::after { background: #8a6a22; }
+
+    /* ═══ v8.3 · Bloqueo con huella ═══ */
+    #lockScreen { position: fixed; inset: 0; z-index: 10000; background: #06080d; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 26px; color: #e8eaf0; }
+    #lockScreen.on { display: flex; }
+    #lockScreen .lk-logo { width: 70px; height: 70px; }
+    #lockScreen .lk-logo svg { width: 100%; height: 100%; }
+    #lockScreen .lk-name { font-size: 15px; font-weight: 700; letter-spacing: 4px; text-align: center; }
+    #lockScreen .lk-name span { color: #cda149; }
+    #lockScreen .lk-btn { width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(180deg,#141821,#0d1017); border: 1px solid rgba(205,161,73,.55); box-shadow: 0 0 0 6px rgba(205,161,73,.06); color: #e3c47c; cursor: pointer; }
+    #lockScreen .lk-btn:active { transform: scale(.96); border-color: rgba(205,161,73,.85); }
+    #lockScreen .lk-btn svg { width: 38px; height: 38px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    #lockScreen .lk-msg { font-size: 13px; color: #7d869b; min-height: 18px; text-align: center; padding: 0 30px; }
   </style>
 </head>
 <body>
@@ -1898,6 +1910,13 @@
     <div class="tagline">Organizo · Invierto · Construyo libertad</div>
   </div>
 </div>
+<div id="lockScreen" role="dialog" aria-label="App bloqueada">
+  <div class="lk-logo"><svg><use href="#logoMark"/></svg></div>
+  <div class="lk-name">IVÁN <span>FINANZAS</span></div>
+  <button class="lk-btn" id="lockBtn" onclick="desbloquearApp()" aria-label="Desbloquear con huella"><svg viewBox="0 0 24 24"><path d="M12 11v3a7 7 0 0 1-1.2 4"/><path d="M8.5 14.5a3.5 3.5 0 0 1 7 0c0 2.2-.4 4-1.5 5.8"/><path d="M5.5 15a6.5 6.5 0 0 1 13 0c0 1.8-.2 3.2-.7 4.6"/><path d="M6 8.2A8 8 0 0 1 20 13c0 1-.1 1.8-.3 2.6"/><path d="M4 12.5c0-1.4.4-2.7 1-3.8"/><path d="M9 20.6c.5-1.1.8-2.2 1-3.6"/></svg></button>
+  <div class="lk-msg" id="lockMsg">Toca para desbloquear</div>
+</div>
+<script>try{if(localStorage.getItem('if_lock_cred'))document.getElementById('lockScreen').classList.add('on')}catch(e){}</script>
 
 <!-- Barra superior de marca -->
 <div class="brand-bar">
@@ -2964,6 +2983,16 @@
             <span class="slider"></span>
           </label>
         </div>
+        <div class="config-row" id="filaHuella" style="display:none">
+          <div>
+            <div class="config-label">Bloqueo con huella</div>
+            <div class="config-sublabel" id="huellaSub">Pedir huella o PIN del celular al abrir</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="toggleHuella" onchange="alternarHuella(this)">
+            <span class="slider"></span>
+          </label>
+        </div>
         <div class="config-row">
           <div>
             <div class="config-label">Presupuesto por defecto</div>
@@ -3026,7 +3055,7 @@
         <div class="config-row">
           <div>
             <div class="config-label">Iván Finanzas</div>
-            <div class="config-sublabel">Control financiero personal · v5.13.2</div>
+            <div class="config-sublabel">Control financiero personal · v5.14.0</div>
           </div>
         </div>
       </div>
@@ -8487,6 +8516,71 @@ const ocultarSplash = () => {
   if (!splash) return;
   setTimeout(() => splash.classList.add('hidden'), 950);
 };
+
+/* ══════════════════════════════════════════════
+   BLOQUEO CON HUELLA (WebAuthn, solo en este dispositivo)
+══════════════════════════════════════════════ */
+const _LK = 'if_lock_cred';
+const _b64 = b => btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const _unb64 = t => Uint8Array.from(atob(t.replace(/-/g,'+').replace(/_/g,'/')), c => c.charCodeAt(0));
+const _lkGet = () => { try { return localStorage.getItem(_LK); } catch (e) { return null; } };
+let _lkBusy = false, _lkOcultoEn = 0;
+
+const huellaDisponible = async () => {
+  try { return !!(window.PublicKeyCredential && window.isSecureContext && await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()); }
+  catch (e) { return false; }
+};
+const _lkMsg = t => { const m = document.getElementById('lockMsg'); if (m) m.textContent = t; };
+const _lkVerificar = async () => {
+  const id = _lkGet(); if (!id) return true;
+  await navigator.credentials.get({ publicKey: {
+    challenge: crypto.getRandomValues(new Uint8Array(32)), timeout: 60000, userVerification: 'required',
+    allowCredentials: [{ type: 'public-key', id: _unb64(id), transports: ['internal'] }]
+  }});
+  return true;
+};
+const desbloquearApp = async () => {
+  if (_lkBusy) return; _lkBusy = true; _lkMsg('');
+  try { await _lkVerificar(); document.getElementById('lockScreen').classList.remove('on'); }
+  catch (e) { _lkMsg(e && e.name === 'NotAllowedError' ? 'No se pudo verificar. Toca para reintentar' : 'Error al verificar. Toca para reintentar'); }
+  _lkBusy = false;
+};
+const bloquearApp = () => {
+  if (!_lkGet()) return;
+  document.getElementById('lockScreen').classList.add('on'); _lkMsg('Toca para desbloquear');
+  setTimeout(desbloquearApp, 250);
+};
+const alternarHuella = async (cb) => {
+  const quiere = cb.checked; cb.disabled = true;
+  try {
+    if (quiere) {
+      const cred = await navigator.credentials.create({ publicKey: {
+        rp: { name: 'Iván Finanzas' },
+        user: { id: crypto.getRandomValues(new Uint8Array(16)), name: 'ivan', displayName: 'Iván' },
+        challenge: crypto.getRandomValues(new Uint8Array(32)), timeout: 60000,
+        pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
+        authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required', residentKey: 'discouraged' }
+      }});
+      localStorage.setItem(_LK, _b64(cred.rawId));
+      mostrarToast && mostrarToast('Bloqueo con huella activado');
+    } else {
+      await _lkVerificar();
+      localStorage.removeItem(_LK);
+      mostrarToast && mostrarToast('Bloqueo desactivado');
+    }
+  } catch (e) { cb.checked = !quiere; }
+  cb.disabled = false;
+};
+const iniciarHuella = async () => {
+  const fila = document.getElementById('filaHuella'), cb = document.getElementById('toggleHuella');
+  if (await huellaDisponible()) { if (fila) fila.style.display = ''; if (cb) cb.checked = !!_lkGet(); }
+  if (_lkGet()) setTimeout(desbloquearApp, 400);
+};
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) _lkOcultoEn = Date.now();
+  else if (_lkGet() && _lkOcultoEn && Date.now() - _lkOcultoEn > 60000) bloquearApp();
+});
+iniciarHuella();
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.getElementById('informeOverlay')?.classList.contains('open')) cerrarInforme(); });
 
