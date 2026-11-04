@@ -21,7 +21,7 @@
 <script id="app-config" type="application/json">
 {
  "id": "mis-finanzas-a3aca",
- "version": "1.1",
+ "version": "1.2",
  "appNombre": "Mis finanzas",
  "appCorto": "Mis finanzas",
  "usuario": "Yinna",
@@ -1224,7 +1224,11 @@ function semanaInfo(c = cicloActual(), fs = hoyStr()) {
   const saldo = pres - gastado;
   const diasQuedan = difDias(fs, s.fin) + 1;
   const consumoCiclo = consumoRango(c.ini, c.fin);
-  return {sem: s, idx, total: sems.length, pres, gastado, saldo, diasQuedan, hoy: Math.max(0, saldo) / Math.max(1, diasQuedan), D, consumoCiclo, quedaCiclo: D - consumoCiclo};
+  /* Sobre del día: lo que tocaba hoy al empezar el día, menos lo gastado hoy.
+     Así un gasto de hoy se resta completo de "Hoy puedes gastar"; mañana se recalcula con lo que quede. */
+  const gastoHoy = consumoRango(fs, fs);
+  const hoyBase = Math.max(0, saldo + gastoHoy) / Math.max(1, diasQuedan);
+  return {sem: s, idx, total: sems.length, pres, gastado, saldo, diasQuedan, gastoHoy, hoyBase, hoy: hoyBase - gastoHoy, D, consumoCiclo, quedaCiclo: D - consumoCiclo};
 }
 
 /* ── Metas y deudas ── */
@@ -1385,9 +1389,11 @@ function renderInicio() {
   if (false) html += `<div class="aviso">${ico('spark')}<div><b>${S.perfil.usuario ? esc(S.perfil.usuario) + ', tu' : 'Tu'} app está lista.</b><br>Cada vez que gastes, toca el <b>+</b> o una categoría. Aquí verás si tu plata alcanza hasta el próximo pago.${esInstalable() ? '<br><button onclick="instalar()">Instalar en mi celular</button>' : ''}<br><button onclick="S.estado.bienvenida=true;guardar(\'estado\');render()">Entendido</button></div></div>`;
   html += `<section class="hero">
     <p class="v-estado">${esc(tono)}</p>
-    <p class="v-eti">${w.saldo >= 0 ? 'Hoy puedes gastar' : 'Esta semana te pasaste'}</p>
-    <p class="v-monto"><span class="m" data-v="${w.saldo >= 0 ? w.hoy : -w.saldo}">${fmt(w.saldo >= 0 ? w.hoy : -w.saldo)}</span></p>
-    <p class="v-sub">${w.saldo >= 0 ? `Te quedan <b class="m">${fmt(w.saldo)}</b> para esta semana, hasta el ${DIAS_SEM[fparse(w.sem.fin).getDay()]} ${fparse(w.sem.fin).getDate()}.` : `Lo que te pasaste se descuenta de las semanas que quedan.`}</p>
+    ${(() => { const finSem = `${DIAS_SEM[fparse(w.sem.fin).getDay()]} ${fparse(w.sem.fin).getDate()}`, quedan = `Te quedan <b class="m">${fmt(w.saldo)}</b> para esta semana, hasta el ${finSem}.`;
+      const [eti, monto, sub] = w.saldo < 0 ? ['Esta semana te pasaste', -w.saldo, 'Lo que te pasaste se descuenta de las semanas que quedan.']
+        : w.hoy < 0 ? ['Hoy te pasaste', -w.hoy, `${quedan} Lo de hoy se descuenta de los días que faltan.`]
+        : ['Hoy puedes gastar', w.hoy, (w.gastoHoy > 0 ? `Hoy llevas <b class="m">${fmt(w.gastoHoy)}</b> de <b class="m">${fmt(w.hoyBase)}</b>. ` : '') + quedan];
+      return `<p class="v-eti">${eti}</p><p class="v-monto"><span class="m" data-v="${monto}">${fmt(monto)}</span></p><p class="v-sub">${sub}</p>`; })()}
     ${pistaDias(c, w.D)}
     <p class="v-pie">${w.quedaCiclo >= 0 ? `Quedan <b class="m">${fmt(w.quedaCiclo)}</b> de <b class="m">${fmt(w.D)}</b> para el resto ${cicloMasc() ? 'del' : 'de la'} ${nombreCiclo()}.` : `Gastaste <b class="m">${fmt(-w.quedaCiclo)}</b> más de lo que tenías para ${esteCiclo()}.`}</p>
   </section>`;
