@@ -21,7 +21,7 @@
 <script id="app-config" type="application/json">
 {
  "id": "mis-finanzas-a3aca",
- "version": "1.0",
+ "version": "1.1",
  "appNombre": "Mis finanzas",
  "appCorto": "Mis finanzas",
  "usuario": "Yinna",
@@ -47,7 +47,7 @@
  },
  "modulos": {
   "metas": true,
-  "deudas": false,
+  "deudas": true,
   "ingresosVariables": true
  },
  "categorias": [
@@ -191,7 +191,12 @@
  ],
  "deudas": [],
  "extras": {},
- "videoGuia": null
+ "videoGuia": null,
+ "forzar": {
+  "modulos": {
+   "deudas": true
+  }
+ }
 }
 </script>
 
@@ -871,7 +876,7 @@ const PREVIEW = /[?&]preview\b/.test(location.search) || window.__VISTA_PREVIA =
 const MEM = {};
 let _previewListo = false;
 const NS = 'app:' + CFG.id + ':';
-const CLAVES = ['perfil','categorias','gastos','fijos','pagos','ingresos','metas','aportes','deudas','abonos','baseHist','estado','media'];
+const CLAVES = ['perfil','categorias','gastos','fijos','pagos','ingresos','metas','aportes','deudas','abonos','baseHist','estado','media','unicos'];
 const S = {};
 
 /* ══════════════════════════════════════════
@@ -1019,8 +1024,13 @@ function cargar() {
   CLAVES.forEach(k => S[k] = store.get(k, null));
   if (!S.perfil) sembrar();
   // Completar claves faltantes (versiones futuras)
-  const def = {categorias:[],gastos:[],fijos:[],pagos:[],ingresos:[],metas:[],aportes:[],deudas:[],abonos:[],baseHist:{},estado:{creado:hoyStr()},media:{logo:null,foto:null}};
+  const def = {categorias:[],gastos:[],fijos:[],pagos:[],ingresos:[],metas:[],aportes:[],deudas:[],abonos:[],baseHist:{},estado:{creado:hoyStr()},media:{logo:null,foto:null},unicos:[]};
   Object.keys(def).forEach(k => { if (S[k] == null) S[k] = def[k]; });
+  /* Ajustes que manda una actualización de la app (ej. activar un módulo), una sola vez por versión */
+  if (CFG.forzar && S.estado.forzado !== CFG.version && !PREVIEW) {
+    if (CFG.forzar.modulos) Object.assign(S.perfil.modulos, CFG.forzar.modulos);
+    S.estado.forzado = CFG.version; store.set('perfil', S.perfil); store.set('estado', S.estado);
+  }
   const ex = (window.EXTRAS && EXTRAS.claves) || [];
   ex.forEach(k => { S[k] = store.get(k, null); if (S[k] == null) S[k] = JSON.parse(JSON.stringify((EXTRAS.defecto || {})[k] ?? null)); });
 }
@@ -1188,6 +1198,8 @@ function fijosCiclo(c) {
   });
   // Pagos de fijos que ya no existen
   S.pagos.filter(p => p.ciclo === c.key && !S.fijos.some(f => f.id === p.fijoId)).forEach(p => out.push({...p, vence: p.fecha, pagado: true}));
+  // Gastos únicos: de una sola vez, cuentan en el ciclo de su fecha
+  (S.unicos || []).filter(u => enRango(u.fecha, c.ini, c.fin) && (u.pagado || !cerrado)).forEach(u => out.push({fijoId: u.id, unico: true, nombre: u.nombre, valor: u.valor, cat: u.cat, destino: 'gasto', vence: u.fecha, pagado: !!u.pagado}));
   return out.sort((a, b) => a.vence.localeCompare(b.vence));
 }
 function disponibleCiclo(c) { return baseCiclo(c) + extrasAlCiclo(c) - sum(fijosCiclo(c), f => f.valor); }
@@ -1379,7 +1391,8 @@ function renderInicio() {
     ${pistaDias(c, w.D)}
     <p class="v-pie">${w.quedaCiclo >= 0 ? `Quedan <b class="m">${fmt(w.quedaCiclo)}</b> de <b class="m">${fmt(w.D)}</b> para el resto ${cicloMasc() ? 'del' : 'de la'} ${nombreCiclo()}.` : `Gastaste <b class="m">${fmt(-w.quedaCiclo)}</b> más de lo que tenías para ${esteCiclo()}.`}</p>
   </section>`;
-  if (pend.length) html += `<div class="aviso warn">${ico('info')}<div>Tienes <b>${pend.length} pago${pend.length > 1 ? 's' : ''} fijo${pend.length > 1 ? 's' : ''}</b> sin marcar (${M(sum(pend, f => f.valor))}).<br><button onclick="irA('presupuesto')">Revisar pagos</button></div></div>`;
+  if (esInstalable() && !S.estado.instalarOculto) html += `<div class="aviso">${ico('phone')}<div><b>Instala tu app en el celular.</b> Queda con su ícono y abre sin internet.<br><button onclick="instalar()">Instalar</button> &nbsp; <button style="color:var(--muted)" onclick="S.estado.instalarOculto=true;guardar('estado');render()">Ahora no</button></div></div>`;
+  if (pend.length) html += `<div class="aviso warn">${ico('info')}<div>Tienes <b>${pend.length} pago${pend.length > 1 ? 's' : ''}</b> sin marcar (${M(sum(pend, f => f.valor))}).<br><button onclick="irA('presupuesto')">Revisar pagos</button></div></div>`;
   html += `<div class="sec">¿En qué gastaste?</div>
     <div class="atajos">${favs.map(k => `<button class="atajo" onclick="hojaGasto(null,'${k.id}')">${tileCat(k, 52)}<span>${esc(k.nombre)}</span></button>`).join('')}</div>`;
   html += tarjetaCategorias(c);
@@ -1507,7 +1520,7 @@ function renderPresupuesto() {
   const tot = d => sum(fijos.filter(f => f.destino === d), f => f.valor);
   const fG = tot('gasto'), fA = tot('meta'), fD = tot('deuda'), D = entra - fG - fA - fD;
   const T = T_ACT || paletaActual().claro, col = T.chart;
-  const partes = [{n: 'Gastos fijos', v: fG, c: col[1]}, {n: 'Ahorro', v: fA, c: T.accent}, {n: 'Deudas', v: fD, c: col[3]}, {n: 'Día a día', v: Math.max(0, D), c: col[2]}].filter(x => x.v > 0);
+  const partes = [{n: S.unicos && S.unicos.some(u => enRango(u.fecha, c.ini, c.fin)) ? 'Fijos y únicos' : 'Gastos fijos', v: fG, c: col[1]}, {n: 'Ahorro', v: fA, c: T.accent}, {n: 'Deudas', v: fD, c: col[3]}, {n: 'Día a día', v: Math.max(0, D), c: col[2]}].filter(x => x.v > 0);
   const pend = fijos.filter(f => !f.pagado), pag = fijos.filter(f => f.pagado), cerca = pagoCercano();
   let html = `<h2 class="titulo-pag">Presupuesto</h2><p class="sub-pag">Tu ${nombreCiclo()} va del ${fCorta(c.ini)} al ${fCorta(c.fin)}. Te pagan ${textoFrecuencia()}.</p>`;
   if (cerca) html += `<div class="aviso">${ico('cal')}<div>Tu pago es el <b>${fCorta(cerca)}</b>. Si te llegó antes o después, regístralo y tu ${nombreCiclo()} empieza ese día.<br><button onclick="hojaMePagaron()">Registrar mi pago</button></div></div>`;
@@ -1525,16 +1538,21 @@ function renderPresupuesto() {
     html += ing.length ? ing.map(i => `<div class="mov" onclick="hojaIngreso('${i.id}')">${tileCat({id: '_ing', emoji: '💰'}, 42)}<div class="tx"><b>${esc(i.nombre || 'Ingreso extra')}</b><small>${fCorta(i.fecha)}${i.aMeta ? `, ${fmt(i.aMeta)} a ${esc(nombreMeta(i.metaId))}` : ''}</small></div><div class="val pos m">+${fmt(i.monto)}</div></div>`).join('')
       : `<div class="vacio">¿Te entró plata aparte del sueldo? Regístrala aquí y decide cuánto va a tus metas.</div>`;
   }
+  const unicos = fijos.filter(f => f.unico), soloFijos = fijos.filter(f => !f.unico);
   const filaFijo = f => {
     const k = cat(f.cat), dest = f.destino === 'meta' ? 'Aporte a ' + nombreMeta(f.destinoId) : f.destino === 'deuda' ? 'Cuota de ' + nombreDeuda(f.destinoId) : k.nombre;
     const kk = f.destino === 'meta' ? {id: '_meta', emoji: '🎯'} : f.destino === 'deuda' ? {id: '_deuda', emoji: '💳'} : k;
-    return `<div class="item fijo ${f.pagado ? 'hecho' : ''}"><button class="check ${f.pagado ? 'on' : ''}" aria-label="Marcar pagado" onclick="togglePago('${f.fijoId}')">${ico('check')}</button>
-      ${tileCat(kk, 40)}<div class="tx tap" onclick="hojaFijo('${f.fijoId}')"><b>${esc(f.nombre)}</b><small>${esc(dest)}, ${f.pagado ? 'pagado' : 'vence el ' + fCorta(f.vence)}</small></div><div class="val m">${fmt(f.valor)}</div></div>`;
+    const tog = f.unico ? `togglePagoUnico('${f.fijoId}')` : `togglePago('${f.fijoId}')`, edit = f.unico ? `hojaUnico('${f.fijoId}')` : `hojaFijo('${f.fijoId}')`;
+    return `<div class="item fijo ${f.pagado ? 'hecho' : ''}"><button class="check ${f.pagado ? 'on' : ''}" aria-label="Marcar pagado" onclick="${tog}">${ico('check')}</button>
+      ${tileCat(kk, 40)}<div class="tx tap" onclick="${edit}"><b>${esc(f.nombre)}</b><small>${esc(dest)}, ${f.pagado ? 'pagado' : (f.unico ? 'para el ' : 'vence el ') + fCorta(f.vence)}</small></div><div class="val m">${fmt(f.valor)}</div></div>`;
   };
+  html += `<div class="sec">Gastos únicos <button onclick="hojaUnico()">+ Agregar</button></div>`;
+  html += unicos.length ? unicos.map(filaFijo).join('') : `<div class="vacio">¿Viene un gasto de una sola vez este ${nombreCiclo() === 'mes' ? 'mes' : 'periodo'}? (matrícula, SOAT, un cumpleaños…) Agrégalo y se descuenta desde ya.</div>`;
+  const pendF = soloFijos.filter(f => !f.pagado), pagF = soloFijos.filter(f => f.pagado);
   html += `<div class="sec">Pagos fijos <button onclick="hojaFijo()">+ Agregar</button></div>`;
-  if (!fijos.length) html += `<div class="vacio">Agrega arriendo, servicios, planes o cuotas: lo que pagas siempre.</div>`;
-  if (pend.length) html += `<div class="dia-h"><span>Por pagar</span><span class="m num">${fmt(sum(pend, f => f.valor))}</span></div>${pend.map(filaFijo).join('')}`;
-  if (pag.length) html += `<div class="dia-h"><span>Pagados</span><span class="m num">${fmt(sum(pag, f => f.valor))}</span></div>${pag.map(filaFijo).join('')}`;
+  if (!soloFijos.length) html += `<div class="vacio">Agrega arriendo, servicios, planes o cuotas: lo que pagas siempre.</div>`;
+  if (pendF.length) html += `<div class="dia-h"><span>Por pagar</span><span class="m num">${fmt(sum(pendF, f => f.valor))}</span></div>${pendF.map(filaFijo).join('')}`;
+  if (pagF.length) html += `<div class="dia-h"><span>Pagados</span><span class="m num">${fmt(sum(pagF, f => f.valor))}</span></div>${pagF.map(filaFijo).join('')}`;
   $('pg-presupuesto').innerHTML = html;
 }
 /* ── Me pagaron (fecha real del pago) ── */
@@ -1589,6 +1607,29 @@ function desmarcarPago(p) {
   S.pagos = S.pagos.filter(x => x.id !== p.id);
   S.aportes = S.aportes.filter(a => a.origen !== 'pago:' + p.id);
   S.abonos = S.abonos.filter(a => a.origen !== 'pago:' + p.id);
+}
+/* ── Gastos únicos ── */
+function togglePagoUnico(id) { const u = S.unicos.find(x => x.id === id); if (!u) return; u.pagado = !u.pagado; guardar('unicos'); render(); }
+function hojaUnico(id) {
+  const u = id ? S.unicos.find(x => x.id === id) : null, c = cicloActual();
+  abrirHoja(`<h3>${u ? 'Editar gasto único' : 'Gasto único'}</h3><p class="desc">Un gasto de una sola vez que ya sabes que viene. Se descuenta de tu presupuesto desde ya y no se repite.</p>
+    <div class="campo"><label>¿Qué es?</label><input class="in" id="huNombre" value="${esc(u ? u.nombre : '')}" placeholder="Ej. Matrícula, SOAT, cumpleaños" maxlength="40"></div>
+    <div class="dos"><div class="campo"><label>Valor</label><input class="in" id="huValor" data-monto value="${u ? u.valor : ''}"></div>
+    <div class="campo"><label>¿Para cuándo?</label><input class="in" type="date" id="huFecha" value="${u ? u.fecha : hoyStr()}"></div></div>
+    <div class="campo"><label>Categoría</label><select class="in" id="huCat">${optsCats(u ? u.cat : null)}</select></div>
+    <div class="acciones">${u ? `<button class="btn sec2" onclick="borrarUnico('${u.id}')">${ico('trash')}</button>` : ''}<button class="btn" onclick="guardarUnico('${u ? u.id : ''}')">Guardar</button></div>`);
+  if (!u) setTimeout(() => $('huNombre').focus(), 350);
+}
+function guardarUnico(id) {
+  const nombre = $('huNombre').value.trim(), valor = parseMonto($('huValor').value), fecha = $('huFecha').value || hoyStr();
+  if (!nombre || !valor) { toast('Pon qué es y cuánto vale'); return; }
+  const datos = {nombre, valor, fecha, cat: $('huCat').value};
+  if (id) Object.assign(S.unicos.find(x => x.id === id), datos); else S.unicos.push({id: genId(), pagado: false, ...datos});
+  guardar('unicos'); cerrarHoja(); toast('Gasto único guardado'); render();
+}
+async function borrarUnico(id) {
+  if (!await uiConfirm('Deja de descontarse de tu presupuesto.', {titulo: '¿Borrar gasto único?', ok: 'Borrar', peligro: true})) return;
+  S.unicos = S.unicos.filter(x => x.id !== id); guardar('unicos'); render();
 }
 function hojaFijo(id) {
   const f = id ? S.fijos.find(x => x.id === id) : null;
@@ -2033,6 +2074,7 @@ function exportarExcel() {
     ...ciclosHistorial(36).map(c => { const r = resumenCiclo(c); return [c.ini, c.fin, r.ing, r.fijosGasto, r.variables, r.ahorro, r.deudas, r.libre, r.ing ? Math.round((r.ahorro + r.deudas) / r.ing * 100) : 0]; })], [12, 12, 12, 12, 15, 12, 12, 12, 9]);
   hoja('Gastos', [['Fecha', 'Categoría', 'Tipo', 'Nota', 'Valor'], ...[...S.gastos].sort((a, b) => a.fecha.localeCompare(b.fecha)).map(g => { const k = cat(g.cat); return [g.fecha, k.nombre, k.grupo === 'necesidad' ? 'Necesidad' : 'Gusto', g.nota || '', g.monto]; })], [12, 18, 11, 28, 12]);
   hoja('Gastos fijos', [['Nombre', 'Valor', 'Día', 'Tipo', 'Categoría / destino'], ...S.fijos.map(f => [f.nombre, f.valor, f.dia, f.destino === 'meta' ? 'Aporte a meta' : f.destino === 'deuda' ? 'Cuota de deuda' : 'Gasto', f.destino === 'meta' ? nombreMeta(f.destinoId) : f.destino === 'deuda' ? nombreDeuda(f.destinoId) : cat(f.cat).nombre])], [22, 12, 6, 15, 22]);
+  if (S.unicos && S.unicos.length) hoja('Gastos únicos', [['Fecha', 'Nombre', 'Categoría', 'Valor', 'Pagado'], ...S.unicos.map(u => [u.fecha, u.nombre, cat(u.cat).nombre, u.valor, u.pagado ? 'Sí' : 'No'])], [12, 24, 18, 12, 8]);
   hoja('Pagos realizados', [['Ciclo', 'Fecha', 'Nombre', 'Valor', 'Tipo'], ...S.pagos.map(p => [p.ciclo, p.fecha, p.nombre, p.valor, p.destino])], [12, 12, 22, 12, 10]);
   if (S.ingresos.length) hoja('Ingresos extra', [['Fecha', 'Origen', 'Valor', 'A metas', 'Meta', 'Al presupuesto'], ...S.ingresos.map(i => [i.fecha, i.nombre || '', i.monto, i.aMeta || 0, i.metaId ? nombreMeta(i.metaId) : '', i.monto - (i.aMeta || 0)])], [12, 20, 12, 12, 20, 14]);
   if (S.metas.length) {
@@ -2280,15 +2322,49 @@ let _promptInstalar = null;
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); _promptInstalar = e; if (pagina === 'ajustes' || pagina === 'inicio') render(); });
 const esStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 const esIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) && !esStandalone();
-const esInstalable = () => !PREVIEW && !esStandalone() && (!!_promptInstalar || esIOS());
+const esAndroid = () => /android/i.test(navigator.userAgent);
+const esInstalable = () => !PREVIEW && !esStandalone() && (!!_promptInstalar || esIOS() || esAndroid());
+/* En qué navegador está abierta (para dar los pasos correctos) */
+function navegador() {
+  const u = navigator.userAgent;
+  if (/FBAN|FBAV|Instagram|WhatsApp|Line\/|TikTok|musical_ly/i.test(u)) return 'app';
+  if (/SamsungBrowser/i.test(u)) return 'samsung';
+  if (/EdgA/i.test(u)) return 'edge';
+  if (/OPR\/|Opera/i.test(u)) return 'opera';
+  if (/Firefox/i.test(u)) return 'firefox';
+  if (/MiuiBrowser|XiaoMi|MiBrowser/i.test(u)) return 'xiaomi';
+  if (/HuaweiBrowser|HONOR/i.test(u)) return 'huawei';
+  if (/Android/i.test(u) && /Chrome\//i.test(u) && !/; wv\)/i.test(u)) return 'chrome';
+  return 'otro';
+}
+/* Enlace que abre esta misma app en Chrome (Android) */
+const enlaceChrome = () => `intent://${location.host}${location.pathname}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(location.href)};end`;
+const PASOS_NAV = {
+  samsung: {n: 'Samsung Internet', p: [['Toca el menú ☰', 'Las tres rayas, abajo a la derecha'], ['"Agregar página a"', 'O el ícono de descarga junto a la dirección, si aparece'], ['"Pantalla de inicio"', 'Queda con su ícono, como cualquier app']]},
+  opera: {n: 'Opera', p: [['Toca el menú ⋮', 'Arriba o abajo a la derecha'], ['"Pantalla de inicio"', 'O "Agregar a la pantalla de inicio"'], ['Toca "Agregar"', 'Queda con su ícono']]},
+  edge: {n: 'Edge', p: [['Toca el menú …', 'Abajo, en el centro'], ['"Agregar al teléfono"', 'O "Instalar aplicación"'], ['Toca "Instalar"', 'Queda con su ícono']]},
+  firefox: {n: 'Firefox', p: [['Toca el menú ⋮', 'Arriba o abajo a la derecha'], ['"Instalar"', 'O "Agregar a la pantalla de inicio"'], ['Toca "Agregar"', 'Queda con su ícono']]},
+  chrome: {n: 'Chrome', p: [['Toca el menú ⋮', 'Arriba a la derecha'], ['"Instalar app"', 'O "Agregar a pantalla principal"'], ['Toca "Instalar"', 'Queda con su ícono']]}
+};
 async function instalar() {
   if (_promptInstalar) { _promptInstalar.prompt(); const r = await _promptInstalar.userChoice; _promptInstalar = null; if (r.outcome === 'accepted') toast('¡Listo! Búscala en tu pantalla de inicio'); render(); return; }
+  const paso = (i, t, d) => `<div class="item"><div class="em">${i}</div><div class="tx"><b>${t}</b><small>${d}</small></div></div>`;
   if (esIOS()) { abrirHoja(`<h3>Instalar en iPhone</h3><p class="desc">Tres pasos en Safari:</p>
-    <div class="item"><div class="em">1</div><div class="tx"><b>Toca Compartir</b><small>El cuadrito con la flecha hacia arriba, abajo en Safari</small></div></div>
-    <div class="item"><div class="em">2</div><div class="tx"><b>"Agregar a inicio"</b><small>Baja un poco en la lista para encontrarlo</small></div></div>
-    <div class="item"><div class="em">3</div><div class="tx"><b>Toca "Agregar"</b><small>Aparece con tu ícono, como cualquier app</small></div></div>
+    ${paso(1, 'Toca Compartir', 'El cuadrito con la flecha hacia arriba, abajo en Safari')}${paso(2, '"Agregar a inicio"', 'Baja un poco en la lista para encontrarlo')}${paso(3, 'Toca "Agregar"', 'Aparece con tu ícono, como cualquier app')}
     <button class="btn full" style="margin-top:14px" onclick="cerrarHoja()">Entendido</button>`); return; }
-  abrirHoja(`<h3>Instalar la app</h3><p class="desc">En Chrome toca el menú ⋮ y elige <b>"Instalar app"</b> o <b>"Agregar a pantalla principal"</b>.</p><button class="btn full" onclick="cerrarHoja()">Entendido</button>`);
+  const nav = navegador(), info = PASOS_NAV[nav];
+  const tieneDatos = S.gastos.length > 0 || S.pagos.length > 0;
+  const botonChrome = esAndroid() && nav !== 'chrome' ? `<a class="btn ${info ? 'sec2' : ''} full" style="margin-top:10px;text-decoration:none" href="${enlaceChrome()}">Abrir en Chrome para instalar</a>` : '';
+  if (info) {
+    abrirHoja(`<h3>Instalar la app</h3><p class="desc">Estás en <b>${info.n}</b>. Así se instala:</p>
+      ${info.p.map((x, i) => paso(i + 1, x[0], x[1])).join('')}
+      <button class="btn full" style="margin-top:14px" onclick="cerrarHoja()">Entendido</button>${tieneDatos ? '' : botonChrome}`);
+  } else {
+    abrirHoja(`<h3>Instalar la app</h3><p class="desc">${nav === 'app' ? 'Abriste el enlace dentro de otra app (WhatsApp, Facebook…). Desde ahí no se puede instalar.' : 'Este navegador no deja instalar apps.'} Toca el botón y se abre en Chrome, donde sí se instala con un toque.</p>
+      ${botonChrome || '<p class="desc">Abre este mismo enlace en Chrome o Safari.</p>'}
+      ${tieneDatos ? '<p class="desc" style="margin-top:12px">Ojo: lo que ya registraste está guardado en este navegador. En Chrome la app empieza vacía; usa Ajustes → Descargar copia de seguridad y luego restáurala allá.</p>' : ''}
+      <button class="btn sec2 full" style="margin-top:10px" onclick="cerrarHoja()">Ahora no</button>`);
+  }
 }
 async function protegerAlmacenamiento() { try { if (navigator.storage && navigator.storage.persist && !(await navigator.storage.persisted())) await navigator.storage.persist(); } catch (e) {} }
 function registrarSW() { if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {}); }
