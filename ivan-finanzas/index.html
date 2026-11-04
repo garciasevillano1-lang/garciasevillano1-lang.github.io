@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="Iván Finanzas" />
-  <meta name="theme-color" content="#070a12" />
+  <meta name="theme-color" content="#06080c" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Iván Finanzas</title>
   <link rel="icon" type="image/png" href="favicon-64.png" />
@@ -1655,6 +1655,74 @@
         animation-iteration-count: 1 !important; transition-duration: 0.001ms !important;
       }
     }
+    /* ═════ v6 · Minimal tech: superficies planas, poco borde, un solo protagonista ═════ */
+    :root:not([data-theme="light"]) {
+      --bg: #06080c; --bg-glass: rgba(6,8,12,0.86); --surface: #0a0d13; --surface-glass: rgba(16,19,27,0.9);
+      --card: #0e1118; --card-alt: #12161f; --card-hi: #171c27; --input-bg: #0a0d13;
+      --border: rgba(255,255,255,0.055); --border-md: rgba(255,255,255,0.09); --hairline: rgba(255,255,255,0.045);
+      --radius: 24px; --radius-sm: 18px; --radius-xs: 12px;
+      --shadow: 0 10px 30px rgba(0,0,0,0.45); --shadow-sm: none; --glow: none;
+      --navy-hero: linear-gradient(145deg, #1a2035 0%, #0e121c 60%, #14110a 100%);
+      --hero-edge: linear-gradient(140deg, rgba(255,255,255,0.10), rgba(255,255,255,0.02));
+    }
+    body { background: var(--bg); }
+    #page-inicio .header { background: var(--bg-glass); }
+    .semana-tira, .perfil-card, .lema-dia { display: none !important; }
+    .greeting { font-size: 24px; font-weight: 600; letter-spacing: -0.6px; }
+    .summary-card.main::after, .ahorro-hero::after, .port-hero::after, .hero-filo { display: none; }
+    .summary-card.main, .ahorro-hero, .port-hero { box-shadow: none; }
+    .summary-card.main::before, .ahorro-hero::before, .port-hero::before { background: radial-gradient(360px 160px at 100% 0%, rgba(232,196,104,0.10), transparent 70%); }
+    .port-hero.hero-onza { padding: 26px 22px; padding-right: 120px; }
+    .port-hero.hero-onza .port-hero-value { font-size: 38px; font-weight: 700; letter-spacing: -1.6px; }
+    .port-hero-label, .card-label, .pat-card-label { font-size: 10px; letter-spacing: 1.6px; font-weight: 600; color: var(--muted); }
+    .hero-pantera { opacity: .55; }
+    .ciclo-banner { background: var(--card); border: 1px solid var(--border); box-shadow: none; border-radius: var(--radius); }
+    .ciclo-stat-value { font-weight: 600; }
+    .chip-btn { background: transparent; border: 1px solid var(--border-md); color: var(--text-dim); box-shadow: none; }
+    .patrimonio-grid { gap: 10px; }
+    #patrimonioGrid .pat-card { background: var(--card); border: 1px solid var(--border); box-shadow: none; border-radius: var(--radius-sm); }
+    #patrimonioGrid .pat-card::before { display: none; }
+    .pat-card-value { font-size: 15px; font-weight: 600; }
+    .pat-card-icon { background: rgba(255,255,255,0.045) !important; }
+    .port-dist-card, .summary-card, .summary-card.presup-card { background: var(--card); border: 1px solid var(--border); box-shadow: none; border-radius: var(--radius); }
+    .summary-card.main.presup-card { background: #10141d; border-color: var(--border); }
+    .card-value { font-weight: 600; letter-spacing: -1px; }
+    .port-dist-title { font-size: 10px; letter-spacing: 1.6px; font-weight: 600; color: var(--muted); }
+    .btn-add-new { border-style: solid; border-color: var(--border-md); background: transparent; color: var(--text-dim); font-weight: 600; }
+    /* Barra inferior: píldora simple + botón circular aparte */
+    .nav-tabs { border: 1px solid var(--border-md); border-radius: 28px; box-shadow: var(--shadow); left: 14px; right: 14px; max-width: none; }
+    body:has(#page-inicio.active) .nav-tabs { right: 88px; }
+    .nav-tabs::before { background: rgba(255,255,255,0.075); box-shadow: none; border-radius: 22px; }
+    .nav-tab { font-weight: 600; }
+    .fab-rapido { right: 14px; bottom: calc(10px + env(safe-area-inset-bottom)); width: 60px; height: 60px; background: var(--card-hi); color: var(--accent); box-shadow: var(--shadow), inset 0 0 0 1px var(--border-md); }
+    .fab-rapido .ico { font-size: 24px; stroke-width: 2; }
+    /* Ciclo compacto */
+    .ciclo-banner { grid-template-columns: 1fr 1fr 1fr; padding: 14px 18px; gap: 10px; margin-top: 0; }
+    .ciclo-banner::before { display: none; }
+    .ciclo-banner .ciclo-stat:nth-of-type(3) { display: none; }
+    .ciclo-info-main { padding-bottom: 10px; }
+    .ciclo-title { font-size: 9.5px; letter-spacing: 1.4px; color: var(--text-dim); font-weight: 600; }
+    .ciclo-range { font-size: 11.5px; color: var(--muted); font-weight: 500; }
+    .ciclo-stat-label { font-size: 9px; letter-spacing: 1px; font-weight: 600; }
+    .ciclo-stat-value { font-size: 13.5px; font-weight: 600; }
+    .ciclo-stat-value.accent, .ciclo-stat-value.warn { color: var(--text); }
+    .ciclo-stat-value.salary { color: var(--accent); }
+    /* Patrimonio: pantera a un lado, número entero */
+    .port-hero.hero-onza { padding-right: 20px; }
+    .port-hero.hero-onza .port-hero-value { font-size: 34px; position: relative; z-index: 1; }
+    .port-hero.hero-onza .port-hero-sub { max-width: none; font-size: 12.5px; position: relative; z-index: 1; }
+    .hero-pantera { opacity: .28; right: -26px; }
+    /* Barra: íconos, etiqueta solo en la pestaña activa */
+    .nav-tab .tab-label { display: none; }
+    .nav-tab.active .tab-label { display: block; }
+    .nav-tab { gap: 3px; }
+    .ciclo-banner { grid-template-columns: 1.25fr 1fr 1fr; gap: 10px 8px; }
+    .ciclo-stat-label, .ciclo-stat-value { white-space: nowrap; }
+    .ciclo-stat-label { font-size: 8.5px; letter-spacing: .7px; }
+    .port-hero.hero-onza .port-hero-value { font-size: 32px; }
+    .hero-pantera { opacity: .2; }
+    .btn-primary { box-shadow: none; background: #d4ab52; }
+    .btn-primary:active { transform: scale(.985); }
   </style>
 </head>
 <body>
@@ -2928,7 +2996,7 @@
         <div class="config-row">
           <div>
             <div class="config-label">Iván Finanzas</div>
-            <div class="config-sublabel">Control financiero personal · v5.10.3</div>
+            <div class="config-sublabel">Control financiero personal · v5.11.0</div>
           </div>
         </div>
       </div>

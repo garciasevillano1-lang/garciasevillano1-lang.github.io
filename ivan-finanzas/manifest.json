@@ -7,8 +7,8 @@
   "display": "standalone",
   "orientation": "portrait",
   "lang": "es",
-  "background_color": "#070a12",
-  "theme_color": "#070a12",
+  "background_color": "#06080d",
+  "theme_color": "#06080d",
   "description": "Control financiero personal: presupuesto semanal, ahorro, inversiones e informes.",
   "icons": [
     {
