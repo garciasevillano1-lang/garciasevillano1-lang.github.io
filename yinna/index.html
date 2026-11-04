@@ -21,7 +21,7 @@
 <script id="app-config" type="application/json">
 {
  "id": "mis-finanzas-a3aca",
- "version": "1.3",
+ "version": "1.4",
  "appNombre": "Mis finanzas",
  "appCorto": "Mis finanzas",
  "usuario": "Yinna",
@@ -1020,7 +1020,7 @@ const store = {
 function avisarPadre() {
   try { parent.postMessage({tipo: 'perfil-preview', perfil: {estilo: S.perfil.estilo, paleta: S.perfil.paleta, colores: S.perfil.colores, tema: S.perfil.tema}}, '*'); } catch (e) {}
 }
-const guardar = (...ks) => ks.forEach(k => store.set(k, S[k]));
+const guardar = (...ks) => ks.map(k => store.set(k, S[k])).every(Boolean);   // true si todo quedó guardado
 /* Claves de datos, incluidas las de los módulos a la medida (EXTRAS.claves) */
 const todasClaves = () => [...CLAVES, ...((window.EXTRAS && EXTRAS.claves) || [])];
 
