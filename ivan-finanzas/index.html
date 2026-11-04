@@ -1760,6 +1760,34 @@
     .hero-row span:first-child b { text-align: left; }
     /* Pantalla de carga: solo el monograma, sin recuadro */
     #splashScreen .logo-tile { background: none; border: 0; box-shadow: none; width: 92px; height: 92px; border-radius: 0; overflow: visible; }
+
+    /* ═══ v8 · Botones refinados ═══ */
+    .btn-primary, .btn-save {
+      background: linear-gradient(180deg, #e3c47c 0%, #cba453 100%);
+      color: #11141c; border: 0; border-radius: 14px; min-height: 52px;
+      font-size: 14.5px; font-weight: 600; letter-spacing: .2px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 1px 2px rgba(0,0,0,.35);
+      transition: transform .15s ease, filter .15s ease;
+    }
+    .btn-primary::before { display: none; }
+    .btn-primary:hover, .btn-save:hover { filter: none; }
+    .btn-primary:active, .btn-save:active { transform: scale(.985); filter: brightness(.93); box-shadow: inset 0 1px 0 rgba(255,255,255,.18); }
+    .btn-primary .ico, .btn-save .ico { font-size: 17px; stroke-width: 2; opacity: .85; }
+    .btn-save.peligro { background: transparent; color: var(--danger); border: 1px solid rgba(204,95,86,.45); box-shadow: none; }
+    .btn-ghost { background: transparent; border: 1px solid var(--border-md); color: var(--text-dim); border-radius: 14px; font-weight: 600; }
+    .btn-ghost:active { background: var(--card-alt); }
+    .btn-danger { background: transparent; border-color: rgba(204,95,86,.30); border-radius: 14px; font-weight: 600; }
+    .btn-reset { border-radius: 14px; font-weight: 600; }
+    .btn-export { border-radius: 14px; box-shadow: none; font-weight: 500; }
+    .btn-export .ico { color: var(--text-dim); }
+    .btn-add-new { border-radius: 14px; }
+    /* Chips: seleccionado = contorno y tinte dorado, no relleno */
+    .rapido-chip.sel { background: var(--accent-bg); color: var(--accent); border: 1px solid var(--accent); box-shadow: none; font-weight: 600; }
+    .rapido-chip { font-weight: 500; }
+    .gf-checkbox.checked, .cierre-fila.on .cierre-box { background: var(--accent); box-shadow: none; }
+    /* Enlaces de texto con flecha */
+    .patr-reg, .pago-fila { font-weight: 500; }
+    .patr-reg button, .pago-fila button { color: var(--accent); background: transparent; border: 0; }
   </style>
 </head>
 <body>
@@ -2979,7 +3007,7 @@
         <div class="config-row">
           <div>
             <div class="config-label">Iván Finanzas</div>
-            <div class="config-sublabel">Control financiero personal · v5.12.5</div>
+            <div class="config-sublabel">Control financiero personal · v5.13.0</div>
           </div>
         </div>
       </div>
