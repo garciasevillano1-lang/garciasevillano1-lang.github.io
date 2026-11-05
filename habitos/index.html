@@ -333,6 +333,23 @@ textarea.in{resize:none;min-height:74px;line-height:1.45}
 .tabs .mas{width:58px;height:58px;border-radius:20px;background:var(--acc);color:#fff;display:grid;place-items:center;margin:0 auto;transform:translateY(-16px);box-shadow:0 12px 26px -6px rgba(113,115,255,.8),0 0 0 5px var(--bg)}
 .tabs .mas:active{transform:translateY(-16px) scale(.93)}
 .tabs .mas svg.i{width:26px;height:26px;stroke-width:2.4}
+.cum,.cug{display:grid;grid-template-columns:26px repeat(17,minmax(0,1fr));gap:3px}
+.cum{font-size:10px;color:var(--mu);font-weight:600;margin-bottom:2px}
+.cum span{white-space:nowrap;overflow:visible}
+.cu{padding-top:12px;margin-top:12px;border-top:1px solid var(--line)}
+.cu:first-of-type{border-top:0;margin-top:4px;padding-top:6px}
+.cuh{display:flex;align-items:center;gap:10px;width:100%;text-align:left;margin-bottom:9px}
+.cuh .em{width:30px;height:30px;border-radius:9px;font-size:15px}
+.cun{flex:1;min-width:0;font-family:var(--serif);font-weight:600;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cuh .rk{font-size:13px}
+.cuh .rk svg.i{width:15px;height:15px}
+.cuh b{width:42px;text-align:right;font-size:14px;font-weight:800;color:var(--c)}
+.mc{display:grid;grid-template-rows:repeat(7,auto);gap:3px}
+.mwl{display:grid;grid-template-rows:repeat(7,1fr);gap:3px;font-size:9px;color:var(--mu);font-weight:600}
+.mwl span{display:flex;align-items:center}
+.cug .ce{width:100%;height:auto;aspect-ratio:1;border-radius:4px;font-size:0;min-width:0;padding:0}
+.cug .ce.hoy{box-shadow:inset 0 0 0 1.5px var(--tx)!important}
+.cug .ce.falla::after{width:70%;height:1.4px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -347,7 +364,7 @@ textarea.in{resize:none;min-height:74px;line-height:1.45}
 'use strict';
 /* ============ Datos ============ */
 const CLAVE = 'habitos-app-v1';
-const VERSION = '1.3';
+const VERSION = '1.4';
 const COLORES = ['#ffb21e','#6366f6','#3ddc84','#ff5c78','#22c7e8','#a66bff','#ff8a3d'];
 const EMOJIS = ['🧘','📖','🗣️','💪','💧','🧠','🎯','✍️','🛏️','🥗','📵','🚭','💰','🙏','🎸','🧹','☀️','🌙'];
 // nombre, emoji, color, modo, veces, tipo, meta, unidad
@@ -891,6 +908,43 @@ function diaGen(d){ // hábitos que se programan por día (los "por semana" se m
   }
   return n ? { n, ok, p: ok/n } : null;
 }
+function claseCelda(h, d, ini){
+  const k = ds(d);
+  if(d < ini && !h.hechos[k]) return 'pre';
+  if(h.libres[k] || enPausa(k)) return 'libre';
+  if(h.tipo === 'evitar') return h.hechos[k] ? 'falla' : 'on';
+  if(cumple(h,k)) return 'on';
+  if(h.tipo === 'cantidad' && valor(h,k) > 0) return 'parcial';
+  if(!aplica(h,d) && !porSemana(h)) return 'na';
+  return '';
+}
+function vCuadros(hs){
+  const hoy = hoyD(), N = 17, desde = lunes(addD(hoy, -7*(N-1)));
+  let meses = '<span></span>', ult = -1;
+  for(let j=0;j<N;j++){
+    const w = addD(desde, 7*j); let m = '';
+    for(let i=0;i<7;i++){ const d = addD(w,i); if(d.getDate() === 1 || j === 0){ if(d.getMonth() !== ult){ m = MESES[d.getMonth()]; ult = d.getMonth(); } break; } }
+    meses += `<span>${m ? m.charAt(0).toUpperCase() + m.slice(1) : ''}</span>`;
+  }
+  const dl = '<div class="mwl"><span>Lun</span><span></span><span>Mié</span><span></span><span>Vie</span><span></span><span>Dom</span></div>';
+  return `<div class="cum">${meses}</div>` + hs.map(h => {
+    const ini = inicio(h); let cols = '';
+    for(let j=0;j<N;j++){
+      const w = addD(desde, 7*j); let c = '';
+      for(let i=0;i<7;i++){
+        const d = addD(w,i), k = ds(d);
+        if(d > hoy){ c += '<i class="ce fut"></i>'; continue; }
+        c += `<button class="ce ${claseCelda(h,d,ini)}${+d===+hoy?' hoy':''}" data-acc="tog" data-h="${h.id}" data-d="${k}" aria-label="${esc(h.nombre)}, ${fechaCorta(d)}"></button>`;
+      }
+      cols += `<div class="mc">${c}</div>`;
+    }
+    const r = racha(h);
+    return `<div class="cu" style="${vars(h.color)}">
+      <button class="cuh" data-acc="abrir" data-h="${h.id}"><span class="em">${h.emoji || esc(h.nombre.charAt(0).toUpperCase())}</span>
+        <span class="cun">${esc(h.nombre)}</span><span class="rk${r.n ? '' : ' cero'}">${ico('llama')}${r.n}</span><b>${cumplimiento(h)}%</b></button>
+      <div class="cug">${dl}${cols}</div></div>`;
+  }).join('');
+}
 function vResumenGeneral(){
   const hoy = hoyD(), hs = activos(), P = periodoRes;
   let html = `<div class="top"><h1 style="flex:1;font-size:28px;padding-left:4px">Resumen</h1></div>`;
@@ -971,11 +1025,11 @@ function vResumenGeneral(){
     </div></section>`;
   }
 
-  // Mapa general
-  html += `<section class="card"><div class="ct"><span class="lb">Mapa general</span><span class="md">Toca un día para ver el detalle</span></div>${vMapaGeneral()}
-    <div class="ley"><span>Menos</span>${[.12,.35,.6,.85,1].map(x=>`<i style="background:rgba(113,115,255,${x})"></i>`).join('')}<span>Más</span><span style="margin-left:auto"><i style="background:#7173ff;box-shadow:0 0 0 1.5px #fff"></i>Perfecto</span></div>
+  // Tracker de cada hábito
+  html += `<section class="card"><div class="ct"><span class="lb">Tracker por hábito</span><span class="md">Últimas 17 semanas</span></div>${vCuadros(hs)}
+    <div class="ley"><span><i style="background:var(--tx)"></i>Cumplido</span><span><i style="background:rgba(255,255,255,.12)"></i>Pendiente</span><span><i style="box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)"></i>No cuenta</span></div>
   </section>`;
-  html += `<p class="nota" style="text-align:center;padding:4px 10px 0">El mapa, los días de la semana y los turnos usan los hábitos que se programan por día. Los de "veces por semana" entran en el % general y en la comparativa.</p>`;
+  html += `<p class="nota" style="text-align:center;padding:4px 10px 0">Toca un cuadro para marcar o desmarcar ese día. Mantén presionado para una nota o un día libre.</p>`;
   return html;
 }
 function vEvolucion(hs){
