@@ -1,5 +1,5 @@
 /* Service worker — la app abre sin internet. Mismo esquema del kit de apps. */
-const CACHE = 'habitos-v1.0';
+const CACHE = 'habitos-v1.1';
 const PREFIJO = 'habitos-';
 const ARCHIVOS = ['./', './index.html', './manifest.json', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
 
