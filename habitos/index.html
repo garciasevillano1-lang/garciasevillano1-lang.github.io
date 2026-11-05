@@ -244,6 +244,48 @@ textarea.in{resize:none;min-height:74px;line-height:1.45}
 .toast.ver{opacity:1;transform:translate(-50%,0)}
 .conf{position:fixed;left:50%;top:22%;width:9px;height:9px;border-radius:3px;z-index:50;pointer-events:none;animation:conf 1.15s cubic-bezier(.15,.7,.35,1) forwards}
 @keyframes conf{0%{transform:translate(0,0) rotate(0) scale(.6);opacity:1}100%{transform:translate(var(--x),var(--y)) rotate(var(--r)) scale(1);opacity:0}}
+.kpi{display:flex;align-items:center;gap:18px;padding:18px 16px}
+.kpi .rg{position:relative;width:92px;height:92px;flex:none}
+.kpi .rg b{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:24px;font-weight:800;letter-spacing:-.6px}
+.kpi .rg b small{font-size:10.5px;color:var(--mu);font-weight:600;letter-spacing:0}
+.st{flex:1;display:grid;gap:9px;min-width:0}
+.st div{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;color:var(--mu)}
+.st b{color:var(--tx);font-size:15px;font-weight:800}
+.st b small{color:var(--mu);font-size:11px;font-weight:600}
+.delta{justify-self:start;font-size:11.5px;font-weight:700;padding:4px 9px;border-radius:20px;background:rgba(79,209,161,.13);color:var(--desc)}
+.delta.neg{background:rgba(255,157,92,.13);color:#ffab73}
+.delta.neu{background:rgba(255,255,255,.06);color:var(--mu)}
+.ins .in1{display:flex;gap:10px;align-items:flex-start;padding:8px 2px;font-size:13.5px;line-height:1.45;color:#d6d6de}
+.ins .in1 svg.i{width:18px;height:18px;color:var(--acc);margin-top:1px}
+.ins .in1 b{color:var(--tx)}
+.rr{display:flex;align-items:center;gap:11px;width:100%;text-align:left;padding:9px 2px}
+.rr .rx{flex:1;min-width:0}
+.rr .rn{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.rr .rn>span{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rr .rn small{color:var(--mu);font-size:11.5px;display:flex;align-items:center;gap:2px;white-space:nowrap}
+.rr .rn small svg.i{width:12px;height:12px;color:var(--c)}
+.rr .bar{display:block;height:8px;border-radius:6px;background:var(--cs);overflow:hidden;margin-top:7px}
+.rr .bar i{display:block;height:100%;background:var(--c);border-radius:6px;transform-origin:left;animation:crecex .7s cubic-bezier(.2,.8,.2,1) both}
+@keyframes crecex{from{transform:scaleX(0)}}
+.rr .rp{width:44px;text-align:right;font-size:15px;font-weight:800;color:var(--c)}
+.evw{position:relative;padding-left:34px;height:150px;margin-top:4px}
+.evw span{position:absolute;left:0;font-size:10px;color:var(--dim);font-weight:600}
+.evw .evo{width:100%;height:100%;display:block;overflow:visible}
+.lg{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.lg button{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:20px;background:var(--card2);font-size:12px;font-weight:700;transition:opacity .2s}
+.lg button i{width:8px;height:8px;border-radius:50%;background:var(--c);display:block}
+.lg button.off{opacity:.38}
+.tur{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tur>div{background:var(--tcs);border-radius:14px;padding:12px 10px;color:var(--tcc)}
+.tur svg.i{width:20px;height:20px}
+.tur span{display:block;font-size:12px;font-weight:700;margin-top:6px;color:var(--mu)}
+.tur b{display:block;font-size:22px;font-weight:800;color:var(--tx);letter-spacing:-.5px;margin-top:2px}
+.tur i{display:block;height:5px;border-radius:4px;background:rgba(255,255,255,.08);margin-top:8px;overflow:hidden}
+.tur em{display:block;height:100%;background:var(--tcc);border-radius:4px}
+.res{cursor:pointer}
+.res .ver{display:flex;align-items:center;gap:4px;color:var(--mu);font-size:12px;font-weight:700;margin-left:auto}
+.res .ver svg.i{width:16px;height:16px}
+.ley i{width:10px;height:10px;border-radius:3px;display:block}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -258,7 +300,7 @@ textarea.in{resize:none;min-height:74px;line-height:1.45}
 'use strict';
 /* ============ Datos ============ */
 const CLAVE = 'habitos-app-v1';
-const VERSION = '1.1';
+const VERSION = '1.2';
 const COLORES = ['#ffb21e','#6366f6','#3ddc84','#ff5c78','#22c7e8','#a66bff','#ff8a3d'];
 const EMOJIS = ['🧘','📖','🗣️','💪','💧','🧠','🎯','✍️','🛏️','🥗','📵','🚭','💰','🙏','🎸','🧹','☀️','🌙'];
 // nombre, emoji, color, modo, veces, tipo, meta, unidad
@@ -351,6 +393,7 @@ const IC = {
   pausa:'<rect x="6.5" y="5" width="3.5" height="14" rx="1.2"/><rect x="14" y="5" width="3.5" height="14" rx="1.2"/>',
   caja:'<path d="M4 8h16v11a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19z"/><path d="M3 4.5h18V8H3zM10 12h4"/>',
   meta:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".8"/>',
+  grafica:'<path d="M5 20V12M11 20V5M17 20v-8M3 20.5h18"/>',
   turno:'<path d="M12 3v2M12 19v2M4.2 7l1.7 1M18.1 16l1.7 1M4.2 17l1.7-1M18.1 8l1.7-1"/><path d="M15.5 12a3.5 3.5 0 1 1-3.5-3.5"/>'
 };
 const ico = n => `<svg class="i" viewBox="0 0 24 24">${IC[n]}</svg>`;
@@ -493,9 +536,14 @@ function frecuenciaTxt(h){
 
 /* ============ Rutas ============ */
 let detalleDesdeLista = false, modoGrafico = 'mes';
-function ruta(){ const m = location.hash.match(/^#\/h\/(.+)$/); return m ? { pag:'detalle', id: decodeURIComponent(m[1]) } : { pag:'lista' }; }
+function ruta(){ if(location.hash === '#/resumen') return { pag:'resumen' }; const m = location.hash.match(/^#\/h\/(.+)$/); return m ? { pag:'detalle', id: decodeURIComponent(m[1]) } : { pag:'lista' }; }
 function render(anim){
   const r = ruta(), v = $('#vista'), fab = $('#fab');
+  if(r.pag === 'resumen'){
+    v.innerHTML = vResumenGeneral(); v.className = anim ? 'vista lado' : '';
+    const hm = v.querySelector('.hm'); if(hm) hm.scrollLeft = hm.scrollWidth;
+    document.title = 'Resumen · Hábitos'; fab.hidden = true; return;
+  }
   if(r.pag === 'detalle'){
     const h = buscar(r.id);
     if(!h){ location.replace('#'); return; }
@@ -531,8 +579,8 @@ function vResumen(){
     tur = '<div class="tg">' + [0,1,2].map(i => { const t = turnoDe(addD(hoy,i));
       return `<div class="${i?'suave':''}" style="${varsT(t)}">${ico(TURNOS[t].ic)}<div style="padding:0;background:none;display:block"><span>${i===0?'Hoy':i===1?'Mañana':'Pasado'}</span><b>${TURNOS[t].n}</b></div></div>`; }).join('') + '</div>';
   }
-  return `<section class="card res"><div class="rg">${anillo(segs,72,7)}<b>${hs.length ? `${ok}<small>/${hs.length}</small>` : '–'}</b></div>
-    <div style="min-width:0;flex:1"><h2>${fechaLarga(hoy)}</h2>${estado}</div>${tur}</section>`;
+  return `<section class="card res" data-acc="resumen"><div class="rg">${anillo(segs,72,7)}<b>${hs.length ? `${ok}<small>/${hs.length}</small>` : '–'}</b></div>
+    <div style="min-width:0;flex:1"><h2>${fechaLarga(hoy)}</h2>${estado}<span class="ver" style="margin:7px 0 0">${ico('grafica')}Ver resumen general</span></div>${tur}</section>`;
 }
 function claseDia(h, d, i){
   const k = ds(d), hoyB = i === 0;
@@ -547,7 +595,7 @@ function claseDia(h, d, i){
 }
 function vLista(){
   const lista = activos(), hoy = hoyD();
-  let html = `<div class="top centro"><button class="ib" data-acc="menu" aria-label="Menú">${ico('menu')}</button><h1>Hábitos</h1></div>`;
+  let html = `<div class="top centro"><button class="ib" data-acc="menu" aria-label="Menú">${ico('menu')}</button><h1>Hábitos</h1><span class="sp"></span>${lista.length ? `<button class="ib" data-acc="resumen" aria-label="Resumen general">${ico('grafica')}</button>` : ''}</div>`;
   const pa = pausaActiva();
   if(pa) html += `<div class="pausa">${ico('pausa')}<span>${pa.desde > ds(hoy) ? 'Pausa programada' : 'En pausa desde ' + fechaCorta(parse(pa.desde))}</span><button data-acc="reanudar">Reanudar</button></div>`;
   if(!lista.length){
@@ -687,6 +735,187 @@ function vGrafico(h){
   }).join('');
   return `<div class="ch">${bars}</div><div class="xl">${datos.map(d=>`<div>${d.x}<em>${d.y}</em></div>`).join('')}</div>
     <div class="ley"><span><i style="background:var(--c)"></i>Cumplido</span><span><i style="background:var(--cs)"></i>Meta del periodo</span></div>`;
+}
+
+/* ============ Vista: resumen general (todos los hábitos) ============ */
+let periodoRes = 30, modoEvo = 'semana', focoRes = null;
+function pctHabito(h, a, b){ // {ok, esp} del hábito entre a y b; hoy solo cuenta si ya está hecho
+  const hoy = hoyD(), fin = new Date(Math.min(+b, +hoy)), desde = new Date(Math.max(+a, +inicio(h)));
+  let ok = 0, esp = 0;
+  if(desde > fin) return { ok, esp };
+  if(porSemana(h)){
+    for(let w = lunes(desde); w <= fin; w = addD(w,7)){
+      let apl = 0, hechos = 0;
+      for(let i=0;i<7;i++){
+        const d = addD(w,i); if(d < desde || d > fin) continue;
+        const c = cumple(h, ds(d)); if(+d === +hoy && !c) continue;
+        if(aplica(h,d)) apl++; if(c) hechos++;
+      }
+      const e = h.veces * apl / 7; esp += e; ok += Math.min(e, hechos);
+    }
+    return { ok, esp };
+  }
+  for(let d = desde; d <= fin; d = addD(d,1)){
+    const c = cumple(h, ds(d)); if(+d === +hoy && !c) continue;
+    if(aplica(h,d)){ esp++; if(c) ok++; }
+  }
+  return { ok, esp };
+}
+function general(a, b){
+  let ok = 0, esp = 0;
+  for(const h of activos()){ const r = pctHabito(h,a,b); ok += r.ok; esp += r.esp; }
+  return esp ? { ok, esp, p: Math.round(ok/esp*100) } : null;
+}
+function diaGen(d){ // hábitos que se programan por día (los "por semana" se miden por semana)
+  const k = ds(d), esHoy = +d === +hoyD(); let n = 0, ok = 0;
+  for(const h of activos()){
+    if(porSemana(h) || d < inicio(h) || !aplica(h,d)) continue;
+    const c = cumple(h,k); if(esHoy && !c) continue;
+    n++; if(c) ok++;
+  }
+  return n ? { n, ok, p: ok/n } : null;
+}
+function vResumenGeneral(){
+  const hoy = hoyD(), hs = activos(), P = periodoRes;
+  let html = `<div class="top"><button class="ib" data-acc="volver" aria-label="Volver">${ico('atras')}</button><h1 style="flex:1">Resumen general</h1></div>`;
+  if(!hs.length) return html + `<div class="vacio"><h2>Aún no hay datos</h2><p>Crea un hábito y vuelve aquí para ver la comparativa.</p></div>`;
+  html += `<div class="seg ancho" style="margin-bottom:10px">${[7,30,90].map(n=>`<button class="${P===n?'si':''}" data-acc="periodo" data-n="${n}">${n} días</button>`).join('')}</div>`;
+
+  const a = addD(hoy, -(P-1)), g = general(a, hoy), gPrev = general(addD(a,-P), addD(a,-1));
+  // días perfectos y marcas
+  let perf = 0, conDatos = 0, marcas = 0;
+  for(let d = a; d <= hoy; d = addD(d,1)){ const x = diaGen(d); if(x){ conDatos++; if(x.ok === x.n) perf++; } }
+  for(const h of hs) marcas += contar(h, a, hoy);
+  let seguidos = 0;
+  for(let d = (diaGen(hoy) && diaGen(hoy).ok === diaGen(hoy).n) ? hoy : addD(hoy,-1); d >= addD(hoy,-400); d = addD(d,-1)){
+    const x = diaGen(d); if(!x) continue; if(x.ok === x.n) seguidos++; else break;
+  }
+  const gp = g ? g.p : 0, delta = g && gPrev ? g.p - gPrev.p : null;
+  html += `<section class="card kpi"><div class="rg">${arco(gp, '#6366f6', 92, 8)}<b>${g ? gp + '%' : '–'}<small>general</small></b></div>
+    <div class="st">
+      ${delta !== null ? `<span class="delta${delta < 0 ? ' neg' : ''}">${delta >= 0 ? '+' : ''}${delta} pts vs ${P} días anteriores</span>` : `<span class="delta neu">Primer periodo con datos</span>`}
+      <div><span>Días perfectos</span><b>${perf}<small>/${conDatos}</small></b></div>
+      <div><span>Perfectos seguidos</span><b>${seguidos}</b></div>
+      <div><span>Marcas</span><b>${marcas}</b></div>
+    </div></section>`;
+
+  // ventana para día de la semana y turnos (mínimo 30 días para que tenga sentido)
+  const V = Math.max(P, 30), av = addD(hoy, -(V-1));
+  const wd = Array.from({length:7}, () => ({ ok:0, n:0 })), tu = { D:{ok:0,n:0}, N:{ok:0,n:0}, L:{ok:0,n:0} };
+  for(let d = av; d <= hoy; d = addD(d,1)){
+    const x = diaGen(d); if(!x) continue;
+    wd[d.getDay()].ok += x.ok; wd[d.getDay()].n += x.n;
+    const t = turnoDe(d); if(t){ tu[t].ok += x.ok; tu[t].n += x.n; }
+  }
+  const orden = [1,2,3,4,5,6,0], wdp = orden.map(i => wd[i].n ? Math.round(wd[i].ok/wd[i].n*100) : null);
+  const rank = hs.map(h => { const r = pctHabito(h, a, hoy); return { h, r, p: r.esp ? Math.round(r.ok/r.esp*100) : null }; })
+                 .sort((x,y) => (y.p ?? -1) - (x.p ?? -1));
+
+  // Lo que dicen tus datos
+  const ins = [];
+  const conWd = orden.map((i,j)=>({ i, p:wdp[j] })).filter(x => x.p !== null);
+  if(conWd.length >= 4){
+    const mx = conWd.reduce((m,x)=>x.p>m.p?x:m), mn = conWd.reduce((m,x)=>x.p<m.p?x:m);
+    if(mx.p - mn.p >= 10) ins.push([ 'cal', `Cumples más los <b>${DIAS_L[mx.i]}</b> (${mx.p}%) y menos los <b>${DIAS_L[mn.i]}</b> (${mn.p}%).` ]);
+  }
+  if(turnosOn()){
+    const ts = CICLO.filter(t => tu[t].n).map(t => ({ t, p: Math.round(tu[t].ok/tu[t].n*100) }));
+    if(ts.length >= 2){
+      const mx = ts.reduce((m,x)=>x.p>m.p?x:m), mn = ts.reduce((m,x)=>x.p<m.p?x:m);
+      if(mx.p - mn.p >= 8) ins.push([ TURNOS[mn.t].ic, `Tu turno más difícil es <b>${TURNOS[mn.t].n}</b>: ${mn.p}% frente a ${mx.p}% en ${TURNOS[mx.t].n}.` ]);
+    }
+  }
+  const rv = rank.filter(x => x.p !== null);
+  if(rv.length >= 2 && rv[0].p - rv[rv.length-1].p >= 5) ins.push([ 'meta', `<b>${esc(rv[0].h.nombre)}</b> es tu hábito más constante (${rv[0].p}%). <b>${esc(rv[rv.length-1].h.nombre)}</b> necesita atención (${rv[rv.length-1].p}%).` ]);
+  if(ins.length) html += `<section class="card ins"><div class="ct"><span class="lb">Lo que dicen tus datos</span></div>${ins.map(([ic,t])=>`<div class="in1">${ico(ic)}<span>${t}</span></div>`).join('')}</section>`;
+
+  // Comparativa por hábito
+  html += `<section class="card"><div class="ct"><span class="lb">Comparativa por hábito</span><span class="md">Cumplimiento ${P} días</span></div>
+    ${rank.map(({h,r,p}) => `<button class="rr" style="${vars(h.color)}" data-acc="abrir" data-h="${h.id}">
+      <span class="em" style="width:34px;height:34px;font-size:17px;border-radius:10px">${h.emoji || esc(h.nombre.charAt(0).toUpperCase())}</span>
+      <span class="rx"><span class="rn"><span>${esc(h.nombre)}</span><small>${p === null ? 'sin datos aún' : `${Math.round(r.ok)}/${Math.round(r.esp)} · ${ico('llama')}${racha(h).n}`}</small></span>
+        <span class="bar"><i style="width:${p ?? 0}%"></i></span></span>
+      <b class="rp">${p === null ? '–' : p + '%'}</b></button>`).join('')}
+  </section>`;
+
+  // Evolución: general + cada hábito
+  html += vEvolucion(hs);
+
+  // Por día de la semana
+  const best = Math.max(...wdp.filter(x => x !== null), 0);
+  html += `<section class="card"><div class="ct"><span class="lb">Por día de la semana</span><span class="md">Últimos ${V} días</span></div>
+    <div class="ch" style="height:150px">${wdp.map(p => `<div class="bw"><div class="bv ${p===null?'z':''}">${p===null?'–':p+'%'}</div><div class="tr" style="height:112px;background:rgba(99,102,246,.12)"><div class="b" style="height:${p??0}%;background:${p!==null && p===best ? '#6366f6' : 'rgba(99,102,246,.55)'}"></div></div></div>`).join('')}</div>
+    <div class="xl">${orden.map(i=>`<div>${DIAS[i]}</div>`).join('')}</div></section>`;
+
+  // Por turno
+  if(turnosOn()){
+    html += `<section class="card"><div class="ct"><span class="lb">Por turno</span><span class="md">Últimos ${V} días</span></div><div class="tur">
+      ${CICLO.map(t => { const p = tu[t].n ? Math.round(tu[t].ok/tu[t].n*100) : null;
+        return `<div style="${varsT(t)}">${ico(TURNOS[t].ic)}<span>${TURNOS[t].n}</span><b>${p===null?'–':p+'%'}</b><i><em style="width:${p??0}%"></em></i></div>`; }).join('')}
+    </div></section>`;
+  }
+
+  // Mapa general
+  html += `<section class="card"><div class="ct"><span class="lb">Mapa general</span><span class="md">Toca un día para ver el detalle</span></div>${vMapaGeneral()}
+    <div class="ley"><span>Menos</span>${[.12,.35,.6,.85,1].map(x=>`<i style="background:rgba(99,102,246,${x})"></i>`).join('')}<span>Más</span><span style="margin-left:auto"><i style="background:#6366f6;box-shadow:0 0 0 1.5px #fff"></i>Perfecto</span></div>
+  </section>`;
+  html += `<p class="nota" style="text-align:center;padding:4px 10px 0">El mapa, los días de la semana y los turnos usan los hábitos que se programan por día. Los de "veces por semana" entran en el % general y en la comparativa.</p>`;
+  return html;
+}
+function vEvolucion(hs){
+  const hoy = hoyD(), per = [];
+  if(modoEvo === 'mes'){
+    for(let i=11;i>=0;i--){ const a = new Date(hoy.getFullYear(), hoy.getMonth()-i, 1); per.push({ a, b: new Date(a.getFullYear(), a.getMonth()+1, 0), x: MESES[a.getMonth()] }); }
+  } else {
+    for(let i=11;i>=0;i--){ const a = addD(lunes(hoy), -7*i); per.push({ a, b: addD(a,6), x: `${a.getDate()} ${MESES[a.getMonth()]}`.replace(/ \w+$/, m => i%3===0 || i===11 ? m : '') }); }
+  }
+  const W = 300, H = 130, n = per.length, X = i => 8 + i*(W-16)/(n-1), Y = p => 6 + (1 - p/100)*(H-12);
+  const linea = (vals, col, sw, op) => {
+    let d = '', abierto = false, ult = null;
+    vals.forEach((v,i) => { if(v === null){ abierto = false; return; } d += (abierto ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(v).toFixed(1); abierto = true; ult = i; });
+    if(!d) return '';
+    return `<path d="${d}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" opacity="${op}"/>`;
+  };
+  const gen = per.map(q => { const g = general(q.a, q.b); return g ? g.p : null; });
+  const series = hs.map(h => ({ h, v: per.map(q => { const r = pctHabito(h, q.a, q.b); return r.esp ? Math.round(r.ok/r.esp*100) : null; }) }));
+  let svg = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" class="evo">
+    ${[0,50,100].map(p=>`<line x1="0" x2="${W}" y1="${Y(p)}" y2="${Y(p)}" stroke="rgba(255,255,255,.07)" stroke-dasharray="3 4" vector-effect="non-scaling-stroke"/>`).join('')}
+    ${series.map(s => linea(s.v, s.h.color, focoRes === s.h.id ? 3 : 1.6, focoRes && focoRes !== s.h.id ? .18 : (focoRes ? 1 : .8))).join('')}
+    ${focoRes ? '' : linea(gen, '#f4f4f7', 3, 1)}
+  </svg>`;
+  return `<section class="card"><div class="ct" style="align-items:center"><span class="lb">Evolución</span>
+      <div class="seg"><button class="${modoEvo==='semana'?'si':''}" data-acc="evo" data-m="semana">Semana</button><button class="${modoEvo==='mes'?'si':''}" data-acc="evo" data-m="mes">Mes</button></div></div>
+    <div class="evw"><span style="top:0">100%</span><span style="top:calc(50% - 7px)">50%</span><span style="bottom:0">0%</span>${svg}</div>
+    <div class="xl" style="margin-left:34px">${per.map((q,i)=>`<div>${modoEvo==='mes' ? q.x : (i%3===0 || i===n-1 ? q.a.getDate() + ' ' + MESES[q.a.getMonth()] : '')}</div>`).join('')}</div>
+    <div class="lg"><button class="${focoRes?'off':''}" data-acc="foco" data-h=""><i style="background:#f4f4f7"></i>General</button>
+      ${hs.map(h=>`<button class="${focoRes && focoRes!==h.id?'off':''}" style="${vars(h.color)}" data-acc="foco" data-h="${h.id}"><i></i>${h.emoji ? h.emoji + ' ' : ''}${esc(h.nombre)}</button>`).join('')}</div>
+  </section>`;
+}
+function vMapaGeneral(){
+  const hoy = hoyD();
+  let cols = '', ult = -1, primero = true;
+  for(let w = lunes(addD(hoy, -7*19)); w <= lunes(hoy); w = addD(w,7)){
+    let mes = '';
+    for(let i=0;i<7;i++){ const d = addD(w,i); if(d.getDate()===1 || primero){ if(d.getMonth()!==ult){ mes = MESES[d.getMonth()]; ult = d.getMonth(); } break; } }
+    primero = false;
+    let celdas = `<div class="mo">${mes ? mes.charAt(0).toUpperCase()+mes.slice(1) : ''}</div>`;
+    for(let i=0;i<7;i++){
+      const d = addD(w,i), k = ds(d);
+      if(d > hoy){ celdas += `<div class="ce fut"></div>`; continue; }
+      const x = diaGen(d);
+      if(!x){ celdas += `<button class="ce pre" data-acc="diag" data-d="${k}">${d.getDate()}</button>`; continue; }
+      const al = .12 + .88*x.p, perf = x.ok === x.n;
+      celdas += `<button class="ce${+d===+hoy?' hoy':''}" style="background:rgba(99,102,246,${al.toFixed(2)});color:${al > .55 ? '#fff' : 'var(--mu)'}${perf?';box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.85)':''}" data-acc="diag" data-d="${k}">${d.getDate()}</button>`;
+    }
+    cols += `<div class="hc">${celdas}</div>`;
+  }
+  return `<div class="hmw"><div class="hm">${cols}</div><div class="wl"><span></span>${['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map(x=>`<span>${x}</span>`).join('')}</div></div>`;
+}
+function toastDia(k){
+  const d = parse(k), x = diaGen(d), t = turnoDe(d);
+  if(!x){ toast(`${fechaCorta(d)}: sin hábitos que contaran`); return; }
+  const falt = activos().filter(h => !porSemana(h) && d >= inicio(h) && aplica(h,d) && !cumple(h,k)).map(h => h.nombre);
+  toast(`${fechaCorta(d)}${t ? ' · ' + TURNOS[t].n : ''}: ${x.ok} de ${x.n}${falt.length && falt.length <= 2 ? ' · faltó ' + falt.join(' y ') : ''}`);
 }
 
 /* ============ Hojas ============ */
@@ -1086,6 +1315,11 @@ document.addEventListener('click', e => {
   else if(a === 'rec' && h){ h.rec.activo = !h.rec.activo; if(h.rec.activo) pedirPermiso(); guardar(); refrescar(); programarAvisos(); }
   else if(a === 'ics' && h) compartirIcs(h);
   else if(a === 'modo'){ modoGrafico = t.dataset.m; refrescar(); }
+  else if(a === 'resumen'){ if(t.classList.contains('res') && e.target.closest('[data-acc="tog"]')) return; detalleDesdeLista = true; location.hash = '#/resumen'; }
+  else if(a === 'periodo'){ periodoRes = +t.dataset.n; refrescar(); }
+  else if(a === 'evo'){ modoEvo = t.dataset.m; refrescar(); }
+  else if(a === 'foco'){ focoRes = t.dataset.h && focoRes !== t.dataset.h ? t.dataset.h : null; refrescar(); }
+  else if(a === 'diag') toastDia(t.dataset.d);
 });
 document.addEventListener('change', e => {
   const t = e.target; if(t.dataset.acc !== 'hora') return;
