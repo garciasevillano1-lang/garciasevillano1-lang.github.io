@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Contrarreloj — Catálogo de relojes</title>
+<meta name="description" content="Relojes cronógrafo nuevos con envío gratis en Cúcuta y pago contra entrega. 2 por $150.000.">
+<meta property="og:title" content="Contrarreloj — Relojes en Cúcuta">
+<meta property="og:description" content="Cronógrafos nuevos a $89.900 · 2 por $150.000 · Envío gratis en Cúcuta y pago contra entrega.">
+<meta property="og:image" content="https://garciasevillano1-lang.github.io/contrarreloj/og.jpg">
+<meta property="og:url" content="https://garciasevillano1-lang.github.io/contrarreloj/">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#111111">
+<link rel="icon" href="icono.png">
+<link rel="apple-touch-icon" href="icono.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --superficie:#111111; --elevada:#1E1E1E; --linea:#2E2E2E;
+    --tinta:#F5F5F5; --suave:#B5B5B5; --naranja:#F26A1B; --sobre-naranja:#111111;
+    --r-sm:4px; --r-md:8px; --r-lg:12px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--superficie);color:var(--tinta);font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;
+    padding-bottom:env(safe-area-inset-bottom)}
+  a{color:inherit}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+
+  header.top{position:sticky;top:0;z-index:20;background:rgba(17,17,17,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--linea);padding-top:env(safe-area-inset-top)}
+  header.top .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+  header.top img{height:22px;width:auto;display:block}
+  .wa-mini{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;text-decoration:none;border:1px solid var(--linea);
+    padding:8px 12px;border-radius:var(--r-md)}
+  .wa-mini svg{width:18px;height:18px}
+
+  .hero{padding:44px 0 28px;text-align:center}
+  .hero img{width:min(300px,72vw);height:auto;display:block;margin:0 auto 26px}
+  .hero h1{font-size:clamp(26px,6vw,40px);line-height:1.1;font-weight:900;letter-spacing:-.02em;margin:0 0 12px;text-transform:uppercase}
+  .hero p{color:var(--suave);font-size:16px;line-height:1.5;margin:0 auto;max-width:520px}
+
+  .chips{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:26px auto 0;max-width:640px}
+  @media(min-width:720px){.chips{grid-template-columns:repeat(4,minmax(0,1fr))}}
+  .chip{background:var(--elevada);border:1px solid var(--linea);border-radius:var(--r-lg);padding:14px 10px;text-align:center}
+  .chip svg{width:22px;height:22px;display:block;margin:0 auto 8px;stroke:var(--tinta)}
+  .chip b{display:block;font-size:14px;font-weight:700}
+  .chip span{display:block;font-size:12px;color:var(--suave);margin-top:2px}
+
+  .sec-title{display:flex;align-items:center;gap:14px;margin:36px 0 18px;font-size:12px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--suave)}
+  .sec-title::before,.sec-title::after{content:"";flex:1;height:1px;background:var(--linea)}
+
+  .grid{display:grid;grid-template-columns:1fr;gap:18px}
+  @media(min-width:640px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(min-width:980px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+  .card{background:var(--elevada);border:1px solid var(--linea);border-radius:var(--r-lg);overflow:hidden;display:flex;flex-direction:column}
+  .card.sel{border-color:var(--tinta)}
+  .gal{position:relative}
+  .track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;aspect-ratio:4/5;background:#0b0b0b}
+  .track::-webkit-scrollbar{display:none}
+  .track figure{margin:0;flex:0 0 100%;scroll-snap-align:start;position:relative}
+  .track img{width:100%;height:100%;object-fit:cover;display:block}
+  .real{position:absolute;left:10px;bottom:10px;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+    background:rgba(17,17,17,.78);color:var(--tinta);padding:5px 8px;border-radius:var(--r-sm)}
+  .dots{position:absolute;right:10px;bottom:12px;display:flex;gap:6px}
+  .dots i{width:7px;height:7px;border-radius:50%;background:rgba(245,245,245,.35);display:block}
+  .dots i.on{background:var(--tinta)}
+  .nav{position:absolute;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;border:0;background:rgba(17,17,17,.7);
+    color:var(--tinta);display:none;align-items:center;justify-content:center;cursor:pointer}
+  .nav.prev{left:8px}.nav.next{right:8px}
+  @media(hover:hover){.gal:hover .nav{display:flex}}
+
+  .body{padding:16px 16px 18px;display:flex;flex-direction:column;gap:10px;flex:1}
+  .body h3{margin:0;font-size:18px;line-height:1.25;font-weight:800}
+  .feats{margin:0;padding:0;list-style:none;color:var(--suave);font-size:14px;line-height:1.5}
+  .feats li{position:relative;padding-left:16px}
+  .feats li::before{content:"";position:absolute;left:2px;top:9px;width:6px;height:2px;background:var(--suave)}
+  .price{display:flex;align-items:baseline;gap:10px;margin-top:auto;padding-top:6px}
+  .price b{font-size:24px;font-weight:800;color:var(--naranja)}
+  .price span{font-size:13px;color:var(--suave)}
+  .actions{display:grid;grid-template-columns:1fr auto;gap:8px}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:46px;border-radius:var(--r-md);font:inherit;font-size:15px;font-weight:700;
+    text-decoration:none;cursor:pointer;border:1px solid var(--linea);background:transparent;color:var(--tinta);padding:0 14px}
+  .btn.primary{background:var(--tinta);color:var(--superficie);border-color:var(--tinta)}
+  .btn svg{width:18px;height:18px}
+  .btn.add[aria-pressed="true"]{background:var(--superficie);border-color:var(--tinta)}
+  .btn:focus-visible{outline:2px solid var(--naranja);outline-offset:2px}
+
+  .faq{max-width:720px;margin:0 auto}
+  details{border-bottom:1px solid var(--linea);padding:16px 0}
+  summary{cursor:pointer;font-weight:700;font-size:16px;list-style:none;display:flex;justify-content:space-between;gap:12px}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";color:var(--suave);font-weight:400;font-size:20px;line-height:1}
+  details[open] summary::after{content:"–"}
+  details p{color:var(--suave);margin:10px 0 0;line-height:1.6;font-size:15px}
+
+  footer{border-top:1px solid var(--linea);margin-top:44px;padding:30px 0 120px;text-align:center;color:var(--suave);font-size:14px;line-height:1.7}
+  footer img{width:120px;display:block;margin:0 auto 14px}
+
+  .bar{position:fixed;left:0;right:0;bottom:0;z-index:30;transform:translateY(110%);transition:transform .25s ease;
+    padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:var(--elevada);border-top:1px solid var(--linea)}
+  .bar.show{transform:none}
+  .bar .wrap{display:flex;align-items:center;gap:12px;padding:0}
+  .bar .info{flex:1;min-width:0}
+  .bar .info b{display:block;font-size:15px;white-space:nowrap}
+  .bar .info > span{display:block;font-size:13px;color:var(--suave);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bar .total{color:var(--naranja);font-weight:800}
+  .bar .clear{background:none;border:0;color:var(--suave);font:inherit;font-size:13px;text-decoration:underline;cursor:pointer;padding:4px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <img src="logo-header.svg" alt="Contrarreloj">
+    <a class="wa-mini" id="waTop" href="#" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.4.1-.2 0-.3 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></svg>
+      WhatsApp
+    </a>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <img src="logo-apilado.svg" alt="Contrarreloj, relojes en Cúcuta">
+    <h1>Cronógrafos con carácter</h1>
+    <p>Relojes nuevos, con cronómetro funcional. Te lo llevamos <strong style="color:var(--tinta)">gratis en Cúcuta</strong> y pagas cuando lo tienes en tus manos.</p>
+    <div class="chips">
+      <div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg><b>Envío gratis</b><span>en todo Cúcuta</span></div>
+      <div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 9.5v5M18 9.5v5"/></svg><b>Contra entrega</b><span>pagas al recibir</span></div>
+      <div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 13 8.5 11M10 2.5h4M12 2.5V5"/></svg><b>Cronómetro</b><span>100% funcional</span></div>
+      <div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v8H4v-8M2 7h20v5H2zM12 21V7M12 7H8a2.5 2.5 0 1 1 0-5c2.5 0 4 5 4 5ZM12 7h4a2.5 2.5 0 1 0 0-5c-2.5 0-4 5-4 5Z"/></svg><b>2 por $150.000</b><span>combina modelos</span></div>
+    </div>
+  </section>
+
+  <div class="sec-title" id="relojes">Relojes disponibles</div>
+  <div class="grid" id="grid"></div>
+
+  <div class="sec-title" id="preguntas">Preguntas frecuentes</div>
+  <div class="faq">
+    <details><summary>¿Cómo pago?</summary><p>Contra entrega: pagas cuando recibes el reloj y lo revisas. No tienes que pagar nada por adelantado.</p></details>
+    <details><summary>¿El envío tiene costo?</summary><p>No. El domicilio es gratis en todo Cúcuta. Coordinamos el día y la hora contigo por WhatsApp.</p></details>
+    <details><summary>¿Cómo funciona la promo 2 por $150.000?</summary><p>Eliges dos relojes, del mismo modelo o de modelos distintos, y pagas $150.000 por los dos en vez de $179.800. Toca "Combo" en cada reloj y envía tu pedido.</p></details>
+    <details><summary>¿Son sumergibles?</summary><p>Son resistentes al agua 3ATM: aguantan lluvia, salpicaduras y lavarse las manos. No son para nadar ni para ducharse con ellos.</p></details>
+    <details><summary>¿El cronómetro funciona de verdad?</summary><p>Sí. Las subesferas funcionan: puedes iniciar, detener y reiniciar el cronómetro con los pulsadores.</p></details>
+    <details><summary>¿Las fotos son reales?</summary><p>Las fotos marcadas "En mano" muestran el tamaño real del reloj. Las fotos de estudio muestran el mismo modelo con mejor luz. Si quieres, te enviamos un video real del reloj por WhatsApp antes de la entrega.</p></details>
+  </div>
+</main>
+
+<footer>
+  <img src="logo-apilado.svg" alt="">
+  Relojes nuevos con domicilio gratis en Cúcuta · Pago contra entrega<br>
+  WhatsApp: <strong style="color:var(--tinta)">314 730 5844</strong>
+</footer>
+
+<div class="bar" id="bar" role="region" aria-label="Tu pedido">
+  <div class="wrap">
+    <div class="info"><b><span id="count">0 relojes</span> · <span class="total" id="total">$0</span></b><span id="names"></span></div>
+    <button class="clear" id="clear" type="button">Vaciar</button>
+    <a class="btn primary" id="sendCombo" href="#" rel="noopener">Pedir</a>
+  </div>
+</div>
+
+<script>
+const PHONE = "573147305844";
+const PRICE = 89900, PAIR = 150000;
+const products = [
+  {id:"naranja", name:"Curren Cronógrafo Naranja", imgs:3, real:2,
+   feats:["Caja rectangular negra con tornillos visibles","Esfera calada con detalles en naranja","Correa de silicona naranja"]},
+  {id:"azul-metal", name:"Curren Cronógrafo Azul y Oro Rosa", imgs:3, real:2,
+   feats:["Esfera azul con subesferas en oro rosa","Bisel taquímetro azul metálico","Pulsera metálica azul ajustable"]},
+  {id:"verde", name:"Curren Cronógrafo Verde", imgs:3, real:2,
+   feats:["Esfera verde texturizada y caja plateada pulida","Bisel negro con tornillos","Correa de silicona verde"]},
+  {id:"azul-cuero", name:"Curren Cronógrafo Azul Cuero", imgs:3, real:2,
+   feats:["Caja en oro rosa y bisel azul taquímetro","Números grandes en la esfera","Correa de cuero con costuras"]},
+  {id:"plateado-blanco", name:"Curren Cronógrafo Plateado y Oro Rosa", imgs:3, real:2,
+   feats:["Esfera blanca con bisel en oro rosa","Detalles rojos y escala taquímetro","Pulsera metálica plateada ajustable"]},
+  {id:"bicolor", name:"Curren Cronógrafo Dorado y Plateado", imgs:3, real:2,
+   feats:["Esfera negra con bisel dorado","Subesferas doradas en forma de 8","Pulsera metálica bicolor ajustable"]},
+  {id:"plateado-negro", name:"Curren Cronógrafo Plateado Esfera Negra", imgs:2, real:2,
+   feats:["Esfera negra con subesferas plateadas","Detalles rojos y bisel dentado pulido","Pulsera metálica plateada ajustable"]}
+];
+const common = ["Cronómetro 100% funcional y fecha automática","Resistente al agua 3ATM (no para nadar)"];
+const money = n => "$" + n.toLocaleString("es-CO");
+const wa = text => "https://wa.me/" + PHONE + "?text=" + encodeURIComponent(text);
+const waIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.4.1-.2 0-.3 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></svg>';
+
+document.getElementById("waTop").href = wa("Hola, vi el catálogo de Contrarreloj y quiero información de los relojes.");
+
+const grid = document.getElementById("grid");
+const selected = new Set();
+
+products.forEach(p => {
+  const figs = Array.from({length:p.imgs}, (_, i) => {
+    const n = i + 1;
+    return `<figure><img src="img/${p.id}-${n}.webp" alt="${p.name}, foto ${n}" loading="${n===1?'eager':'lazy'}">${n===p.real?'<span class="real">En mano</span>':''}</figure>`;
+  }).join("");
+  const dots = Array.from({length:p.imgs}, (_, i) => `<i class="${i===0?'on':''}"></i>`).join("");
+  const msg = `Hola, vi el catálogo de Contrarreloj y me interesa el reloj ${p.name} (${money(PRICE)}). ¿Está disponible?`;
+  const card = document.createElement("article");
+  card.className = "card"; card.id = p.id;
+  card.innerHTML = `
+    <div class="gal">
+      <div class="track">${figs}</div>
+      <div class="dots">${dots}</div>
+      <button class="nav prev" type="button" aria-label="Foto anterior">&#8249;</button>
+      <button class="nav next" type="button" aria-label="Foto siguiente">&#8250;</button>
+    </div>
+    <div class="body">
+      <h3>${p.name}</h3>
+      <ul class="feats">${p.feats.concat(common).map(f => `<li>${f}</li>`).join("")}</ul>
+      <div class="price"><b>${money(PRICE)}</b><span>2 por ${money(PAIR)}</span></div>
+      <div class="actions">
+        <a class="btn primary" href="${wa(msg)}" rel="noopener">${waIcon}Lo quiero</a>
+        <button class="btn add" type="button" aria-pressed="false">+ Combo</button>
+      </div>
+    </div>`;
+  grid.appendChild(card);
+
+  const track = card.querySelector(".track");
+  const dotEls = card.querySelectorAll(".dots i");
+  track.addEventListener("scroll", () => {
+    const i = Math.round(track.scrollLeft / track.clientWidth);
+    dotEls.forEach((d, k) => d.classList.toggle("on", k === i));
+  }, {passive:true});
+  card.querySelector(".prev").onclick = () => track.scrollBy({left:-track.clientWidth, behavior:"smooth"});
+  card.querySelector(".next").onclick = () => track.scrollBy({left: track.clientWidth, behavior:"smooth"});
+
+  const add = card.querySelector(".add");
+  add.onclick = () => {
+    const on = !selected.has(p.id);
+    on ? selected.add(p.id) : selected.delete(p.id);
+    add.setAttribute("aria-pressed", on);
+    add.textContent = on ? "✓ En combo" : "+ Combo";
+    card.classList.toggle("sel", on);
+    updateBar();
+  };
+});
+
+function totalFor(n){ return Math.floor(n/2)*PAIR + (n%2)*PRICE; }
+function updateBar(){
+  const items = products.filter(p => selected.has(p.id));
+  const n = items.length;
+  document.getElementById("bar").classList.toggle("show", n > 0);
+  document.getElementById("count").textContent = n === 1 ? "1 reloj" : n + " relojes";
+  document.getElementById("total").textContent = money(totalFor(n));
+  document.getElementById("names").textContent = n === 1 ? "Agrega otro y llévate los 2 por " + money(PAIR) : items.map(p => p.name.replace("Curren Cronógrafo ","")).join(" + ");
+  const lines = items.map(p => "• " + p.name).join("\n");
+  const text = `Hola, vi el catálogo de Contrarreloj y quiero pedir:\n${lines}\nTotal: ${money(totalFor(n))}\n¿Están disponibles?`;
+  document.getElementById("sendCombo").href = wa(text);
+}
+document.getElementById("clear").onclick = () => {
+  selected.clear();
+  document.querySelectorAll(".add").forEach(b => { b.setAttribute("aria-pressed","false"); b.textContent = "+ Combo"; });
+  document.querySelectorAll(".card").forEach(c => c.classList.remove("sel"));
+  updateBar();
+};
+</script>
+</body>
+</html>
