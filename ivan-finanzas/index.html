@@ -1870,6 +1870,20 @@
 .cta-prod-v.deuda small{display:block;font-size:11px;font-weight:400;color:var(--muted,#8b95b0);margin-top:2px;text-align:right}
 :root[data-theme="light"] .tj-linea{color:#17203a;border-bottom-color:rgba(0,0,0,.06)}
 :root[data-theme="light"] .tj-f b{color:#17203a}
+
+/* v5.17 — fichas de cuenta y deuda de tarjetas */
+.cta-chips{display:flex;flex-wrap:wrap;gap:8px;padding:2px 0 6px;margin:0 0 4px}
+.cta-chip{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.cta-chip i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.tj-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.tj-tot{font-weight:600;font-size:17px;font-variant-numeric:tabular-nums;color:var(--danger,#d07a7a)}
+.tj-grupo{border-top:1px solid rgba(255,255,255,.06)}
+.tj-grupo summary{list-style:none;display:flex;justify-content:space-between;gap:10px;padding:10px 0;font-size:13px;cursor:pointer;color:var(--text,#e8ecf5)}
+.tj-grupo summary::-webkit-details-marker{display:none}
+.tj-grupo summary b{font-variant-numeric:tabular-nums}
+.tj-it{display:flex;justify-content:space-between;gap:10px;padding:6px 0 6px 12px;font-size:12px;color:var(--text-dim,#aab3cc)}
+.tj-it b{font-weight:500;color:var(--text,#e8ecf5);font-variant-numeric:tabular-nums}
+:root[data-theme="light"] .tj-grupo{border-top-color:rgba(0,0,0,.07)}
 </style>
 </head>
 <body>
@@ -2839,9 +2853,10 @@
       <button class="min-link patr-reg" onclick="guardarSnapshotNeto()"><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg> Registrar patrimonio de este mes</button>
       <div id="netoMejorPeorMes" hidden></div>
     </div>
-    <div class="min-card" id="inicioCuentasCard">
-      <div class="min-head"><span class="min-lab">Mis cuentas</span><button class="min-link" onclick="irPagina('page-cuentas')">Ver todo <svg class="ico" aria-hidden="true"><use href="#i-down" style="transform:rotate(-90deg);transform-origin:center"/></svg></button></div>
-      <div id="inicioCuentasBody"></div>
+    <div class="section acc-sec" id="inicioCuentasCard" style="padding-top:0">
+      <details class="acc" id="accCuentas"><summary><span>Mis cuentas</span><b id="accCtaTotal">$0</b><i></i></summary>
+      <div class="acc-body"><div id="inicioCuentasBody"></div>
+      <button class="min-link" style="margin-top:10px" onclick="irPagina('page-cuentas')">Ver detalle de mis cuentas <svg class="ico" aria-hidden="true"><use href="#i-down" style="transform:rotate(-90deg);transform-origin:center"/></svg></button></div></details>
     </div>
     <div class="pago-fila"><button class="min-link" onclick="confirmarPagoHoy()"><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg> Hoy me pagaron</button></div>
 
@@ -3001,6 +3016,11 @@
           <div class="week-label">Tus pasivos y préstamos</div>
         </div>
       </div>
+    </div>
+
+    <div class="section" id="tarjetasSeccion" style="padding-top:2px;display:none">
+      <div class="section-title">Tarjetas de crédito</div>
+      <div id="tarjetasLista"></div>
     </div>
 
     <div class="section" style="padding-top:2px">
@@ -3263,7 +3283,7 @@
         <div class="config-row">
           <div>
             <div class="config-label">Iván Finanzas</div>
-            <div class="config-sublabel">Control financiero personal · v5.16.0</div>
+            <div class="config-sublabel">Control financiero personal · v5.17.0</div>
           </div>
         </div>
       </div>
@@ -3943,7 +3963,7 @@ const verificarMesGF = () => {
     });
     guardarHistorialPagos();
     // Reiniciar estado de pagados (los fijos se mantienen porque son recurrentes, solo se resetea el check mensual)
-    gastosFijos = gastosFijos.map(g => { const n = { ...g, pagado: false, tarjetaPago: 0, cuentaMonto: 0 }; if (n.valorPlan != null) { n.valor = n.valorPlan; n.valorPlan = null; } return n; });
+    gastosFijos = gastosFijos.map(g => { const n = { ...g, pagado: false, tarjetaPago: 0, cuentaMonto: 0, compraId: null }; if (n.valorPlan != null) { n.valor = n.valorPlan; n.valorPlan = null; } return n; });
     guardarGastosFijos();
     // Los gastos únicos del ciclo que cierra se descartan de la lista activa siempre (pagados o no):
     // los pagados ya quedaron archivados arriba; los que nunca se marcaron simplemente se pierden,
@@ -4084,7 +4104,7 @@ const calcPatrimonio = () => {
     .filter(a => ['ETF','Acciones','Criptomonedas'].includes(a.tipo))
     .reduce((s,a) => s + a.actual, 0);
   const patrimonioTotal = ahorrosInversiones.reduce((s,a) => s + a.actual, 0);
-  const gfPendiente = gastosFijos.filter(g => !g.pagado).reduce((s,g) => s + g.valor, 0);
+  const gfPendiente = gastosFijos.filter(g => !g.pagado && g.destino !== 'tarjeta').reduce((s,g) => s + g.valor, 0);
   return { totalAhorrado, totalInvertido, patrimonioTotal, gfPendiente };
 };
 
@@ -4927,7 +4947,7 @@ const iconoPasivo = tipo => {
   return ico(mapa[tipo] || 'file');
 };
 
-const calcPasivosTotal = () => pasivos.reduce((s,p) => s + p.saldoActual, 0);
+const calcPasivosTotal = () => pasivos.reduce((s,p) => s + p.saldoActual, 0) + (typeof totalTarjetas === 'function' ? totalTarjetas() : 0);
 
 // Activos totales = fondos de ahorro/metas (incluye tipos legacy de inversión) + cartera de inversiones nueva
 const calcActivosTotal = () => {
@@ -5219,8 +5239,6 @@ const calcGastoCategoriaMes = nombreCategoria => {
   });
   // Gastos únicos del ciclo ya pagados también cuentan para el límite
   gastosUnicosMes.forEach(g => { if (g.categoria === nombreCategoria && g.cicloInicio === ciclo && g.pagado) total += g.valor || 0; });
-  // Compras con tarjeta de crédito: no tocan el presupuesto, pero sí cuentan para el límite
-  if (typeof cuentasData !== 'undefined') cuentasData.compras.forEach(c => { if (c.origen === 'compra' && c.categoria === nombreCategoria && cicloDeFechaStr(c.fecha) === ciclo) total += c.monto || 0; });
   return total;
 };
 
@@ -5411,6 +5429,7 @@ const nombreDestinoGF = g => {
   if (g.destino === 'deuda')     return pasivos.find(p=>p.id===g.destinoId)?.nombre;
   if (g.destino === 'ahorro')    return ahorrosInversiones.find(a=>a.id===g.destinoId)?.nombre;
   if (g.destino === 'inversion') return inversiones.find(i=>i.id===g.destinoId)?.nombre;
+  if (g.destino === 'tarjeta')   return (typeof prodDe === 'function' && prodDe(g.destinoId) ? prodDe(g.destinoId).nombre : 'Tarjeta');
   return null;
 };
 
@@ -5418,7 +5437,7 @@ const renderIngresoMensual = () => {
   const ingresoBase = config.ingresoMensual || 0;
   const extraDelMes = ingresosExtraDelCiclo().reduce((s,ie)=>s+ie.monto, 0);
   const ingresoTotal = ingresoBase + extraDelMes;
-  const totalFijos = gastosFijos.reduce((s,g)=>s+g.valor, 0);
+  const totalFijos = gastosFijos.filter(g => g.destino !== 'tarjeta').reduce((s,g)=>s+g.valor, 0);
   const totalUnicos = gastosUnicosDelCiclo().reduce((s,g)=>s+g.valor, 0);
   const disponible = ingresoTotal - totalFijos - totalUnicos;
   document.getElementById('ingresoMensualValor').textContent = formatCOP(ingresoTotal);
@@ -5481,7 +5500,7 @@ const calcInforme503020 = () => {
   (semanaActual.gastos||[]).forEach(g => { if (cicloDeFechaStr(g.fecha)===ciclo) gastosVariablesDelCiclo.push(g); });
   gastosVariablesDelCiclo.forEach(g => { totalVariables += g.cantidad; contar(g.categoria, null, g.cantidad); });
 
-  gastosFijos.forEach(g => { totalFijos += g.valor; contar(g.categoria, g.destino, g.valor); });
+  gastosFijos.filter(g => g.destino !== 'tarjeta').forEach(g => { totalFijos += g.valor; contar(g.categoria, g.destino, g.valor); });
 
   gastosUnicosDelCiclo().forEach(g => { totalUnicos += g.valor; contar(g.categoria, null, g.valor); });
 
@@ -5611,7 +5630,7 @@ const presupuestoYaCerradoEsteCiclo = () => cierrePresupuesto.cicloInicio === ci
 
 const calcularYCerrarPresupuesto = (automatico=false) => {
   const ingresoTotal  = (config.ingresoMensual||0) + ingresosExtraDelCiclo().reduce((s,ie)=>s+ie.monto,0);
-  const totalFijos    = gastosFijos.reduce((s,g)=>s+g.valor,0);
+  const totalFijos    = gastosFijos.filter(g => g.destino !== 'tarjeta').reduce((s,g)=>s+g.valor,0);
   const totalUnicos   = gastosUnicosDelCiclo().reduce((s,g)=>s+g.valor,0);
   const arrastre      = (config.arrastreCiclo && config.arrastreCiclo.ciclo === cicloActualInicio()) ? (config.arrastreCiclo.monto || 0) : 0;
   const disponible    = ingresoTotal - totalFijos - totalUnicos + arrastre;
@@ -5750,7 +5769,7 @@ const abrirModalGastoUnico = (id=null) => {
     document.getElementById('guCategoria').value = g.categoria;
     document.getElementById('guValor').value     = g.valor;
     poblarSelCuenta('guCuenta', false, 'Sin cuenta (no descontar)', 'unico');
-    document.getElementById('guCuenta').value = g.cuentaId || '';
+    document.getElementById('guCuenta').value = g.cuentaId || ''; pintarChipsCuenta(document.getElementById('guCuenta'));
     elim.style.display = 'block';
   } else {
     document.getElementById('modalGastoUnicoTitulo').textContent = 'Nuevo gasto único';
@@ -5942,18 +5961,17 @@ const agregarGasto = async () => {
   const cuentaId = document.getElementById('inputCuenta').value || '';
   const pc = cuentaId ? prodDe(cuentaId) : null;
   const saldo = calcSaldo();
-  if (!(pc && esCredito(pc)) && saldo>0 && cantidad>saldo*0.30) {
+  if (saldo>0 && cantidad>saldo*0.30) {
     const ok = await uiConfirm(`Este gasto (${formatCOP(cantidad)}) supera el 30% de tu saldo disponible (${formatCOP(saldo)}). ¿Quieres registrarlo igual?`, { titulo:'Gasto alto', ok:'Registrar igual', icono:'alert' });
     if (!ok) return;
   }
   const rc = aplicarGastoCuenta({ cuentaId, cantidad, categoria, nota, fecha, clave:'gasto' });
-  if (rc.tarjeta) mostrarToast(`✓ ${formatCOP(cantidad)} cargado a ${rc.tarjeta.nombre}`, 'success');
-  else semanaActual.gastos.push({ id:genId(), cantidad, categoria, nota, fecha, ...(rc.cuenta ? { cuentaId: rc.cuenta.id } : {}) });
+  semanaActual.gastos.push({ id:genId(), cantidad, categoria, nota, fecha, ...(rc.tarjeta ? { cuentaId: rc.tarjeta.id, compraId: rc.compraId } : rc.cuenta ? { cuentaId: rc.cuenta.id } : {}) });
   guardarSemana(); renderCuentas();
   document.getElementById('inputCantidad').value='';
   document.getElementById('inputNota').value='';
   if (navigator.vibrate) navigator.vibrate(40);
-  if (!rc.tarjeta) mostrarToast(`✓ ${formatCOP(cantidad)} registrado`,'success');
+  mostrarToast(rc.tarjeta ? `✓ ${formatCOP(cantidad)} registrado · a la deuda de ${rc.tarjeta.nombre}` : `✓ ${formatCOP(cantidad)} registrado`,'success');
   renderTodo();
 };
 
@@ -6042,16 +6060,16 @@ const guardarRapido = async () => {
   const cuentaId = document.getElementById('rapidoCuenta').value || '';
   const pc = cuentaId ? prodDe(cuentaId) : null;
   const saldo = calcSaldo();
-  if (!(pc && esCredito(pc)) && saldo > 0 && cantidad > saldo * 0.30) {
+  if (saldo > 0 && cantidad > saldo * 0.30) {
     const ok = await uiConfirm(`Este gasto (${formatCOP(cantidad)}) supera el 30% de tu saldo disponible (${formatCOP(saldo)}). ¿Quieres registrarlo igual?`, { titulo: 'Gasto alto', ok: 'Registrar igual' });
     if (!ok) return;
   }
   const nota = document.getElementById('rapidoNota').value.trim(), fecha = _fechaRapido();
   const rc = aplicarGastoCuenta({ cuentaId, cantidad, categoria: rapidoCat, nota, fecha, clave:'gasto' });
-  if (!rc.tarjeta) semanaActual.gastos.push({ id: genId(), cantidad, categoria: rapidoCat, nota, fecha, ...(rc.cuenta ? { cuentaId: rc.cuenta.id } : {}) });
+  semanaActual.gastos.push({ id: genId(), cantidad, categoria: rapidoCat, nota, fecha, ...(rc.tarjeta ? { cuentaId: rc.tarjeta.id, compraId: rc.compraId } : rc.cuenta ? { cuentaId: rc.cuenta.id } : {}) });
   guardarSemana(); renderCuentas();
   vibrar(40);
-  mostrarToast(rc.tarjeta ? `✓ ${formatCOP(cantidad)} cargado a ${rc.tarjeta.nombre} (no toca el presupuesto)` : `✓ ${formatCOP(cantidad)} registrado`, 'success');
+  mostrarToast(rc.tarjeta ? `✓ ${formatCOP(cantidad)} registrado · a la deuda de ${rc.tarjeta.nombre}` : `✓ ${formatCOP(cantidad)} registrado`, 'success');
   cerrarRapido();
   renderTodo();
 };
@@ -6089,6 +6107,7 @@ const guardarEdicion = () => {
   if (idx===-1) return;
   const antG = semanaActual.gastos[idx];
   if (antG.cuentaId && prodDe(antG.cuentaId) && !esCredito(prodDe(antG.cuentaId))) { cambiarSaldo(prodDe(antG.cuentaId), antG.cantidad - cantidad); guardarCuentas(); renderCuentas(); }
+  if (antG.compraId) { const cp = cuentasData.compras.find(c => c.id === antG.compraId); if (cp) { Object.assign(cp, { monto: Math.round(cantidad), categoria, nota, fecha }); const pt = prodDe(cp.cuentaId); if (pt) sincTarjeta(pt); guardarCuentas(); renderCuentas(); } }
   semanaActual.gastos[idx] = { ...antG, cantidad, categoria, nota, fecha };
   guardarSemana(); cerrarModal();
   mostrarToast('Gasto actualizado ✓','success');
@@ -6099,6 +6118,7 @@ const eliminarGastoModal = async () => {
   if (!(await uiConfirm('¿Eliminar este gasto?', { titulo:'Eliminar', ok:'Eliminar', peligro:true }))) return;
   const gDel = semanaActual.gastos.find(g=>g.id===gastoEditandoId);
   if (gDel && gDel.cuentaId && prodDe(gDel.cuentaId) && !esCredito(prodDe(gDel.cuentaId))) { cambiarSaldo(prodDe(gDel.cuentaId), gDel.cantidad); guardarCuentas(); renderCuentas(); }
+  if (gDel && gDel.compraId) { quitarCompraTarjeta(gDel.compraId); renderCuentas(); }
   semanaActual.gastos = semanaActual.gastos.filter(g=>g.id!==gastoEditandoId);
   guardarSemana(); cerrarModal();
   mostrarToast('Gasto eliminado','warn');
@@ -6251,7 +6271,7 @@ const poblarSelectsDestinoGF = () => {
   document.getElementById('gfDestinoInversion').innerHTML = optInv || '<option value="">Sin inversiones registradas</option>';
   const optTj = cuentasData.productos.filter(esCredito).map(p => `<option value="${p.id}">${nombreProd(p)}</option>`).join('');
   document.getElementById('gfDestinoTarjeta').innerHTML = optTj || '<option value="">Sin tarjetas registradas</option>';
-  poblarSelCuenta('gfCuenta', false, 'Sin cuenta (no descontar)', 'fijo');
+  poblarSelCuenta('gfCuenta', true, 'Sin cuenta (no descontar)', 'fijo');
 };
 
 const actualizarDestinoGF = () => {
@@ -6283,7 +6303,7 @@ const abrirModalGF = (id=null) => {
     if (g.destino === 'ahorro')    document.getElementById('gfDestinoAhorro').value    = g.destinoId||'';
     if (g.destino === 'inversion') document.getElementById('gfDestinoInversion').value = g.destinoId||'';
     if (g.destino === 'tarjeta')   document.getElementById('gfDestinoTarjeta').value   = g.destinoId||'';
-    document.getElementById('gfCuenta').value = g.cuentaId || '';
+    document.getElementById('gfCuenta').value = g.cuentaId || ''; pintarChipsCuenta(document.getElementById('gfCuenta'));
     elim.style.display='block';
   } else {
     document.getElementById('modalGFTitulo').textContent = 'Nuevo gasto fijo';
@@ -6480,7 +6500,7 @@ const abrirModalIngresoExtra = (id=null) => {
     document.getElementById('ieDestino').value = ie.destino || 'ninguno';
     document.getElementById('ieNota').value    = ie.nota || '';
     poblarSelCuenta('ieCuenta', false, 'Sin cuenta (solo registro)', 'ingreso');
-    document.getElementById('ieCuenta').value = ie.cuentaId || '';
+    document.getElementById('ieCuenta').value = ie.cuentaId || ''; pintarChipsCuenta(document.getElementById('ieCuenta'));
     actualizarDestinoIE();
     if (ie.destino === 'ahorro')    document.getElementById('ieDestinoAhorro').value    = ie.destinoId||'';
     if (ie.destino === 'inversion') document.getElementById('ieDestinoInversion').value = ie.destinoId||'';
@@ -7848,12 +7868,12 @@ const datosCicloInforme = (ciclo, lista = listaCiclosInforme()) => {
   (semanaActual.gastos || []).forEach(g => { if (g.fecha && cicloDeFechaStr(g.fecha) === ciclo) variables.push(g); });
   let fijos = [], unicos = [], pendientes = 0;
   if (esActual) {
-    fijos = gastosFijos.filter(g => g.pagado);
+    fijos = gastosFijos.filter(g => g.pagado && g.destino !== 'tarjeta');
     unicos = gastosUnicosMes.filter(g => g.cicloInicio === ciclo && g.pagado);
-    pendientes = gastosFijos.filter(g => !g.pagado).reduce((s, g) => s + (g.valor || 0), 0)
+    pendientes = gastosFijos.filter(g => !g.pagado && g.destino !== 'tarjeta').reduce((s, g) => s + (g.valor || 0), 0)
                + gastosUnicosMes.filter(g => g.cicloInicio === ciclo && !g.pagado).reduce((s, g) => s + (g.valor || 0), 0);
   } else if (arch) {
-    fijos = arch.pagos || []; unicos = arch.unicos || [];
+    fijos = (arch.pagos || []).filter(g => g.destino !== 'tarjeta'); unicos = arch.unicos || [];
   }
   const extras = ingresosExtra.filter(ie => ie.fecha && cicloDeFechaStr(ie.fecha) === ciclo);
   const ingresoSupuesto = !esActual && !arch;
@@ -7869,7 +7889,7 @@ const datosCicloInforme = (ciclo, lista = listaCiclosInforme()) => {
   const esAporte = x => x === 'ahorro' || x === 'inversion';
   const movs = [];
   fijos.forEach(g => movs.push({ tipo: 'fijo', origen: 'Gasto fijo', fecha: null, categoria: g.categoria, nombre: g.nombre, monto: g.valor || 0, destino: g.destino || 'gasto', destinoId: g.destinoId, dest: nombreDestinoGF(g) }));
-  variables.forEach(g => movs.push({ tipo: 'variable', origen: 'Gasto variable', fecha: g.fecha, categoria: g.categoria, nombre: g.nota || '', monto: g.cantidad || 0, destino: 'gasto' }));
+  variables.forEach(g => { const tj = g.compraId && g.cuentaId && prodDe(g.cuentaId) ? prodDe(g.cuentaId).nombre : ''; movs.push({ tipo: 'variable', origen: 'Gasto variable', fecha: g.fecha, categoria: g.categoria, nombre: (g.nota || '') + (tj ? (g.nota ? ' · ' : '') + 'tarjeta ' + tj : ''), monto: g.cantidad || 0, destino: 'gasto', tj }); });
   unicos.forEach(g => movs.push({ tipo: 'unico', origen: 'Gasto único', fecha: null, categoria: g.categoria, nombre: g.nombre, monto: g.valor || 0, destino: 'gasto' }));
   extras.filter(ie => esAporte(ie.destino) && ie.destinoId).forEach(ie => movs.push({ tipo: 'extra', origen: 'Ingreso extra', fecha: ie.fecha, categoria: null, nombre: ie.nombre || 'Ingreso extra', monto: ie.monto || 0, destino: ie.destino, destinoId: ie.destinoId, dest: nombreDestinoGF(ie) }));
   movs.forEach(m => { m.grupo = grupoDeGasto(m.categoria, m.destino); });
@@ -8363,6 +8383,30 @@ const rpPaginaDeudas = (d, prev) => {
     <div class="rp-nota">${d.esActual ? 'Saldo al inicio = saldo actual + abonos del ciclo. ' : 'El saldo al inicio solo se calcula para el ciclo en curso. '}Cuenta pagos con destino «deuda» y gastos en categorías del grupo «Pago de deudas». Los gastos fijos no guardan fecha de pago.</div>`;
 };
 
+const rpPaginaTarjetas = (d) => {
+  const tjs = cuentasData.productos.filter(esCredito);
+  const compras = d.movsConsumo.filter(m => m.tipo === 'variable' && m.tj).slice().sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
+  const totC = compras.reduce((t, m) => t + m.monto, 0);
+  const pagos = cuentasData.movs.filter(m => m.tipo === 'pago-tarjeta' && m.fecha >= d.inicio && m.fecha <= d.fin).reduce((t, m) => t + m.monto, 0)
+    + (d.esActual ? gastosFijos.filter(g => g.destino === 'tarjeta' && g.pagado).reduce((t, g) => t + (g.tarjetaPago || 0), 0) : 0);
+  const deuda = totalTarjetas();
+  const filas = tjs.map(p => { const e = estadoTarjeta(p), c = compras.filter(m => m.tj === p.nombre).reduce((t, m) => t + m.monto, 0);
+    return `<tr><td>${esc(p.nombre)}</td><td><b>${fmtS(c)}</b></td><td>${e.facturado > 0 ? fmtS(e.facturado) + '<br><small>antes del ' + fechaLegible(e.vence) + '</small>' : '—'}</td><td>${fmtS(e.total)}</td></tr>`; }).join('');
+  const porCat = {}; compras.forEach(m => { const k = m.categoria || 'Sin categoría'; porCat[k] = (porCat[k] || 0) + m.monto; });
+  const tablaCat = Object.keys(porCat).length ? `<table class="rp-tabla"><thead><tr><th>Categoría</th><th>Compras con tarjeta</th></tr></thead><tbody>${Object.keys(porCat).sort((a, b) => porCat[b] - porCat[a]).map(k => `<tr><td>${esc(k)}</td><td><b>${fmtS(porCat[k])}</b></td></tr>`).join('')}</tbody></table>` : rpVacio('Sin compras con tarjeta en este ciclo.');
+  const lista = compras.length ? `<table class="rp-tabla"><thead><tr><th>Fecha</th><th>Compra</th><th>Monto</th></tr></thead><tbody>${compras.map(m => `<tr><td>${m.fecha ? fechaLegible(m.fecha) : '—'}</td><td>${esc(m.categoria || '')}<br><small>${esc(m.nombre)}</small></td><td><b>${fmtS(m.monto)}</b></td></tr>`).join('')}</tbody></table>` : '';
+  return `
+    <div class="rp-tiles rp-tiles-3">
+      ${rpTile('Compras con tarjeta', fmtS(totC), `${compras.length} compra(s) en el ciclo`, RP.gold)}
+      ${rpTile('Pagos a tarjetas', fmtS(pagos), 'Saldan deuda, no son gasto', RP.steel)}
+      ${rpTile('Deuda actual', fmtS(deuda), `${tjs.length} tarjeta(s)`, RP.deuda)}
+    </div>
+    <h2 class="rp-h2">Por tarjeta</h2><table class="rp-tabla"><thead><tr><th>Tarjeta</th><th>Compras del ciclo</th><th>Extracto</th><th>Deuda total</th></tr></thead><tbody>${filas}</tbody></table>
+    <h2 class="rp-h2">En qué categorías</h2>${tablaCat}
+    ${lista ? `<h2 class="rp-h2">Cada compra</h2>${lista}` : ''}
+    <div class="rp-nota">Las compras con tarjeta ya están contadas como gasto en su categoría y fecha. Pagar la tarjeta solo salda la deuda y no se cuenta otra vez. La deuda de tarjetas suma a tus pasivos en el patrimonio.</div>`;
+};
+
 const rpPaginaPatrimonio = () => {
   const hoy = fechaLegibleLarga(fechaStr(new Date()));
   const { activos, pasivos: pas, neto } = calcPatrimonioNeto();
@@ -8498,6 +8542,7 @@ const construirInforme = ciclo => {
     { t: 'Gastos variables', c: rpPaginaVariables(d, prev) },
     { t: 'Ahorro e inversión', c: rpPaginaAhorro(d, prev) },
     { t: 'Deudas', c: rpPaginaDeudas(d, prev) },
+    ...(cuentasData.productos.some(esCredito) ? [{ t: 'Tarjetas de crédito', c: rpPaginaTarjetas(d) }] : []),
     { t: 'Patrimonio y portafolio', c: rpPaginaPatrimonio() },
   ];
   if (plan) paginas.push({ t: 'Metas', c: rpPaginaMetas(d, plan, minimo) });
@@ -8979,6 +9024,16 @@ const opcionesCuenta = (conTarjeta, vacio) => {
   return `<option value="">${vacio}</option>` + cash.map(p => `<option value="${p.id}">${_escC(nombreProd(p))}</option>`).join('')
     + tj.map(p => `<option value="${p.id}">${_escC(nombreProd(p))} (crédito)</option>`).join('');
 };
+const pintarChipsCuenta = (sel) => {
+  let box = sel.nextElementSibling; if (!box || !box.classList.contains('cta-chips')) { box = document.createElement('div'); box.className = 'cta-chips'; sel.after(box); }
+  sel.style.display = 'none';
+  box.innerHTML = [...sel.options].map(o => {
+    const p = o.value ? prodDe(o.value) : null, e = p ? entDe(p.entidadId) : null;
+    const txt = p ? (esCredito(p) ? p.nombre.replace(/^Tarjeta\s+/i, '') + ' · crédito' : p.nombre) : 'Sin cuenta';
+    return `<button type="button" class="rapido-chip cta-chip${sel.value === o.value ? ' sel' : ''}${p && esCredito(p) ? ' tj' : ''}" data-v="${o.value}">${e ? `<i style="background:${e.color || '#7c8db3'}"></i>` : ''}${_escC(txt)}</button>`;
+  }).join('');
+  box.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { sel.value = b.dataset.v; pintarChipsCuenta(sel); if (navigator.vibrate) navigator.vibrate(8); }));
+};
 const poblarSelCuenta = (selId, conTarjeta, vacio, clave) => {
   const sel = document.getElementById(selId), wrap = document.getElementById(selId + 'Wrap');
   if (!sel) return;
@@ -8986,13 +9041,14 @@ const poblarSelCuenta = (selId, conTarjeta, vacio, clave) => {
   if (wrap) wrap.style.display = hay ? '' : 'none';
   sel.innerHTML = opcionesCuenta(conTarjeta, vacio);
   const u = cuentasData.ultima[clave]; if (u && prodDe(u) && (conTarjeta || !esCredito(prodDe(u)))) sel.value = u;
+  pintarChipsCuenta(sel);
 };
 const recordarCuenta = (clave, id) => { cuentasData.ultima[clave] = id || ''; };
 
 /* — Gastos variables: compra con tarjeta o descuento de cuenta — */
 const aplicarGastoCuenta = ({ cuentaId, cantidad, categoria, nota, fecha, clave }) => {
   const p = cuentaId ? prodDe(cuentaId) : null; recordarCuenta(clave, cuentaId);
-  if (p && esCredito(p)) { agregarCompraTarjeta(p.id, { monto: cantidad, fecha, categoria, nota }); guardarCuentas(); return { tarjeta: p }; }
+  if (p && esCredito(p)) { const compraId = agregarCompraTarjeta(p.id, { monto: cantidad, fecha, categoria, nota }); guardarCuentas(); return { tarjeta: p, compraId }; }
   if (p) { cambiarSaldo(p, -cantidad); guardarCuentas(); }
   return { cuenta: p || null };
 };
@@ -9015,6 +9071,35 @@ const cerrarModalSueldo = (ok) => {
   r(id && m > 0 ? { id, monto: m } : null);
 };
 const acreditarCuenta = (id, monto, tipo, nota) => { const p = prodDe(id); if (!p || esCredito(p)) return false; cambiarSaldo(p, monto); registrarMovCuenta({ tipo, hacia: id, monto, nota: nota || '' }); guardarCuentas(); return true; };
+
+/* — Tarjetas en Deudas: detalle por categoría — */
+const comprasPendientes = p => {
+  let pag = +p.pagado || 0, out = [];
+  cuentasData.compras.filter(c => c.cuentaId === p.id).slice().sort((a, b) => a.fecha.localeCompare(b.fecha)).forEach(c => {
+    const ap = Math.min(pag, Math.max(0, c.monto)); pag -= ap; const rest = c.monto - ap; if (rest > 0) out.push({ ...c, rest });
+  });
+  return out;
+};
+const renderTarjetasDeudas = () => {
+  const sec = document.getElementById('tarjetasSeccion'), lista = document.getElementById('tarjetasLista'); if (!sec || !lista) return;
+  const tjs = cuentasData.productos.filter(esCredito);
+  if (!tjs.length) { sec.style.display = 'none'; return; }
+  sec.style.display = '';
+  lista.innerHTML = tjs.map(p => {
+    const e = estadoTarjeta(p), items = comprasPendientes(p), grupos = {};
+    items.forEach(c => { const k = c.origen === 'base' ? 'Saldo inicial' : c.origen === 'ajuste' ? 'Ajustes' : (c.categoria || 'Sin categoría'); (grupos[k] = grupos[k] || []).push(c); });
+    const ent = entDe(p.entidadId);
+    const gr = Object.keys(grupos).map(k => {
+      const tot = grupos[k].reduce((t, c) => t + c.rest, 0);
+      return `<details class="tj-grupo"><summary><span>${_escC(k)}</span><b>${formatCOP(tot)}</b></summary>${grupos[k].map(c => `<div class="tj-it"${c.origen === 'compra' ? ` onclick="quitarCompra('${c.id}')"` : ''}><span>${_escC(c.nota || k)} · ${_fmtCorta(c.fecha)}</span><b>${formatCOP(c.rest)}</b></div>`).join('')}</details>`;
+    }).join('');
+    return `<div class="tj-bloque"><div class="tj-top">${ent ? avatarEnt(ent, true) : ''}<div class="tj-bt" style="margin:0;flex:1">${_escC(p.nombre)}</div><div class="tj-tot">${formatCOP(e.total)}</div></div>
+      <div class="tj-f"><span>${e.facturado > 0 ? 'Extracto: pagar antes del ' + _fmtCorta(e.vence) : 'Sin extracto pendiente'}</span><b${e.facturado > 0 ? '' : ' style="color:var(--muted)"'}>${formatCOP(e.facturado)}</b></div>
+      <div class="tj-f"><span>Por facturar (corte ${_fmtCorta(e.corteSig)})</span><b>${formatCOP(e.porFacturar)}</b></div>
+      ${gr ? `<div class="min-lab" style="margin:12px 0 2px">En qué se fue (toca una compra para quitarla)</div>${gr}` : ''}
+      <div style="display:flex;gap:10px;margin-top:12px"><button class="btn-ghost" style="flex:1;min-height:42px" ${e.total > 0 ? '' : 'disabled'} onclick="abrirModalTransf(null,'${p.id}',${e.total})">Pagar toda la deuda</button><button class="btn-ghost" style="flex:0 0 auto;min-height:42px;padding:0 18px" onclick="abrirModalCuenta('${p.id}')">Editar</button></div></div>`;
+  }).join('');
+};
 
 /* — Render — */
 const lineaProd = p => {
@@ -9041,11 +9126,12 @@ const renderTarjetasLinea = () => {
 };
 const renderCuentasInicio = () => {
   const cont = document.getElementById('inicioCuentasBody'); if (!cont) return;
+  const at = document.getElementById('accCtaTotal'); if (at) at.textContent = cuentasData.entidades.length ? formatCOP(totalCuentas()) : '';
   if (!cuentasData.entidades.length) {
     cont.innerHTML = `<p style="font-size:13px;color:var(--text-dim);margin:12px 0 4px;line-height:1.5">Registra dónde tienes tu plata: BBVA, Nu, Nequi, efectivo…</p><button class="min-link" onclick="irPagina('page-cuentas')" style="color:var(--accent)">Configurar mis cuentas</button>`;
   } else {
     const tarj = totalTarjetas();
-    cont.innerHTML = `<div class="cta-ini-big">${formatCOP(totalCuentas())}</div>` +
+    cont.innerHTML = `` +
       cuentasData.entidades.map(e => {
         const t = totalEnt(e.id), u = usadoEnt(e.id), hay = prodsDeEnt(e.id).some(p => !esCredito(p));
         return `<div class="cta-ini-row" onclick="abrirDetalleEnt('${e.id}')">${avatarEnt(e, true)}<div class="n">${_escC(e.nombre)}</div><div class="v">${hay ? formatCOP(t) : formatCOP(u)}${!hay ? '<span style="color:var(--muted);font-weight:400;font-size:11px"> usado</span>' : ''}</div></div>`;
@@ -9074,6 +9160,7 @@ const renderCuentas = () => {
   }
   renderCuentasInicio();
   poblarSelCuenta('inputCuenta', true, 'Sin cuenta (solo presupuesto)', 'gasto');
+  renderTarjetasDeudas();
 };
 const crearCuentasIniciales = () => {
   const mk = (nombre, color) => { const e = { id: genId(), nombre, color, logo: null }; cuentasData.entidades.push(e); return e.id; };
@@ -9211,11 +9298,13 @@ const eliminarCuenta = async () => {
 /* — Transferencia (entre cuentas, o pago de tarjeta) — */
 const abrirModalTransf = (desdeId, haciaId, monto) => {
   const origen = cuentasData.productos.filter(p => !esCredito(p));
-  if (!origen.length || cuentasData.productos.length < 2) { mostrarToast('Necesitas al menos dos cuentas', 'warn'); return; }
+  const haciaTj = !!(haciaId && prodDe(haciaId) && esCredito(prodDe(haciaId)));
+  if (!haciaTj && (!origen.length || cuentasData.productos.length < 2)) { mostrarToast('Necesitas al menos dos cuentas', 'warn'); return; }
   const opt = list => list.map(p => `<option value="${p.id}">${_escC(nombreProd(p))}</option>`).join('');
-  document.getElementById('trDesde').innerHTML = opt(origen);
+  document.getElementById('trDesde').innerHTML = (haciaTj ? '<option value="">Sin cuenta (solo saldar la deuda)</option>' : '') + opt(origen);
   document.getElementById('trHacia').innerHTML = opt(cuentasData.productos);
   if (desdeId) document.getElementById('trDesde').value = desdeId;
+  else if (haciaTj) document.getElementById('trDesde').value = '';
   const d = document.getElementById('trDesde').value;
   const otro = cuentasData.productos.find(p => p.id !== d); if (otro) document.getElementById('trHacia').value = otro.id;
   if (haciaId) document.getElementById('trHacia').value = haciaId;
@@ -9226,13 +9315,13 @@ const cerrarModalTransf = () => document.getElementById('modalTransf').classList
 const confirmarTransf = () => {
   const d = prodDe(document.getElementById('trDesde').value), h = prodDe(document.getElementById('trHacia').value);
   const monto = Math.round(parseFloat(document.getElementById('trMonto').value) || 0);
-  if (!d || !h || d.id === h.id) { mostrarToast('Elige dos cuentas distintas', 'danger'); return; }
+  if (!h || (d && d.id === h.id) || (!d && !esCredito(h))) { mostrarToast('Elige dos cuentas distintas', 'danger'); return; }
   if (monto <= 0) { mostrarToast('Ingresa un monto', 'danger'); return; }
-  if (monto > (+d.saldo || 0)) { mostrarToast('Ese monto supera el saldo de la cuenta de origen', 'danger'); return; }
+  if (d && monto > (+d.saldo || 0)) { mostrarToast('Ese monto supera el saldo de la cuenta de origen', 'danger'); return; }
   let aplicado = monto;
-  if (esCredito(h)) { aplicado = pagarTarjeta(h.id, monto); if (!aplicado) { mostrarToast('Esa tarjeta no tiene saldo por pagar', 'warn'); return; } cambiarSaldo(d, -aplicado); }
+  if (esCredito(h)) { aplicado = pagarTarjeta(h.id, monto); if (!aplicado) { mostrarToast('Esa tarjeta no tiene saldo por pagar', 'warn'); return; } if (d) cambiarSaldo(d, -aplicado); }
   else { cambiarSaldo(d, -monto); cambiarSaldo(h, monto); }
-  registrarMovCuenta({ tipo: esCredito(h) ? 'pago-tarjeta' : 'transferencia', desde: d.id, hacia: h.id, monto: aplicado, nota: '' });
+  registrarMovCuenta({ tipo: esCredito(h) ? 'pago-tarjeta' : 'transferencia', desde: d ? d.id : null, hacia: h.id, monto: aplicado, nota: '' });
   guardarCuentas(); cerrarModalTransf(); renderCuentas();
   if (document.getElementById('modalDetalleEnt').classList.contains('open') && detEntId) abrirDetalleEnt(detEntId);
   mostrarToast(esCredito(h) ? 'Pago de tarjeta registrado' : 'Transferencia registrada');
@@ -9252,7 +9341,13 @@ const bloqueTarjeta = p => {
 };
 const quitarCompra = async (id) => {
   if (!(await uiConfirm('¿Quitar esta compra de la tarjeta? Baja lo que debes en ella.', { titulo: 'Quitar compra', ok: 'Quitar', peligro: true }))) return;
-  quitarCompraTarjeta(id); renderCuentas(); if (detEntId) abrirDetalleEnt(detEntId); renderLimitesInicio(); mostrarToast('Compra quitada', 'warn');
+  quitarCompraTarjeta(id);
+  let ch = false;
+  semanaActual.gastos = (semanaActual.gastos || []).filter(g => { if (g.compraId === id) { ch = true; return false; } return true; });
+  historial.forEach(sem => { const n = (sem.gastos || []).length; sem.gastos = (sem.gastos || []).filter(g => g.compraId !== id); if (sem.gastos.length !== n) ch = true; });
+  if (ch) { guardarSemana(); guardarHistorial(); }
+  const gfq = gastosFijos.find(g => g.compraId === id); if (gfq) { gfq.compraId = null; guardarGastosFijos(); }
+  renderCuentas(); if (detEntId && document.getElementById('modalDetalleEnt').classList.contains('open')) abrirDetalleEnt(detEntId); renderTodo(); mostrarToast('Compra quitada', 'warn');
 };
 const abrirDetalleEnt = (id) => {
   const e = entDe(id); if (!e) return; detEntId = id;
@@ -9283,12 +9378,17 @@ cargarCuentas(); renderCuentas();
 window._efectoCuentasGF = {
   aplicar: g => {
     if (g.destino === 'tarjeta' && g.destinoId) g.tarjetaPago = pagarTarjeta(g.destinoId, g.valor);
-    if (g.cuentaId) { const p = prodDe(g.cuentaId); if (p && !esCredito(p)) { cambiarSaldo(p, -g.valor); g.cuentaMonto = g.valor; recordarCuenta('fijo', p.id); } }
+    if (g.cuentaId) {
+      const p = prodDe(g.cuentaId);
+      if (p && !esCredito(p)) { cambiarSaldo(p, -g.valor); g.cuentaMonto = g.valor; recordarCuenta('fijo', p.id); }
+      else if (p && esCredito(p) && g.destino !== 'tarjeta') { g.compraId = agregarCompraTarjeta(p.id, { monto: g.valor, fecha: fechaStr(new Date()), categoria: g.categoria, nota: g.nombre }); recordarCuenta('fijo', p.id); }
+    }
     guardarCuentas(); renderCuentas();
   },
   revertir: g => {
     if (g.tarjetaPago) { revertirPagoTarjeta(g.destinoId, g.tarjetaPago); g.tarjetaPago = 0; }
     if (g.cuentaMonto) { const p = prodDe(g.cuentaId); if (p) cambiarSaldo(p, g.cuentaMonto); g.cuentaMonto = 0; }
+    if (g.compraId) { quitarCompraTarjeta(g.compraId); g.compraId = null; }
     guardarCuentas(); renderCuentas();
   }
 };
