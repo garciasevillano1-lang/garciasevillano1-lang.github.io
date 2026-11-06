@@ -621,13 +621,13 @@
       border: 1px solid var(--border-md);
       border-radius: 24px;
       box-shadow: var(--shadow);
-      display: grid; grid-template-columns: repeat(6, 1fr);
+      display: grid; grid-template-columns: repeat(7, 1fr);
       padding: 6px;
       --i: 0;
     }
     .nav-tabs::before {
       content: ''; position: absolute; top: 6px; bottom: 6px; left: 6px;
-      width: calc((100% - 12px) / 6);
+      width: calc((100% - 12px) / 7);
       border-radius: 18px;
       background: var(--accent-bg);
       box-shadow: inset 0 0 0 1px var(--border-md);
@@ -636,9 +636,10 @@
     }
     .nav-tabs:has(#tab-gastos-fijos.active) { --i: 1; }
     .nav-tabs:has(#tab-ahorro.active)       { --i: 2; }
-    .nav-tabs:has(#tab-deudas.active)       { --i: 3; }
-    .nav-tabs:has(#tab-historial.active)    { --i: 4; }
-    .nav-tabs:has(#tab-config.active)       { --i: 5; }
+    .nav-tabs:has(#tab-cuentas.active)      { --i: 3; }
+    .nav-tabs:has(#tab-deudas.active)       { --i: 4; }
+    .nav-tabs:has(#tab-historial.active)    { --i: 5; }
+    .nav-tabs:has(#tab-config.active)       { --i: 6; }
     .nav-tab {
       position: relative; z-index: 1;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -652,7 +653,7 @@
     .nav-tab.active .tab-icon { transform: translateY(-1px) scale(1.06); }
     .nav-tabs::before { background: linear-gradient(180deg, rgba(205,161,73,0.20), rgba(205,161,73,0.07)); box-shadow: inset 0 0 0 1px rgba(205,161,73,0.28), 0 0 18px rgba(205,161,73,0.10); }
     .nav-tabs::after {
-      content: ''; position: absolute; bottom: 7px; left: 6px; width: calc((100% - 12px) / 6); height: 3px; pointer-events: none;
+      content: ''; position: absolute; bottom: 7px; left: 6px; width: calc((100% - 12px) / 7); height: 3px; pointer-events: none;
       background: radial-gradient(closest-side, #f0d488, #cda149 60%, transparent); border-radius: 3px; opacity: 0.95;
       transform: scaleX(0.4) translateX(calc(var(--i) * 250%)); transition: transform 0.45s var(--spring);
     }
@@ -1819,6 +1820,39 @@
     #lockScreen .lk-btn:active { transform: scale(.96); border-color: rgba(205,161,73,.85); }
     #lockScreen .lk-btn svg { width: 38px; height: 38px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
     #lockScreen .lk-msg { font-size: 13px; color: #7d869b; min-height: 18px; text-align: center; padding: 0 30px; }
+
+    /* ═══ v9 · Cuentas ═══ */
+    .nav-tab { min-width: 0; }
+    .cta-av { width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0; display: grid; place-items: center; font-weight: 700; font-size: 16px; letter-spacing: .3px; overflow: hidden; }
+    .cta-av img { width: 100%; height: 100%; object-fit: contain; display: block; }
+    .cta-av.sm { width: 34px; height: 34px; border-radius: 10px; font-size: 14px; }
+    .cta-ent { margin: 0 20px 12px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .cta-ent-head { display: flex; align-items: center; gap: 12px; padding: 16px 18px; cursor: pointer; }
+    .cta-ent-head:active { background: var(--card-alt); }
+    .cta-ent-name { flex: 1; min-width: 0; font-size: 15px; font-weight: 600; }
+    .cta-ent-name small { display: block; font-size: 11px; font-weight: 400; color: var(--muted); margin-top: 2px; }
+    .cta-ent-total { font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+    .cta-prod { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 18px 13px 70px; border-top: 1px solid var(--hairline); cursor: pointer; }
+    .cta-prod:active { background: var(--card-alt); }
+    .cta-prod-n { font-size: 13.5px; font-weight: 500; min-width: 0; }
+    .cta-prod-n small { display: block; font-size: 11px; color: var(--muted); font-weight: 400; margin-top: 2px; }
+    .cta-prod-v { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
+    .cta-prod-v small { display: block; font-size: 10.5px; color: var(--muted); font-weight: 400; margin-top: 2px; }
+    .cta-prod-v.deuda { color: var(--danger); }
+    .cta-acciones { display: flex; gap: 10px; padding: 0 20px; margin-bottom: 14px; }
+    .cta-acciones button { flex: 1; }
+    .cta-ini-row { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-top: 1px solid var(--hairline); cursor: pointer; }
+    .cta-ini-row:first-of-type { border-top: 0; }
+    .cta-ini-row .n { flex: 1; min-width: 0; font-size: 14px; font-weight: 500; }
+    .cta-ini-row .v { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .cta-ini-big { font-size: 30px; font-weight: 600; letter-spacing: -1.2px; font-variant-numeric: tabular-nums; margin: 12px 0 8px; }
+    .cta-sw { display: flex; gap: 10px; flex-wrap: wrap; }
+    .cta-sw button { width: 34px; height: 34px; border-radius: 50%; border: 2px solid transparent; }
+    .cta-sw button.on { border-color: var(--text); }
+    .cta-logo-row { display: flex; align-items: center; gap: 14px; }
+    .cta-mov { display: flex; justify-content: space-between; gap: 10px; padding: 9px 0; border-top: 1px solid var(--hairline); font-size: 12.5px; color: var(--text-dim); }
+    .cta-mov b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .cta-hero-sub { font-size: 12.5px; color: var(--text-dim); margin-top: 6px; }
   </style>
 </head>
 <body>
@@ -2256,6 +2290,81 @@
   </div>
 </div>
 
+<!-- Cuentas: entidad -->
+<div class="modal-overlay" id="modalEntidad">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalEntidadTitulo">Nueva entidad</span>
+      <button class="modal-close" onclick="cerrarModalEntidad()"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="form-row"><label class="form-label">Nombre</label><input class="form-input" type="text" id="entNombre" placeholder="Ej: BBVA" /></div>
+    <div class="form-row"><label class="form-label">Color</label><div class="cta-sw" id="entColores"></div></div>
+    <div class="form-row"><label class="form-label">Logo</label>
+      <div class="cta-logo-row"><div id="entPreview"></div>
+        <button class="btn-ghost" style="min-height:42px;padding:0 16px" onclick="document.getElementById('entLogoFile').click()">Subir logo</button>
+        <button class="btn-ghost" style="min-height:42px;padding:0 16px" id="entQuitarLogo" onclick="quitarLogoEntidad()">Quitar</button>
+      </div>
+      <input type="file" id="entLogoFile" accept="image/*" style="display:none" onchange="cargarLogoEntidad(this)" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-danger" id="btnElimEntidad" onclick="eliminarEntidad()" style="display:none"><svg class="ico" aria-hidden="true"><use href="#i-trash"/></svg></button>
+      <button class="btn-save" onclick="guardarEntidad()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Cuentas: producto (cuenta / tarjeta / cajita) -->
+<div class="modal-overlay" id="modalCuenta">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalCuentaTitulo">Nueva cuenta</span>
+      <button class="modal-close" onclick="cerrarModalCuenta()"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="form-row"><label class="form-label">Entidad</label><select class="form-input" id="ctaEntidad"></select></div>
+    <div class="form-row"><label class="form-label">Tipo</label>
+      <select class="form-input" id="ctaTipo" onchange="ajustarFormCuenta()">
+        <option value="ahorros">Cuenta de ahorros</option><option value="cajita">Cajita / alto rendimiento</option>
+        <option value="billetera">Billetera digital</option><option value="efectivo">Efectivo</option><option value="credito">Tarjeta de crédito</option>
+      </select></div>
+    <div class="form-row"><label class="form-label">Nombre</label><input class="form-input" type="text" id="ctaNombre" placeholder="Ej: Cuenta de ahorros" /></div>
+    <div class="form-row"><label class="form-label" id="ctaSaldoLabel">Saldo actual ($)</label>
+      <div class="amount-wrap"><span class="amount-prefix">$</span><input class="form-input" type="number" id="ctaSaldo" placeholder="0" inputmode="numeric" /></div></div>
+    <div class="form-row" id="ctaCupoRow" style="display:none"><label class="form-label">Cupo total (opcional)</label>
+      <div class="amount-wrap"><span class="amount-prefix">$</span><input class="form-input" type="number" id="ctaCupo" placeholder="0" inputmode="numeric" /></div></div>
+    <div class="modal-actions">
+      <button class="btn-danger" id="btnElimCuenta" onclick="eliminarCuenta()" style="display:none"><svg class="ico" aria-hidden="true"><use href="#i-trash"/></svg></button>
+      <button class="btn-save" onclick="guardarCuenta()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Cuentas: transferencia -->
+<div class="modal-overlay" id="modalTransf">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Transferir</span>
+      <button class="modal-close" onclick="cerrarModalTransf()"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="form-row"><label class="form-label">Desde</label><select class="form-input" id="trDesde"></select></div>
+    <div class="form-row"><label class="form-label">Hacia</label><select class="form-input" id="trHacia"></select></div>
+    <div class="form-row"><label class="form-label">Monto ($)</label>
+      <div class="amount-wrap"><span class="amount-prefix">$</span><input class="form-input" type="number" id="trMonto" placeholder="0" inputmode="numeric" /></div></div>
+    <p style="font-size:11.5px;color:var(--muted);margin:-2px 0 12px;line-height:1.5">Mover plata entre tus cuentas no es un gasto. Si el destino es una tarjeta de crédito, es el pago de la tarjeta.</p>
+    <div class="modal-actions"><button class="btn-save" onclick="confirmarTransf()">Transferir</button></div>
+  </div>
+</div>
+
+<!-- Cuentas: detalle de entidad -->
+<div class="modal-overlay" id="modalDetalleEnt">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="detEntTitulo">Detalle</span>
+      <button class="modal-close" onclick="cerrarDetalleEnt()"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
+    </div>
+    <div id="detEntBody"></div>
+  </div>
+</div>
+
 <!-- Modal Ingreso Extra: Crear/Editar -->
 <div class="modal-overlay" id="modalIngresoExtra">
   <div class="modal">
@@ -2661,6 +2770,10 @@
       <button class="min-link patr-reg" onclick="guardarSnapshotNeto()"><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg> Registrar patrimonio de este mes</button>
       <div id="netoMejorPeorMes" hidden></div>
     </div>
+    <div class="min-card" id="inicioCuentasCard">
+      <div class="min-head"><span class="min-lab">Mis cuentas</span><button class="min-link" onclick="irPagina('page-cuentas')">Ver todo <svg class="ico" aria-hidden="true"><use href="#i-down" style="transform:rotate(-90deg);transform-origin:center"/></svg></button></div>
+      <div id="inicioCuentasBody"></div>
+    </div>
     <div class="pago-fila"><button class="min-link" onclick="confirmarPagoHoy()"><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg> Hoy me pagaron</button></div>
 
     <!-- Detalles (cerrados por defecto: se abren solo cuando los quieres ver) -->
@@ -2823,6 +2936,29 @@
       <button class="btn-add-new" onclick="abrirModalPasivo()"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg> Registrar pasivo</button>
       <div class="inv-lista" id="pasivosLista"></div>
     </div>
+  </div>
+
+  <!-- ══ Página: Cuentas ══ -->
+  <div class="page" id="page-cuentas">
+    <div class="header">
+      <div class="header-top">
+        <div>
+          <div class="greeting">Mis <span>cuentas</span></div>
+          <div class="week-label">Dónde está tu plata</div>
+        </div>
+      </div>
+    </div>
+    <div class="port-hero">
+      <div class="port-hero-label">Dinero en cuentas</div>
+      <div class="port-hero-value" id="ctaTotal">$0</div>
+      <div class="cta-hero-sub" id="ctaSub"></div>
+    </div>
+    <div class="cta-acciones">
+      <button class="btn-ghost" onclick="abrirModalEntidad()"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg> Entidad</button>
+      <button class="btn-ghost" onclick="abrirModalTransf()"><svg class="ico" aria-hidden="true"><use href="#i-swap"/></svg> Transferir</button>
+    </div>
+    <div id="ctaLista"></div>
+    <div class="section" style="padding-top:0"><p style="font-size:11.5px;color:var(--muted);line-height:1.5">Las cuentas son un registro aparte: no suman al patrimonio. La plata entra al patrimonio cuando la mueves a un fondo de Ahorro.</p></div>
   </div>
 
   <!-- ══ Página: Gastos Fijos ══ -->
@@ -3055,7 +3191,7 @@
         <div class="config-row">
           <div>
             <div class="config-label">Iván Finanzas</div>
-            <div class="config-sublabel">Control financiero personal · v5.14.0</div>
+            <div class="config-sublabel">Control financiero personal · v5.15.0</div>
           </div>
         </div>
       </div>
@@ -3074,6 +3210,9 @@
   </button>
   <button class="nav-tab" id="tab-ahorro" onclick="irPagina('page-ahorro')">
     <span class="tab-icon"><svg class="ico" aria-hidden="true"><use href="#i-coins"/></svg></span><span class="tab-label">Ahorro</span>
+  </button>
+  <button class="nav-tab" id="tab-cuentas" onclick="irPagina('page-cuentas')">
+    <span class="tab-icon"><svg class="ico" aria-hidden="true"><use href="#i-bank"/></svg></span><span class="tab-label">Cuentas</span>
   </button>
   <button class="nav-tab" id="tab-deudas" onclick="irPagina('page-deudas')">
     <span class="tab-icon"><svg class="ico" aria-hidden="true"><use href="#i-card"/></svg></span><span class="tab-label">Deudas</span>
@@ -3291,7 +3430,7 @@ const aplicarTemaMeta = () => {
 ══════════════════════════════════════════════ */
 const CLAVES_RESPALDO = ['userConfig','semanaActual','historial','ahorrosInvers','gastosFijos','historialPagos',
   'carteraInversiones','pasivos','historialPatrimonio','retiroConfig','ingresosExtra','gastosUnicosMes',
-  'cierrePresupuesto','ultimaExportacion','gfCicloActual','metas','planMetasConfig','historialMetas'];
+  'cierrePresupuesto','ultimaExportacion','gfCicloActual','metas','planMetasConfig','historialMetas','cuentas'];
 
 const descargarRespaldo = () => {
   const datos = {};
@@ -8438,6 +8577,7 @@ const irPagina = id => {
     if (subtabActual==='portafolio')  renderPortafolio();
   }
   if (id==='page-deudas')        renderPasivos();
+  if (id==='page-cuentas')       renderCuentas();
   if (id==='page-gastos-fijos')  renderGastosFijos();
 };
 
@@ -8581,6 +8721,229 @@ document.addEventListener('visibilitychange', () => {
   else if (_lkGet() && _lkOcultoEn && Date.now() - _lkOcultoEn > 60000) bloquearApp();
 });
 iniciarHuella();
+
+/* ══════════════════════════════════════════════
+   CUENTAS (registro aparte: no suma al patrimonio)
+══════════════════════════════════════════════ */
+let cuentasData = { entidades: [], productos: [], movs: [] };
+const guardarCuentas = () => { try { localStorage.setItem('cuentas', JSON.stringify(cuentasData)); } catch (e) {} };
+const cargarCuentas = () => {
+  try { const r = localStorage.getItem('cuentas'); if (r) { const d = JSON.parse(r); cuentasData = { entidades: d.entidades || [], productos: d.productos || [], movs: d.movs || [] }; } } catch (e) {}
+};
+const TIPOS_CUENTA = { ahorros:'Cuenta de ahorros', cajita:'Cajita de alto rendimiento', billetera:'Billetera digital', efectivo:'Efectivo', credito:'Tarjeta de crédito' };
+const COLORES_ENT = ['#1464a5','#820ad1','#da0081','#3fa58f','#cda149','#4f7cc9','#c07aa8','#7c8db3'];
+const _escC = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esCredito = p => p.tipo === 'credito';
+const entDe = id => cuentasData.entidades.find(e => e.id === id);
+const prodDe = id => cuentasData.productos.find(p => p.id === id);
+const prodsDeEnt = eid => cuentasData.productos.filter(p => p.entidadId === eid);
+const totalEnt = eid => prodsDeEnt(eid).filter(p => !esCredito(p)).reduce((s, p) => s + (+p.saldo || 0), 0);
+const usadoEnt = eid => prodsDeEnt(eid).filter(esCredito).reduce((s, p) => s + (+p.saldo || 0), 0);
+const totalCuentas = () => cuentasData.productos.filter(p => !esCredito(p)).reduce((s, p) => s + (+p.saldo || 0), 0);
+const totalTarjetas = () => cuentasData.productos.filter(esCredito).reduce((s, p) => s + (+p.saldo || 0), 0);
+const nombreProd = p => { const e = entDe(p.entidadId); return (e ? e.nombre + ' · ' : '') + p.nombre; };
+const avatarEnt = (e, sm) => {
+  if (!e) return '';
+  const col = e.color || '#7c8db3';
+  if (e.logo) return `<div class="cta-av${sm ? ' sm' : ''}" style="background:#fff"><img src="${e.logo}" alt=""></div>`;
+  return `<div class="cta-av${sm ? ' sm' : ''}" style="background:${col}26;color:${col};border:1px solid ${col}66">${_escC((e.nombre || '?').trim().charAt(0).toUpperCase())}</div>`;
+};
+const registrarMovCuenta = (m) => { cuentasData.movs.unshift({ id: genId(), fecha: fechaStr(new Date()), ...m }); cuentasData.movs = cuentasData.movs.slice(0, 80); };
+/* Ajusta el saldo de un producto (para usar también desde pagos en v5.16) */
+const ajustarSaldoCuenta = (id, delta) => { const p = prodDe(id); if (!p) return false; p.saldo = Math.max(0, Math.round((+p.saldo || 0) + delta)); return true; };
+
+const lineaProd = p => {
+  if (esCredito(p)) {
+    const cupo = +p.cupo || 0, usado = +p.saldo || 0;
+    return { n: `<div class="cta-prod-n">${_escC(p.nombre)}<small>${TIPOS_CUENTA[p.tipo]}</small></div>`,
+             v: `<div class="cta-prod-v deuda">${formatCOP(usado)}<small>${cupo ? 'Disponible ' + formatCOP(Math.max(0, cupo - usado)) : 'Usado'}</small></div>` };
+  }
+  return { n: `<div class="cta-prod-n">${_escC(p.nombre)}<small>${TIPOS_CUENTA[p.tipo] || ''}</small></div>`, v: `<div class="cta-prod-v">${formatCOP(p.saldo)}</div>` };
+};
+
+const renderCuentasInicio = () => {
+  const cont = document.getElementById('inicioCuentasBody'); if (!cont) return;
+  if (!cuentasData.entidades.length) {
+    cont.innerHTML = `<p style="font-size:13px;color:var(--text-dim);margin:12px 0 4px;line-height:1.5">Registra dónde tienes tu plata: BBVA, Nu, Nequi, efectivo…</p><button class="min-link" onclick="irPagina('page-cuentas')" style="color:var(--accent)">Configurar mis cuentas</button>`;
+    return;
+  }
+  const tarj = totalTarjetas();
+  cont.innerHTML = `<div class="cta-ini-big">${formatCOP(totalCuentas())}</div>` +
+    cuentasData.entidades.map(e => {
+      const t = totalEnt(e.id), u = usadoEnt(e.id), hay = prodsDeEnt(e.id).some(p => !esCredito(p));
+      return `<div class="cta-ini-row" onclick="abrirDetalleEnt('${e.id}')">${avatarEnt(e, true)}<div class="n">${_escC(e.nombre)}</div><div class="v">${hay ? formatCOP(t) : formatCOP(u)}${!hay ? '<span style="color:var(--muted);font-weight:400;font-size:11px"> usado</span>' : ''}</div></div>`;
+    }).join('') +
+    (tarj > 0 ? `<div style="font-size:11.5px;color:var(--muted);margin-top:8px">Tarjetas de crédito usadas: ${formatCOP(tarj)}</div>` : '');
+};
+
+const renderCuentas = () => {
+  const lista = document.getElementById('ctaLista'); if (!lista) return;
+  document.getElementById('ctaTotal').textContent = formatCOP(totalCuentas());
+  const tarj = totalTarjetas();
+  document.getElementById('ctaSub').textContent = tarj > 0 ? 'Deuda en tarjetas: ' + formatCOP(tarj) : '';
+  if (!cuentasData.entidades.length) {
+    lista.innerHTML = `<div class="empty-state"><div class="icon"><svg class="ico" aria-hidden="true"><use href="#i-bank"/></svg></div><p>Aún no tienes cuentas.<br>Puedes crear las tuyas (BBVA, Nu, Nequi y efectivo) y luego poner el saldo de cada una.</p><button class="btn-primary" style="margin-top:14px;width:auto;padding:0 22px" onclick="crearCuentasIniciales()">Crear mis cuentas</button></div>`;
+  } else {
+    lista.innerHTML = cuentasData.entidades.map(e => {
+      const ps = prodsDeEnt(e.id), hay = ps.some(p => !esCredito(p));
+      return `<div class="cta-ent">
+        <div class="cta-ent-head" onclick="abrirDetalleEnt('${e.id}')">${avatarEnt(e)}<div class="cta-ent-name">${_escC(e.nombre)}<small>${ps.length} ${ps.length === 1 ? 'producto' : 'productos'}</small></div><div class="cta-ent-total">${hay ? formatCOP(totalEnt(e.id)) : ''}</div></div>
+        ${ps.map(p => { const l = lineaProd(p); return `<div class="cta-prod" onclick="abrirModalCuenta('${p.id}')">${l.n}${l.v}</div>`; }).join('')}
+        <div class="cta-prod" style="color:var(--accent);font-size:13px;font-weight:500" onclick="abrirModalCuenta(null,'${e.id}')">+ Agregar cuenta o tarjeta</div>
+      </div>`;
+    }).join('');
+  }
+  renderCuentasInicio();
+};
+
+const crearCuentasIniciales = () => {
+  const mk = (nombre, color) => { const e = { id: genId(), nombre, color, logo: null }; cuentasData.entidades.push(e); return e.id; };
+  const pr = (entidadId, nombre, tipo, extra = {}) => cuentasData.productos.push({ id: genId(), entidadId, nombre, tipo, saldo: 0, ...extra });
+  const bbva = mk('BBVA', '#1464a5'); pr(bbva, 'Cuenta de ahorros', 'ahorros'); pr(bbva, 'Tarjeta Aqua', 'credito', { cupo: null }); pr(bbva, 'Tarjeta Black Mastercard', 'credito', { cupo: null });
+  const nu = mk('Nu', '#820ad1'); pr(nu, 'Cuenta Nu', 'ahorros'); pr(nu, 'Cajita: Fondo de emergencia', 'cajita');
+  const nq = mk('Nequi', '#da0081'); pr(nq, 'Nequi', 'billetera');
+  const ef = mk('Efectivo', '#3fa58f'); pr(ef, 'Efectivo', 'efectivo');
+  guardarCuentas(); renderCuentas(); mostrarToast('Cuentas creadas: pon el saldo de cada una');
+};
+
+/* — Entidad — */
+let entEditId = null, entColor = COLORES_ENT[0], entLogo = null;
+const pintarFormEntidad = () => {
+  document.getElementById('entColores').innerHTML = COLORES_ENT.map(c => `<button type="button" class="${c === entColor ? 'on' : ''}" style="background:${c}" onclick="entColor='${c}';pintarFormEntidad()" aria-label="Color"></button>`).join('');
+  document.getElementById('entPreview').innerHTML = avatarEnt({ nombre: document.getElementById('entNombre').value || '?', color: entColor, logo: entLogo });
+  document.getElementById('entQuitarLogo').style.display = entLogo ? '' : 'none';
+};
+const abrirModalEntidad = (id) => {
+  entEditId = id || null; const e = id ? entDe(id) : null;
+  document.getElementById('modalEntidadTitulo').textContent = e ? 'Editar entidad' : 'Nueva entidad';
+  document.getElementById('entNombre').value = e ? e.nombre : '';
+  entColor = e ? e.color : COLORES_ENT[0]; entLogo = e ? e.logo : null;
+  document.getElementById('btnElimEntidad').style.display = e ? 'block' : 'none';
+  pintarFormEntidad(); document.getElementById('modalEntidad').classList.add('open');
+};
+const cerrarModalEntidad = () => document.getElementById('modalEntidad').classList.remove('open');
+const cargarLogoEntidad = (inp) => {
+  const f = inp.files && inp.files[0]; if (!f) return;
+  const url = URL.createObjectURL(f), img = new Image();
+  img.onload = () => {
+    const S = 160, c = document.createElement('canvas'); c.width = c.height = S;
+    const g = c.getContext('2d'), k = Math.min(S / img.width, S / img.height) * 0.86, w = img.width * k, h = img.height * k;
+    g.fillStyle = '#fff'; g.fillRect(0, 0, S, S); g.drawImage(img, (S - w) / 2, (S - h) / 2, w, h);
+    entLogo = c.toDataURL('image/jpeg', 0.88); URL.revokeObjectURL(url); inp.value = ''; pintarFormEntidad();
+  };
+  img.onerror = () => { URL.revokeObjectURL(url); mostrarToast('No se pudo leer la imagen', 'danger'); };
+  img.src = url;
+};
+const quitarLogoEntidad = () => { entLogo = null; pintarFormEntidad(); };
+const guardarEntidad = () => {
+  const nombre = document.getElementById('entNombre').value.trim();
+  if (!nombre) { mostrarToast('Escribe el nombre', 'danger'); return; }
+  if (entEditId) { const e = entDe(entEditId); if (e) { e.nombre = nombre; e.color = entColor; e.logo = entLogo; } }
+  else cuentasData.entidades.push({ id: genId(), nombre, color: entColor, logo: entLogo });
+  guardarCuentas(); cerrarModalEntidad(); renderCuentas();
+  if (document.getElementById('modalDetalleEnt').classList.contains('open') && entEditId) abrirDetalleEnt(entEditId);
+  mostrarToast('Entidad guardada');
+};
+const eliminarEntidad = async () => {
+  if (!entEditId) return;
+  if (!(await uiConfirm('¿Eliminar esta entidad y todas sus cuentas? El registro de saldos se pierde.', { titulo: 'Eliminar', ok: 'Eliminar', peligro: true }))) return;
+  cuentasData.productos = cuentasData.productos.filter(p => p.entidadId !== entEditId);
+  cuentasData.entidades = cuentasData.entidades.filter(e => e.id !== entEditId);
+  guardarCuentas(); cerrarModalEntidad(); cerrarDetalleEnt(); renderCuentas(); mostrarToast('Entidad eliminada', 'warn');
+};
+
+/* — Producto — */
+let ctaEditId = null;
+const ajustarFormCuenta = () => {
+  const cred = document.getElementById('ctaTipo').value === 'credito';
+  document.getElementById('ctaSaldoLabel').textContent = cred ? 'Usado actual ($)' : 'Saldo actual ($)';
+  document.getElementById('ctaCupoRow').style.display = cred ? '' : 'none';
+};
+const abrirModalCuenta = (id, entidadId) => {
+  if (!cuentasData.entidades.length) { mostrarToast('Primero crea una entidad', 'warn'); return; }
+  ctaEditId = id || null; const p = id ? prodDe(id) : null;
+  document.getElementById('modalCuentaTitulo').textContent = p ? 'Editar cuenta' : 'Nueva cuenta';
+  document.getElementById('ctaEntidad').innerHTML = cuentasData.entidades.map(e => `<option value="${e.id}">${_escC(e.nombre)}</option>`).join('');
+  document.getElementById('ctaEntidad').value = p ? p.entidadId : (entidadId || cuentasData.entidades[0].id);
+  document.getElementById('ctaTipo').value = p ? p.tipo : 'ahorros';
+  document.getElementById('ctaNombre').value = p ? p.nombre : '';
+  document.getElementById('ctaSaldo').value = p ? p.saldo : '';
+  document.getElementById('ctaCupo').value = p && p.cupo ? p.cupo : '';
+  document.getElementById('btnElimCuenta').style.display = p ? 'block' : 'none';
+  ajustarFormCuenta(); document.getElementById('modalCuenta').classList.add('open');
+};
+const cerrarModalCuenta = () => document.getElementById('modalCuenta').classList.remove('open');
+const guardarCuenta = () => {
+  const entidadId = document.getElementById('ctaEntidad').value, tipo = document.getElementById('ctaTipo').value;
+  const nombre = document.getElementById('ctaNombre').value.trim() || TIPOS_CUENTA[tipo];
+  const saldo = Math.round(parseFloat(document.getElementById('ctaSaldo').value) || 0);
+  const cupo = tipo === 'credito' ? (Math.round(parseFloat(document.getElementById('ctaCupo').value) || 0) || null) : null;
+  if (saldo < 0) { mostrarToast('Saldo inválido', 'danger'); return; }
+  if (ctaEditId) {
+    const p = prodDe(ctaEditId);
+    if (p) { if ((+p.saldo || 0) !== saldo) registrarMovCuenta({ tipo: 'ajuste', hacia: p.id, monto: saldo - (+p.saldo || 0), nota: 'Ajuste manual' }); Object.assign(p, { entidadId, tipo, nombre, saldo, cupo }); }
+  } else cuentasData.productos.push({ id: genId(), entidadId, nombre, tipo, saldo, cupo });
+  guardarCuentas(); cerrarModalCuenta(); renderCuentas();
+  if (document.getElementById('modalDetalleEnt').classList.contains('open')) abrirDetalleEnt(entidadId);
+  mostrarToast('Cuenta guardada');
+};
+const eliminarCuenta = async () => {
+  if (!ctaEditId) return;
+  if (!(await uiConfirm('¿Eliminar esta cuenta?', { titulo: 'Eliminar', ok: 'Eliminar', peligro: true }))) return;
+  cuentasData.productos = cuentasData.productos.filter(p => p.id !== ctaEditId);
+  guardarCuentas(); cerrarModalCuenta(); cerrarDetalleEnt(); renderCuentas(); mostrarToast('Cuenta eliminada', 'warn');
+};
+
+/* — Transferencia (entre cuentas, o pago de tarjeta) — */
+const abrirModalTransf = (desdeId) => {
+  const origen = cuentasData.productos.filter(p => !esCredito(p));
+  if (!origen.length || cuentasData.productos.length < 2) { mostrarToast('Necesitas al menos dos cuentas', 'warn'); return; }
+  const opt = list => list.map(p => `<option value="${p.id}">${_escC(nombreProd(p))}</option>`).join('');
+  document.getElementById('trDesde').innerHTML = opt(origen);
+  document.getElementById('trHacia').innerHTML = opt(cuentasData.productos);
+  if (desdeId) document.getElementById('trDesde').value = desdeId;
+  const d = document.getElementById('trDesde').value;
+  const otro = cuentasData.productos.find(p => p.id !== d); if (otro) document.getElementById('trHacia').value = otro.id;
+  document.getElementById('trMonto').value = '';
+  document.getElementById('modalTransf').classList.add('open');
+};
+const cerrarModalTransf = () => document.getElementById('modalTransf').classList.remove('open');
+const confirmarTransf = () => {
+  const d = prodDe(document.getElementById('trDesde').value), h = prodDe(document.getElementById('trHacia').value);
+  const monto = Math.round(parseFloat(document.getElementById('trMonto').value) || 0);
+  if (!d || !h || d.id === h.id) { mostrarToast('Elige dos cuentas distintas', 'danger'); return; }
+  if (monto <= 0) { mostrarToast('Ingresa un monto', 'danger'); return; }
+  if (monto > (+d.saldo || 0)) { mostrarToast('Ese monto supera el saldo de la cuenta de origen', 'danger'); return; }
+  ajustarSaldoCuenta(d.id, -monto);
+  ajustarSaldoCuenta(h.id, esCredito(h) ? -monto : monto); // pagar tarjeta baja lo usado
+  registrarMovCuenta({ tipo: esCredito(h) ? 'pago-tarjeta' : 'transferencia', desde: d.id, hacia: h.id, monto, nota: '' });
+  guardarCuentas(); cerrarModalTransf(); renderCuentas();
+  if (document.getElementById('modalDetalleEnt').classList.contains('open') && detEntId) abrirDetalleEnt(detEntId);
+  mostrarToast(esCredito(h) ? 'Pago de tarjeta registrado' : 'Transferencia registrada');
+};
+
+/* — Detalle de entidad (al tocar en Inicio o en Cuentas) — */
+let detEntId = null;
+const abrirDetalleEnt = (id) => {
+  const e = entDe(id); if (!e) return; detEntId = id;
+  document.getElementById('detEntTitulo').textContent = e.nombre;
+  const ps = prodsDeEnt(id), ids = ps.map(p => p.id);
+  const movs = cuentasData.movs.filter(m => ids.includes(m.desde) || ids.includes(m.hacia)).slice(0, 6);
+  const tit = m => m.tipo === 'ajuste' ? 'Ajuste de saldo' : (m.tipo === 'pago-tarjeta' ? 'Pago de tarjeta' : (m.tipo === 'transferencia' ? 'Transferencia' : (m.tipo === 'ingreso' ? 'Ingreso' : 'Pago')));
+  document.getElementById('detEntBody').innerHTML = `
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">${avatarEnt(e)}<div><div style="font-size:22px;font-weight:600;letter-spacing:-.5px;font-variant-numeric:tabular-nums">${formatCOP(totalEnt(id))}</div><div style="font-size:12px;color:var(--muted)">${usadoEnt(id) > 0 ? 'Tarjetas usadas: ' + formatCOP(usadoEnt(id)) : 'Disponible en esta entidad'}</div></div></div>
+    ${ps.map(p => { const l = lineaProd(p); return `<div class="cta-prod" style="padding-left:2px;padding-right:2px" onclick="cerrarDetalleEnt();abrirModalCuenta('${p.id}')">${l.n}${l.v}</div>`; }).join('')}
+    <div class="cta-prod" style="padding-left:2px;color:var(--accent);font-size:13px;font-weight:500" onclick="cerrarDetalleEnt();abrirModalCuenta(null,'${id}')">+ Agregar cuenta o tarjeta</div>
+    ${movs.length ? `<div class="min-lab" style="margin:18px 0 4px">Movimientos recientes</div>${movs.map(m => `<div class="cta-mov"><span>${tit(m)} · ${m.fecha}</span><b>${formatCOP(Math.abs(m.monto))}</b></div>`).join('')}` : ''}
+    <div class="modal-actions" style="margin-top:18px">
+      <button class="btn-ghost" style="flex:1" onclick="cerrarDetalleEnt();abrirModalEntidad('${id}')">Editar / logo</button>
+      <button class="btn-ghost" style="flex:1" onclick="cerrarDetalleEnt();abrirModalTransf()">Transferir</button>
+    </div>`;
+  document.getElementById('modalDetalleEnt').classList.add('open');
+};
+const cerrarDetalleEnt = () => document.getElementById('modalDetalleEnt').classList.remove('open');
+['modalEntidad','modalCuenta','modalTransf','modalDetalleEnt'].forEach(id => document.getElementById(id).addEventListener('click', ev => { if (ev.target.id === id) document.getElementById(id).classList.remove('open'); }));
+cargarCuentas(); renderCuentas();
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.getElementById('informeOverlay')?.classList.contains('open')) cerrarInforme(); });
 
