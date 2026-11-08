@@ -1884,6 +1884,11 @@
 .tj-it{display:flex;justify-content:space-between;gap:10px;padding:6px 0 6px 12px;font-size:12px;color:var(--text-dim,#aab3cc)}
 .tj-it b{font-weight:500;color:var(--text,#e8ecf5);font-variant-numeric:tabular-nums}
 :root[data-theme="light"] .tj-grupo{border-top-color:rgba(0,0,0,.07)}
+
+/* v5.18 — tiempo restante en el hero */
+.hero-tiempo{display:flex;justify-content:space-between;gap:12px;margin:10px 0 2px;font-size:12px;color:var(--muted,#8b95b0)}
+.hero-tiempo b{color:var(--accent,#cda149);font-weight:600;font-variant-numeric:tabular-nums}
+.hero-tiempo span:last-child{text-align:right}
 </style>
 </head>
 <body>
@@ -2837,6 +2842,7 @@
       <div class="hero-big" id="saldoDisponible">$0</div>
       <div class="hero-mid">de <span id="presupTotal">$0</span> <span class="hero-sub" id="presupSub">Esta semana</span></div>
       <div class="hero-bar"><div id="progressBar" style="width:100%"></div></div>
+      <div class="hero-tiempo" id="heroTiempo"></div>
       <div class="hero-row"><span>Gastado <b id="totalGastado">$0</b></span><span>Proyección al pago <b id="proyeccionTotal">$0</b></span></div>
       <div id="proyeccionDesglose" class="hero-desglose">—</div>
       <div id="heroTarjetas"></div>
@@ -3283,7 +3289,7 @@
         <div class="config-row">
           <div>
             <div class="config-label">Iván Finanzas</div>
-            <div class="config-sublabel">Control financiero personal · v5.17.0</div>
+            <div class="config-sublabel">Control financiero personal · v5.18.0</div>
           </div>
         </div>
       </div>
@@ -4303,6 +4309,21 @@ const renderProyeccionCiclo = () => {
 
   el.textContent = (totalProyectado<0?'-':'') + formatCOP(totalProyectado);
   el.style.color = totalProyectado < 0 ? 'var(--danger)' : 'var(--text)';
+
+  // Cuánto falta: fin de la semana y próximo pago
+  const ht = document.getElementById('heroTiempo');
+  if (ht) {
+    const hoyD = new Date(); hoyD.setHours(0,0,0,0);
+    const dSem = Math.max(0, Math.round((parseFecha(info.finSemana) - hoyD) / 86400000));
+    const proxPago = new Date(parseFecha(info.finCiclo)); proxPago.setDate(proxPago.getDate() + 1);
+    const dPago = Math.max(0, Math.round((proxPago - hoyD) / 86400000));
+    const MS = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'], DS = ['dom','lun','mar','mié','jue','vie','sáb'];
+    const fmtD = (d, o) => (o.weekday ? DS[d.getDay()] + ' ' : '') + d.getDate() + ' ' + MS[d.getMonth()];
+    const finTxt = fmtD(parseFecha(info.finSemana), { weekday: 1 });
+    const semTxt = dSem === 0 ? 'La semana termina hoy' : `${dSem === 1 ? 'Queda' : 'Quedan'} <b>${dSem}</b> ${dSem === 1 ? 'día' : 'días'} · ${finTxt}`;
+    const pagoTxt = dPago === 0 ? 'Pago hoy' : `Pago en <b>${dPago}</b> ${dPago === 1 ? 'día' : 'días'} · ${fmtD(proxPago, { day: 'numeric', month: 'short' })}`;
+    ht.innerHTML = `<span>${semTxt}</span><span>${pagoTxt}</span>`;
+  }
 
   const saldoTexto = (saldoActual<0?'-':'') + formatCOP(saldoActual);
   desgloseEl.textContent = semanasRestantes > 0
