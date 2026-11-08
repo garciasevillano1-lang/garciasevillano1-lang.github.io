@@ -3289,7 +3289,7 @@
         <div class="config-row">
           <div>
             <div class="config-label">Iván Finanzas</div>
-            <div class="config-sublabel">Control financiero personal · v5.18.0</div>
+            <div class="config-sublabel">Control financiero personal · v5.19.0</div>
           </div>
         </div>
       </div>
@@ -3811,6 +3811,8 @@ const diasParaProxPago = (fecha = new Date()) => {
 ══════════════════════════════════════════════ */
 const confirmarPagoHoy = async () => {
   const hoyLegible = fechaLegible(fechaStr(new Date()));
+  const diasCiclo = Math.round((parseFecha(fechaStr(new Date())) - parseFecha(cicloActualInicio())) / 86400000);
+  if (diasCiclo >= 0 && diasCiclo < 20 && !(await uiConfirm(`Tu ciclo actual empezó hace solo ${diasCiclo} día${diasCiclo === 1 ? '' : 's'}. Si confirmas, se cortará y se archivará lo de este ciclo. ¿Seguro que te pagaron hoy?`, { titulo: 'Ciclo recién iniciado', ok: 'Sí, me pagaron', icono: 'alert' }))) return;
   if (!(await uiConfirm(`¿Confirmas que hoy (${hoyLegible}) recibiste tu pago? Esto ajustará tu ciclo financiero y tu semana a partir de hoy, aunque no sea el día ${config.diaCobro||22}.`, { titulo:'Confirmar pago', ok:'Sí, me pagaron', icono:'calendar' }))) return;
   config.ultimoPagoConfirmado = fechaStr(new Date());
   guardarConfig();
@@ -6711,12 +6713,64 @@ const editarPresupuestoDefault = async () => {
   actualizarConfigView();
 };
 
+const rekeyCiclo = (viejo, nuevo) => {
+  if (!viejo || viejo === nuevo) return;
+  localStorage.setItem('gfCicloActual', nuevo);
+  gastosUnicosMes.forEach(g => { if (g.cicloInicio === viejo) g.cicloInicio = nuevo; }); guardarGastosUnicosMes();
+  if (cierrePresupuesto.cicloInicio === viejo) { cierrePresupuesto.cicloInicio = nuevo; guardarCierrePresupuesto(); }
+  if (config.arrastreCiclo && config.arrastreCiclo.ciclo === viejo) { config.arrastreCiclo.ciclo = nuevo; guardarConfig(); }
+  const info = calcularSemanaFinanciera(new Date());
+  Object.assign(semanaActual, { inicioCiclo: info.inicioCiclo, inicioSemana: info.inicioSemana, finSemana: info.finSemana, numeroSemana: info.numeroSemana });
+  guardarSemana();
+};
+
+/* Recuperación: si un cambio de día de cobro o una confirmación de pago por error cortó el ciclo,
+   se restauran fijos/únicos pagados desde el archivo y el presupuesto de la semana. */
+const buscarCicloCortado = () => {
+  const arch = historialPagos[0]; if (!arch || !arch.ciclo || arch.ignorarRecup) return null;
+  const dias = Math.round((parseFecha(cicloActualInicio()) - parseFecha(arch.ciclo)) / 86400000);
+  return dias > 0 && dias < 25 ? { arch, dias } : null;
+};
+const recuperarCiclo = (arch) => {
+  const hoyCiclo = cicloActualInicio();
+  (arch.pagos || []).forEach(p => { const g = gastosFijos.find(x => x.id === p.id); if (g) g.pagado = true; });
+  guardarGastosFijos();
+  (arch.unicos || []).forEach(u => { if (!gastosUnicosMes.some(x => x.id === u.id)) gastosUnicosMes.push({ ...u, cicloInicio: hoyCiclo, pagado: true }); });
+  guardarGastosUnicosMes();
+  historialPagos.shift(); guardarHistorialPagos();
+  localStorage.setItem('gfCicloActual', hoyCiclo);
+  if (config.arrastreCiclo && config.arrastreCiclo.ciclo === arch.ciclo) { config.arrastreCiclo.ciclo = hoyCiclo; }
+  const h = historial[0], hoy = fechaStr(new Date()), info = calcularSemanaFinanciera(new Date());
+  if (h && h.finSemana >= hoy) {
+    semanaActual = { ...semanaActual, gastos: [...(h.gastos || []), ...(semanaActual.gastos || [])], presupuesto: h.presupuesto, ajusteSemana: h.ajusteSemana || 0,
+      inicioSemana: info.inicioSemana, finSemana: info.finSemana, numeroSemana: info.numeroSemana, inicioCiclo: info.inicioCiclo, sobraAnterior: null, repartoAnterior: null };
+    config.presupuestoDefault = h.presupuesto - (h.ajusteSemana || 0);
+    historial.shift(); guardarHistorial();
+    cierrePresupuesto = { ...cierrePresupuesto, cicloInicio: hoyCiclo }; guardarCierrePresupuesto();
+    guardarSemana(); guardarConfig();
+    return 'semana';
+  }
+  guardarConfig(); calcularYCerrarPresupuesto(false); return 'recalculado';
+};
+const ofrecerRecuperarCiclo = async () => {
+  const f = buscarCicloCortado(); if (!f) return;
+  const { arch, dias } = f, nP = (arch.pagos || []).length, nU = (arch.unicos || []).length;
+  if (!nP && !nU) { arch.ignorarRecup = true; guardarHistorialPagos(); return; }
+  const ok = await uiConfirm(`El ciclo anterior (desde ${fechaLegible(arch.ciclo)}) se archivó solo ${dias} días antes del actual. Eso pasa al cambiar el día de cobro o confirmar un pago por error. ¿Recupero tus ${nP} gastos fijos y ${nU} únicos pagados y el presupuesto de la semana?`, { titulo: 'Ciclo cortado', ok: 'Sí, recuperar', icono: 'alert' });
+  if (!ok) { arch.ignorarRecup = true; guardarHistorialPagos(); return; }
+  recuperarCiclo(arch); renderTodo(); renderGastosFijos(); renderGastosUnicos(); actualizarConfigView();
+  mostrarToast('Ciclo recuperado ✓', 'success');
+};
+
 const editarDiaCobro = async () => {
   const nuevo = await uiPrompt(`Día del mes en que recibes tu salario (1-31). Actual: día ${config.diaCobro||22}.`, config.diaCobro||22, { titulo:'Día de cobro', inputmode:'numeric', icono:'calendar' });
   if (nuevo===null) return;
   const val = parseInt(nuevo);
   if (!val||val<1||val>31) { mostrarToast('Día inválido (1-31)','danger'); return; }
+  const cicloViejo = cicloActualInicio();
   config.diaCobro=val; guardarConfig();
+  // Cambiar el día de cobro NO debe abrir un ciclo nuevo: se re-ancla el ciclo en curso a la nueva fecha
+  rekeyCiclo(cicloViejo, cicloActualInicio());
   mostrarToast(`Día de cobro actualizado: día ${val} ✓`,'success');
   actualizarConfigView(); verificarSemana(); renderTodo();
 };
@@ -8850,6 +8904,7 @@ const inicializar = () => {
   verificarAlertaCobro();
   ocultarSplash();
   if (cierrePendiente) setTimeout(() => abrirCierreCiclo(cierrePendiente), 1150);
+  else setTimeout(() => { try { ofrecerRecuperarCiclo(); } catch (e) {} }, 1600);
 };
 
 /* ══════════════════════════════════════════════
