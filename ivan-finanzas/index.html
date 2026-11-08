@@ -3296,7 +3296,7 @@
         <div class="config-row">
           <div>
             <div class="config-label">Iván Finanzas</div>
-            <div class="config-sublabel">Control financiero personal · v5.20.0</div>
+            <div class="config-sublabel">Control financiero personal · v5.20.1</div>
           </div>
         </div>
       </div>
@@ -8043,8 +8043,11 @@ const datosCicloInforme = (ciclo, lista = listaCiclosInforme()) => {
   });
 
   // Semanas del ciclo
-  const semanas = historial.filter(s => s.inicioCiclo === ciclo).map(s => ({ ...s, actual: false }));
-  if (esActual && semanaActual.inicioCiclo === ciclo && semanaActual.inicioSemana) semanas.push({ ...semanaActual, actual: true });
+  // Se asignan por fechas (no solo por la marca de ciclo), para que un cambio de día de cobro no deje semanas fuera
+  const finC = finDeCicloInforme(ciclo, lista);
+  const enCiclo = sm => sm.inicioCiclo === ciclo || (sm.inicioSemana && sm.inicioSemana <= finC && (sm.finSemana || sm.inicioSemana) >= ciclo);
+  const semanas = historial.filter(enCiclo).map(sm => ({ ...sm, actual: false }));
+  if (esActual && semanaActual.inicioSemana && enCiclo(semanaActual)) semanas.push({ ...semanaActual, actual: true });
   semanas.sort((a, b) => (a.inicioSemana || '').localeCompare(b.inicioSemana || ''));
   const semanasRes = semanas.map(s => {
     const gastado = (s.gastos || []).reduce((t, g) => t + (g.cantidad || 0), 0);
