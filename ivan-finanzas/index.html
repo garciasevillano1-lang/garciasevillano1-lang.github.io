@@ -3243,6 +3243,13 @@
         </div>
         <div class="config-row">
           <div>
+            <div class="config-label">Recuperar ciclo cortado</div>
+            <div class="config-sublabel">Si cambiar el día de cobro borró gastos de la semana o pagos</div>
+          </div>
+          <button class="icon-btn" onclick="recuperarManual()" aria-label="Recuperar"><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg></button>
+        </div>
+        <div class="config-row">
+          <div>
             <div class="config-label">Días para cerrar presupuesto</div>
             <div class="config-sublabel" id="configDiasCierre">5 días tras el cobro</div>
           </div>
@@ -3289,7 +3296,7 @@
         <div class="config-row">
           <div>
             <div class="config-label">Iván Finanzas</div>
-            <div class="config-sublabel">Control financiero personal · v5.19.0</div>
+            <div class="config-sublabel">Control financiero personal · v5.19.1</div>
           </div>
         </div>
       </div>
@@ -6740,17 +6747,30 @@ const recuperarCiclo = (arch) => {
   historialPagos.shift(); guardarHistorialPagos();
   localStorage.setItem('gfCicloActual', hoyCiclo);
   if (config.arrastreCiclo && config.arrastreCiclo.ciclo === arch.ciclo) { config.arrastreCiclo.ciclo = hoyCiclo; }
-  const h = historial[0], hoy = fechaStr(new Date()), info = calcularSemanaFinanciera(new Date());
-  if (h && h.finSemana >= hoy) {
-    semanaActual = { ...semanaActual, gastos: [...(h.gastos || []), ...(semanaActual.gastos || [])], presupuesto: h.presupuesto, ajusteSemana: h.ajusteSemana || 0,
-      inicioSemana: info.inicioSemana, finSemana: info.finSemana, numeroSemana: info.numeroSemana, inicioCiclo: info.inicioCiclo, sobraAnterior: null, repartoAnterior: null };
-    config.presupuestoDefault = h.presupuesto - (h.ajusteSemana || 0);
-    historial.shift(); guardarHistorial();
-    cierrePresupuesto = { ...cierrePresupuesto, cicloInicio: hoyCiclo }; guardarCierrePresupuesto();
-    guardarSemana(); guardarConfig();
-    return 'semana';
-  }
+  if (recuperarSemanaCortada()) { cierrePresupuesto = { ...cierrePresupuesto, cicloInicio: hoyCiclo }; guardarCierrePresupuesto(); guardarConfig(); return 'semana'; }
   guardarConfig(); calcularYCerrarPresupuesto(false); return 'recalculado';
+};
+// Una semana "cerrada" cuyo fin es hoy o futuro se cerró por error: se reabre con sus gastos y su presupuesto
+const recuperarSemanaCortada = () => {
+  const h = historial[0], hoy = fechaStr(new Date()), info = calcularSemanaFinanciera(new Date());
+  if (!h || h.finSemana < hoy) return false;
+  semanaActual = { ...semanaActual, gastos: [...(h.gastos || []), ...(semanaActual.gastos || [])], presupuesto: h.presupuesto, ajusteSemana: h.ajusteSemana || 0,
+    inicioSemana: info.inicioSemana, finSemana: info.finSemana, numeroSemana: info.numeroSemana, inicioCiclo: info.inicioCiclo, sobraAnterior: null, repartoAnterior: null };
+  config.presupuestoDefault = h.presupuesto - (h.ajusteSemana || 0);
+  historial.shift(); guardarHistorial(); guardarSemana(); guardarConfig();
+  return true;
+};
+const recuperarManual = async () => {
+  const arch = historialPagos[0];
+  const dias = arch && arch.ciclo ? Math.round((parseFecha(cicloActualInicio()) - parseFecha(arch.ciclo)) / 86400000) : -1;
+  let hecho = [];
+  if (arch && dias > 0 && dias < 25 && ((arch.pagos || []).length || (arch.unicos || []).length)) {
+    if (!(await uiConfirm(`Se restaurarán ${(arch.pagos || []).length} gastos fijos y ${(arch.unicos || []).length} únicos pagados del ciclo archivado el ${fechaLegible(arch.ciclo)}, y la semana cortada. ¿Continuar?`, { titulo: 'Recuperar ciclo', ok: 'Recuperar', icono: 'alert' }))) return;
+    recuperarCiclo(arch); hecho.push('fijos, únicos y semana');
+  } else if (recuperarSemanaCortada()) hecho.push('gastos y presupuesto de la semana');
+  if (!hecho.length) { mostrarToast('No encontré nada cortado para recuperar', 'warn'); return; }
+  renderTodo(); renderGastosFijos(); renderGastosUnicos(); actualizarConfigView();
+  mostrarToast('Recuperado: ' + hecho.join(' y '), 'success');
 };
 const ofrecerRecuperarCiclo = async () => {
   const f = buscarCicloCortado(); if (!f) return;
