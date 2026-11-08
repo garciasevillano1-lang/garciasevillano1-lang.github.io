@@ -3296,7 +3296,7 @@
         <div class="config-row">
           <div>
             <div class="config-label">Iván Finanzas</div>
-            <div class="config-sublabel">Control financiero personal · v5.19.1</div>
+            <div class="config-sublabel">Control financiero personal · v5.20.0</div>
           </div>
         </div>
       </div>
@@ -3751,9 +3751,21 @@ const mesActualStr = () => {
 /* ══════════════════════════════════════════════
    LÓGICA DE CICLO FINANCIERO (INTACTA)
 ══════════════════════════════════════════════ */
+// Ciclo especial: al cambiar el día de cobro, el ciclo en curso se alarga hasta el nuevo día de pago
+// (así no se parte ni se reacomoda el historial). Las fechas anteriores siguen usando el día previo.
+const cicloEspecial = () => (config.cicloEspecial && config.cicloEspecial.inicio && config.cicloEspecial.fin) ? config.cicloEspecial : null;
 const obtenerInicioCiclo = (fecha = new Date()) => {
   const dia = fecha.getDate(), mes = fecha.getMonth(), año = fecha.getFullYear();
-  const diaCobro = config.diaCobro || 22;
+  let diaCobro = config.diaCobro || 22;
+  const ce = cicloEspecial();
+  if (ce) {
+    const ini = parseFecha(ce.inicio), fin = parseFecha(ce.fin), h0 = new Date(año, mes, dia);
+    if (h0 >= ini && h0 <= fin) {
+      if (config.ultimoPagoConfirmado) { const c = parseFecha(config.ultimoPagoConfirmado); if (c > ini && c <= h0) return c; }
+      return ini;
+    }
+    if (h0 < ini) diaCobro = ce.diaPrevio || diaCobro;
+  }
   let esperado;
   if (dia >= diaCobro) esperado = new Date(año, mes, diaCobro, 0,0,0,0);
   else if (mes === 0)  esperado = new Date(año-1, 11, diaCobro, 0,0,0,0);
@@ -3769,7 +3781,13 @@ const obtenerInicioCiclo = (fecha = new Date()) => {
 };
 
 const obtenerFinCiclo = inicioCiclo => {
-  const diaCobro = config.diaCobro || 22;
+  let diaCobro = config.diaCobro || 22;
+  const ce = cicloEspecial();
+  if (ce) {
+    const ini = parseFecha(ce.inicio);
+    if (fechaStr(inicioCiclo) === ce.inicio) return parseFecha(ce.fin);
+    if (inicioCiclo < ini) diaCobro = ce.diaPrevio || diaCobro;
+  }
   let mes = inicioCiclo.getMonth() + 1, año = inicioCiclo.getFullYear();
   if (mes > 11) { mes = 0; año++; }
   const proxCobro = new Date(año, mes, diaCobro, 0,0,0,0);
@@ -6787,11 +6805,20 @@ const editarDiaCobro = async () => {
   if (nuevo===null) return;
   const val = parseInt(nuevo);
   if (!val||val<1||val>31) { mostrarToast('Día inválido (1-31)','danger'); return; }
-  const cicloViejo = cicloActualInicio();
+  // Cambiar el día de cobro NO abre un ciclo nuevo ni toca lo registrado: el ciclo en curso se alarga
+  // hasta el próximo cobro con el día nuevo, y de ahí en adelante rige el día nuevo.
+  const diaViejo = config.diaCobro || 22;
+  let msg = `Día de cobro actualizado: día ${val} ✓`;
+  if (val !== diaViejo) {
+    const hoy = new Date(); hoy.setHours(0,0,0,0);
+    const ini = obtenerInicioCiclo(hoy);
+    let P = _fd(hoy.getFullYear(), hoy.getMonth(), val); if (P < hoy) P = _fd(hoy.getFullYear(), hoy.getMonth() + 1, val);
+    const fin = new Date(P); fin.setDate(fin.getDate() - 1);
+    config.cicloEspecial = { inicio: fechaStr(ini), fin: fechaStr(fin), diaPrevio: diaViejo };
+    msg = `Día de cobro ${val}: aplica desde el ${fechaLegible(fechaStr(P))}. Tu ciclo actual termina el ${fechaLegible(fechaStr(fin))}`;
+  }
   config.diaCobro=val; guardarConfig();
-  // Cambiar el día de cobro NO debe abrir un ciclo nuevo: se re-ancla el ciclo en curso a la nueva fecha
-  rekeyCiclo(cicloViejo, cicloActualInicio());
-  mostrarToast(`Día de cobro actualizado: día ${val} ✓`,'success');
+  mostrarToast(msg,'success');
   actualizarConfigView(); verificarSemana(); renderTodo();
 };
 
