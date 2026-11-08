@@ -89,6 +89,10 @@
   .btn.add[aria-pressed="true"]{background:var(--superficie);border-color:var(--tinta)}
   .btn:focus-visible{outline:2px solid var(--naranja);outline-offset:2px}
 
+  .card.sold .track img{filter:grayscale(1) brightness(.55)}
+  .soldtag{position:absolute;top:14px;left:14px;font-size:12px;font-weight:800;letter-spacing:.2em;background:var(--tinta);color:var(--superficie);padding:6px 10px;border-radius:var(--r-sm)}
+  .card.sold .price b{color:var(--suave);text-decoration:line-through}
+  .soldnote{font-size:14px;color:var(--suave);border:1px dashed var(--linea);border-radius:var(--r-md);padding:12px;text-align:center}
   .faq{max-width:720px;margin:0 auto}
   details{border-bottom:1px solid var(--linea);padding:16px 0}
   summary{cursor:pointer;font-weight:700;font-size:16px;list-style:none;display:flex;justify-content:space-between;gap:12px}
@@ -179,7 +183,9 @@ const products = [
   {id:"bicolor", name:"Curren Cronógrafo Dorado y Plateado", imgs:3, real:2,
    feats:["Esfera negra con bisel dorado","Subesferas doradas en forma de 8","Pulsera metálica bicolor ajustable"]},
   {id:"plateado-negro", name:"Curren Cronógrafo Plateado Esfera Negra", imgs:2, real:2,
-   feats:["Esfera negra con subesferas plateadas","Detalles rojos y bisel dentado pulido","Pulsera metálica plateada ajustable"]}
+   feats:["Esfera negra con subesferas plateadas","Detalles rojos y bisel dentado pulido","Pulsera metálica plateada ajustable"]},
+  {id:"plateado-blanco", name:"Curren Cronógrafo Plateado y Oro Rosa", imgs:3, real:2, sold:true,
+   feats:["Esfera blanca con bisel en oro rosa","Detalles rojos y escala taquímetro","Pulsera metálica plateada ajustable"]}
 ];
 const common = ["Cronómetro 100% funcional y fecha automática","Resistente al agua 3ATM (no para nadar)"];
 const money = n => "$" + n.toLocaleString("es-CO");
@@ -199,11 +205,11 @@ products.forEach(p => {
   const dots = Array.from({length:p.imgs}, (_, i) => `<i class="${i===0?'on':''}"></i>`).join("");
   const msg = `Hola, vi el catálogo de Contrarreloj y me interesa el reloj ${p.name} (${money(PRICE)}). ¿Está disponible?`;
   const card = document.createElement("article");
-  card.className = "card"; card.id = p.id;
+  card.className = "card" + (p.sold ? " sold" : ""); card.id = p.id;
   card.innerHTML = `
     <div class="gal">
       <div class="track">${figs}</div>
-      <div class="dots">${dots}</div>
+      <div class="dots">${dots}</div>${p.sold?'<span class="soldtag">VENDIDO</span>':''}
       <button class="nav prev" type="button" aria-label="Foto anterior">&#8249;</button>
       <button class="nav next" type="button" aria-label="Foto siguiente">&#8250;</button>
     </div>
@@ -211,10 +217,10 @@ products.forEach(p => {
       <h3>${p.name}</h3>
       <ul class="feats">${p.feats.concat(common).map(f => `<li>${f}</li>`).join("")}</ul>
       <div class="price"><b>${money(PRICE)}</b><span>2 por ${money(PAIR)}</span></div>
-      <div class="actions">
+      ${p.sold ? `<div class="soldnote">Este ya encontró dueño. <a href="${wa('Hola, vi en el catálogo de Contrarreloj que el '+p.name+' se vendió. ¿Te va a llegar otro igual?')}" rel="noopener">Pregunta si llega otro</a></div>` : `<div class="actions">
         <a class="btn primary" href="${wa(msg)}" rel="noopener">${waIcon}Lo quiero</a>
         <button class="btn add" type="button" aria-pressed="false">+ Combo</button>
-      </div>
+      </div>`}
     </div>`;
   grid.appendChild(card);
 
@@ -228,6 +234,7 @@ products.forEach(p => {
   card.querySelector(".next").onclick = () => track.scrollBy({left: track.clientWidth, behavior:"smooth"});
 
   const add = card.querySelector(".add");
+  if (!add) return;
   add.onclick = () => {
     const on = !selected.has(p.id);
     on ? selected.add(p.id) : selected.delete(p.id);
