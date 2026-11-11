@@ -586,7 +586,7 @@
     }
     .hist-badge.ciclo { background: var(--salary-bg); color: var(--salary); }
     .hist-total { font-size: 13.5px; font-weight: 700; color: var(--text); font-family: var(--mono); }
-    .hist-chevron { color: var(--muted); transition: transform 0.3s var(--ease); font-size: 10px; }
+    .hist-chevron { color: var(--muted); transition: transform 0.3s var(--ease); font-size: 16px; display:inline-flex; }
     .historial-item.open .hist-chevron { transform: rotate(180deg); color: var(--accent); }
     .historial-body {
       border-top: 1px solid transparent; max-height: 0; overflow: hidden;
@@ -1719,7 +1719,6 @@
     .summary-card.main::before, .ahorro-hero::before, .port-hero::before, .summary-card.main::after, .ahorro-hero::after, .port-hero::after { display: none; }
     /* Barra inferior: píldora de íconos + círculo aparte */
     .nav-tabs { border: 1px solid var(--border-md); border-radius: 31px; box-shadow: var(--shadow); left: 14px; right: 14px; max-width: none; }
-    body:has(#page-inicio.active) .nav-tabs { right: 88px; }
     .nav-tabs::before { background: rgba(255,255,255,0.075); box-shadow: none; border-radius: 22px; }
     .nav-tab .tab-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
     .nav-tab { min-height: 52px; }
@@ -1900,6 +1899,47 @@ symbol .ac{stroke:var(--ico-ac,var(--accent,#cda149))}
 .ico-grid button.on{border-color:var(--accent,#cda149);background:rgba(205,161,73,.1)}
 .rp-ico{width:13px;height:13px;vertical-align:-2px;margin-right:5px;fill:none;stroke:#17203a;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .rp-ico .ac{stroke:#b98a2e}
+
+/* v6.1 — limpieza */
+.hero-tiempo{white-space:nowrap}
+.cta-res{gap:8px}.cta-res small{font-size:11px;color:var(--muted);font-weight:400;margin-right:2px}
+.cta-res .ico{font-size:14px;color:var(--muted);margin-left:2px}
+.tj-vacia{padding:12px 14px;margin-top:10px;cursor:pointer}
+.tj-bloque:first-child{margin-top:4px}
+
+/* v6.1 — registrar gasto */
+.reg-card{padding-bottom:18px;position:relative}
+.reg-fecha{display:flex;gap:6px}
+.reg-fecha button{border:1px solid var(--border,rgba(255,255,255,.1));background:transparent;color:var(--muted,#8b95b0);border-radius:999px;padding:5px 11px;font-size:12px;font-weight:500;font-family:inherit;display:inline-flex;align-items:center;min-height:28px}
+.reg-fecha button.on{border-color:var(--accent,#cda149);color:var(--accent,#cda149);background:rgba(205,161,73,.08)}
+.reg-fecha .ico{font-size:14px}
+.reg-monto{display:flex;align-items:baseline;gap:8px;margin:14px 0 4px;cursor:text}
+.reg-monto span{font-size:28px;font-weight:600;color:var(--accent,#cda149)}
+.reg-monto input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--text,#e8ecf5);font-size:44px;font-weight:600;line-height:1.1;font-family:inherit;letter-spacing:-1.5px;width:100%;font-variant-numeric:tabular-nums;padding:0}
+.reg-monto input::placeholder{color:var(--muted,#8b95b0);opacity:.45}
+.reg-sumas{display:flex;gap:8px;margin:8px 0 14px}
+.reg-sumas button{flex:1;border:1px solid var(--border,rgba(255,255,255,.1));background:transparent;color:var(--text-dim,#aab3cc);border-radius:999px;padding:8px 0;font-size:12.5px;font-weight:500;font-family:inherit}
+.reg-sumas button:active{border-color:var(--accent,#cda149);color:var(--accent,#cda149)}
+.reg-cats{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.reg-cats .reg-mas{color:var(--muted,#8b95b0);gap:4px}.reg-cats .reg-mas .ico{font-size:13px}
+.reg-fila{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.reg-fila .cta-chips{margin:0;padding:0;flex-wrap:nowrap}
+.reg-fila .cta-res{white-space:nowrap}
+.reg-fila:has(.cta-chips[data-open="1"]){flex-direction:column}
+.reg-fila:has(.cta-chips[data-open="1"]) .cta-chips{flex-wrap:wrap}
+.reg-nota{flex:1;min-width:0;min-height:46px}
+.reg-date{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}
+:root[data-theme="light"] .reg-monto input{color:#17203a}
+
+/* v6.1 — avisos */
+.avisos-card{padding-bottom:10px}
+.aviso-fila{display:flex;gap:12px;align-items:center;padding:11px 0;border-top:1px solid rgba(255,255,255,.06);cursor:pointer}
+.aviso-fila:first-child{border-top:0}
+.aviso-fila .ico{font-size:20px;color:var(--text-dim,#aab3cc)}
+.aviso-fila b{display:block;font-size:13.5px;font-weight:500;color:var(--text,#e8ecf5)}
+.aviso-fila span{font-size:11.5px;color:var(--muted,#8b95b0)}
+.aviso-fila.urg span{color:#e0a458}
+:root[data-theme="light"] .aviso-fila{border-top-color:rgba(0,0,0,.07)}
 </style>
 </head>
 <body>
@@ -2030,7 +2070,7 @@ symbol .ac{stroke:var(--ico-ac,var(--accent,#cda149))}
 <div class="toast" id="toast"></div>
 
 <!-- Modal Edición Gasto Semanal -->
-<button class="fab-rapido" id="fabRapido" onclick="abrirRapido()" aria-label="Registrar gasto rápido"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg></button>
+
 
 <div class="modal-overlay" id="rapidoOverlay">
   <div class="modal rapido-modal">
@@ -2882,6 +2922,25 @@ symbol .ac{stroke:var(--ico-ac,var(--accent,#cda149))}
       <span id="progressLabel" hidden></span><span id="progressPct" hidden></span>
     </div>
 
+    <!-- Registrar gasto (v6.1) -->
+    <div class="min-card reg-card" id="regCard">
+      <div class="min-head"><div class="min-lab">Registrar gasto</div>
+        <div class="reg-fecha" id="regFecha"></div></div>
+      <label class="reg-monto"><span>$</span><input type="text" id="inputCantidad" placeholder="0" inputmode="numeric" autocomplete="off" aria-label="Cantidad" /></label>
+      <div class="reg-sumas" id="regSumas"></div>
+      <div class="reg-cats" id="regCats"></div>
+      <select id="inputCategoria" hidden></select>
+      <div class="reg-fila">
+        <div id="inputCuentaWrap" style="display:none"><select id="inputCuenta" aria-label="Pagado desde"></select></div>
+        <input class="form-input reg-nota" type="text" id="inputNota" placeholder="Nota (opcional)" />
+      </div>
+      <input type="date" id="inputFecha" class="reg-date" tabindex="-1" aria-hidden="true" />
+      <button class="btn-primary" id="regBtn" onclick="agregarGasto()">Registrar gasto</button>
+    </div>
+
+    <!-- Avisos (v6.1) -->
+    <div class="min-card avisos-card" id="avisosCard" style="display:none"><div class="min-head"><div class="min-lab">Avisos</div></div><div id="avisosBody"></div></div>
+
     <!-- Patrimonio -->
     <div class="min-card patr-card">
       <div class="min-head"><div class="min-lab">Patrimonio neto</div></div>
@@ -2958,36 +3017,6 @@ symbol .ac{stroke:var(--ico-ac,var(--accent,#cda149))}
     </div>
 
 
-    <!-- Formulario añadir gasto -->
-    <div class="section acc-sec">
-      <details class="acc" open><summary><span>Registrar gasto con detalle</span><i></i></summary><div class="acc-body">
-      <div class="form-card">
-        <div class="form-row">
-          <div class="amount-wrap">
-            <span class="amount-prefix">$</span>
-            <input class="form-input" type="number" id="inputCantidad" placeholder="Cantidad" inputmode="numeric" />
-          </div>
-        </div>
-        <div class="form-row">
-          <select class="form-input" id="inputCategoria"></select>
-        </div>
-        <div class="form-row" id="inputCuentaWrap" style="display:none">
-          <select class="form-input" id="inputCuenta" aria-label="Pagado desde"></select>
-        </div>
-        <div class="form-grid">
-          <div class="form-row" style="margin:0">
-            <input class="form-input" type="text" id="inputNota" placeholder="Nota (opcional)" />
-          </div>
-          <div class="form-row" style="margin:0">
-            <input class="form-input" type="date" id="inputFecha" />
-          </div>
-        </div>
-        <div class="form-row">
-          <button class="btn-primary" onclick="agregarGasto()"><svg class="ico" aria-hidden="true"><use href="#i-plus"/></svg> Registrar gasto</button>
-        </div>
-      </div>
-    </div></details>
-    </div>
   </div>
 
   <!-- ══ Página: Ahorro e Inversión ══ -->
@@ -3283,6 +3312,13 @@ symbol .ac{stroke:var(--ico-ac,var(--accent,#cda149))}
         </div>
         <div class="config-row">
           <div>
+            <div class="config-label">Recordatorios en mi calendario</div>
+            <div class="config-sublabel">Día de pago, pago de tarjetas, CDT y reposiciones, con alarma</div>
+          </div>
+          <button class="icon-btn" onclick="exportarCalendario()" aria-label="Añadir al calendario"><svg class="ico" aria-hidden="true"><use href="#i-calendar"/></svg></button>
+        </div>
+        <div class="config-row">
+          <div>
             <div class="config-label">Días para cerrar presupuesto</div>
             <div class="config-sublabel" id="configDiasCierre">5 días tras el cobro</div>
           </div>
@@ -3329,7 +3365,7 @@ symbol .ac{stroke:var(--ico-ac,var(--accent,#cda149))}
         <div class="config-row">
           <div>
             <div class="config-label">Iván Finanzas</div>
-            <div class="config-sublabel">Control financiero personal · v6.0.0</div>
+            <div class="config-sublabel">Control financiero personal · v6.1.0</div>
           </div>
         </div>
       </div>
@@ -4323,7 +4359,7 @@ const renderSummary = () => {
   const ajusteSem = Math.round(semanaActual.ajusteSemana || 0);
   if (ajusteSem !== 0) {
     const color = ajusteSem > 0 ? '#cda149' : '#cc5f56';
-    subEl.innerHTML = `Base ${formatCOP(config.presupuestoDefault)} <span style="color:${color}">${fmtSigno(ajusteSem)} por ${ajusteSem > 0 ? 'sobrantes' : 'excesos'} repartidos</span>`;
+    subEl.innerHTML = `Base ${formatCOP(config.presupuestoDefault)} · ${fmtSigno(ajusteSem)} por ${ajusteSem > 0 ? 'sobrantes' : 'excesos'}`;
   } else if (semanaActual.ajusteSemana == null && semanaActual.sobraAnterior != null && semanaActual.sobraAnterior !== 0) {
     const base = formatCOP(config.presupuestoDefault);
     const carry = semanaActual.sobraAnterior;
@@ -4407,9 +4443,8 @@ const renderProyeccionCiclo = () => {
     const MS = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'], DS = ['dom','lun','mar','mié','jue','vie','sáb'];
     const fmtD = (d, o) => (o.weekday ? DS[d.getDay()] + ' ' : '') + d.getDate() + ' ' + MS[d.getMonth()];
     const finTxt = fmtD(parseFecha(info.finSemana), { weekday: 1 });
-    const semTxt = dSem === 0 ? 'La semana termina hoy' : `${dSem === 1 ? 'Queda' : 'Quedan'} <b>${dSem}</b> ${dSem === 1 ? 'día' : 'días'} · ${finTxt}`;
-    const pagoTxt = dPago === 0 ? 'Pago hoy' : `Pago en <b>${dPago}</b> ${dPago === 1 ? 'día' : 'días'} · ${fmtD(proxPago, { day: 'numeric', month: 'short' })}`;
-    ht.innerHTML = `<span>${semTxt}</span><span>${pagoTxt}</span>`;
+    const semTxt = dSem === 0 ? 'La semana termina hoy' : `${dSem === 1 ? 'Queda' : 'Quedan'} <b>${dSem}</b> ${dSem === 1 ? 'día' : 'días'}`;
+    ht.innerHTML = `<span>${semTxt}</span><span>${dSem === 0 ? '' : 'hasta el ' + finTxt}</span>`;
   }
 
   const saldoTexto = (saldoActual<0?'-':'') + formatCOP(saldoActual);
@@ -4572,8 +4607,8 @@ const renderHistorial = () => {
             <div class="hist-meta">${numGastos} gastos · ${sobrante>=0?'sobrante':'excedido'} ${sobrante>=0?'+':''}${formatCOP(sobrante)}${carryRecibido}</div>
           </div>
           <div style="display:flex;align-items:center;gap:10px">
-            <span class="hist-total">−${formatCOP(totalSem)}</span>
-            <span class="hist-chevron">▼</span>
+            <span class="hist-total">${totalSem > 0 ? '−' : ''}${formatCOP(totalSem)}</span>
+            <span class="hist-chevron"><svg class="ico" aria-hidden="true"><use href="#i-down"/></svg></span>
           </div>
         </div>
         <div class="historial-body"><div class="hist-gastos">${gastosHTML}</div></div>
@@ -5284,7 +5319,7 @@ const ctxFit = canvas => {
 // Texto de variación del patrimonio neto vs el mes anterior registrado (compartido entre Inicio y Deudas)
 const variacionNetoInfo = () => {
   if (historialPatrimonio.length < 2) {
-    return { texto: 'Registra al menos 2 meses para ver la variación', clase: '' };
+    return { texto: 'Aún sin variación mensual', clase: '' };
   }
   const ultimo   = historialPatrimonio[historialPatrimonio.length-1];
   const anterior = historialPatrimonio[historialPatrimonio.length-2];
@@ -6060,7 +6095,7 @@ const renderTodo = () => {
    AGREGAR GASTO SEMANAL (INTACTO)
 ══════════════════════════════════════════════ */
 const agregarGasto = async () => {
-  const cantidad  = parseFloat(document.getElementById('inputCantidad').value);
+  const cantidad  = parseInt(String(document.getElementById('inputCantidad').value).replace(/\D/g, ''), 10);
   const categoria = document.getElementById('inputCategoria').value;
   const nota      = document.getElementById('inputNota').value.trim();
   const fecha     = document.getElementById('inputFecha').value;
@@ -6078,6 +6113,7 @@ const agregarGasto = async () => {
   guardarSemana(); renderCuentas();
   document.getElementById('inputCantidad').value='';
   document.getElementById('inputNota').value='';
+  setFechaHoy(); pintarReg();
   if (navigator.vibrate) navigator.vibrate(40);
   mostrarToast(rc.tarjeta ? `✓ ${formatCOP(cantidad)} registrado · a la deuda de ${rc.tarjeta.nombre}` : `✓ ${formatCOP(cantidad)} registrado`,'success');
   renderTodo();
@@ -8327,7 +8363,7 @@ const rpPaginaResumen = (d, prev, hall) => {
 
 const rpPaginaGastos = (d, prev) => {
   const cats = Object.entries(d.porCategoria).sort((a, b) => b[1] - a[1]);
-  const top = cats.slice(0, 8), resto = cats.slice(8).reduce((s, x) => s + x[1], 0);
+  const top = cats.slice(0, 6), resto = cats.slice(6).reduce((s, x) => s + x[1], 0);
   if (resto > 0) top.push(['Otras categorías', resto]);
   const max = top.length ? top[0][1] : 0;
   const filasCat = top.map(([c, v], i) => {
@@ -8352,9 +8388,9 @@ const rpPaginaGastos = (d, prev) => {
       <tr><td>Tasa de ahorro</td><td>${pctRP(prev.tasaAhorro)}</td><td><b>${pctRP(d.tasaAhorro)}</b></td><td>${rpDelta(d.tasaAhorro - prev.tasaAhorro, true, x => pctRP(x, 1) + ' pts')}</td></tr>
       </tbody></table>
       <div class="rp-nota">Ciclo anterior: ${rangoCiclo(prev)}.</div>`;
-  } else comp = rpVacio('No hay datos del ciclo anterior para comparar.');
+  } else comp = rpVacio('Sin datos suficientes del ciclo anterior para comparar.');
   const topG = d.topGastos.length ? `<table class="rp-tabla"><thead><tr><th>Fecha</th><th>Categoría</th><th>Detalle</th><th>Monto</th></tr></thead><tbody>
-    ${d.topGastos.map(g => `<tr><td>${g.fecha ? fechaLegible(g.fecha) : 'Único'}</td><td>${esc(g.categoria || '—')}</td><td class="rp-td-nota">${esc(g.nota || '—')}</td><td><b>${fmtS(g.monto)}</b></td></tr>`).join('')}
+    ${d.topGastos.slice(0, 3).map(g => `<tr><td>${g.fecha ? fechaLegible(g.fecha) : 'Único'}</td><td>${esc(g.categoria || '—')}</td><td class="rp-td-nota">${esc(g.nota || '—')}</td><td><b>${fmtS(g.monto)}</b></td></tr>`).join('')}
     </tbody></table>` : rpVacio('Sin gastos variables ni únicos en este ciclo.');
   return `
     <div class="rp-tiles rp-tiles-3">
@@ -8366,7 +8402,7 @@ const rpPaginaGastos = (d, prev) => {
     ${filasCat ? `<div class="rp-cats">${filasCat}</div>${prev ? `<div class="rp-nota">▲▼ = cambio frente al ciclo anterior.</div>` : ''}` : rpVacio('Sin gastos en este ciclo.')}
     <h2 class="rp-h2">Comparación con el ciclo anterior</h2>
     ${comp}
-    <h2 class="rp-h2">Los 5 gastos más grandes</h2>
+    <h2 class="rp-h2">Los 3 gastos más grandes</h2>
     ${topG}`;
 };
 
@@ -8713,6 +8749,8 @@ const construirInforme = ciclo => {
   const idx = lista.indexOf(ciclo);
   let prev = idx > 0 ? datosCicloInforme(lista[idx - 1], lista) : null;
   if (prev && !prev.hayDatos) prev = null;
+  // Ciclo anterior sin sus gastos fijos guardados: comparar contra él distorsiona todo
+  if (prev && prev.totFijoConsumo === 0 && prev.aportes === 0 && (d.totFijoConsumo > 0 || d.aportes > 0)) prev = null;
   const plan = null; // el planificador de metas se retiró de la interfaz (v5.4)
   const minimo = plan ? ahorroMinimoNecesario() : null;
   const hall = hallazgosInforme(d, prev, plan, minimo);
@@ -8968,8 +9006,11 @@ const mostrarToast = (msg, tipo='success') => {
 ══════════════════════════════════════════════ */
 const poblarSelects = () => {
   const opts = config.categorias.map(c=>`<option value="${c.nombre}">${c.nombre}</option>`).join('');
+  const _prevCat = document.getElementById('inputCategoria').value;
   document.getElementById('inputCategoria').innerHTML=opts;
+  if (_prevCat) document.getElementById('inputCategoria').value = _prevCat;
   document.getElementById('editCategoria').innerHTML =opts;
+  try { pintarReg(); } catch (e) {}
 };
 
 const actualizarConfigView = () => {
@@ -8982,7 +9023,102 @@ const actualizarConfigView = () => {
 
 const setFechaHoy = () => {
   document.getElementById('inputFecha').value = fechaStr(new Date());
+  try { pintarReg(); } catch (e) {}
 };
+
+/* Avisos (v6.1): lo que vence pronto, visible al abrir la app */
+const avisosActivos = () => {
+  const hoy = fechaStr(new Date()), out = [];
+  const dias = f => Math.round((parseFecha(f) - parseFecha(hoy)) / 86400000);
+  const cuando = d => d < 0 ? `vencido hace ${-d} día${d === -1 ? '' : 's'}` : d === 0 ? 'hoy' : `en ${d} día${d === 1 ? '' : 's'}`;
+  (typeof inversiones !== 'undefined' ? inversiones : []).forEach(i => {
+    if (!i.fechaVencimiento) return; const d = dias(i.fechaVencimiento);
+    if (d <= 30 && d >= -15) out.push({ d, ico: 'i-clock', txt: `${i.nombre} vence el ${fechaLegible(i.fechaVencimiento)}`, sub: cuando(d) + ' · decide si renuevas o retiras', ir: "irPagina('page-ahorro')" });
+  });
+  ahorrosInversiones.forEach(f => (f.retiros || []).forEach(r => {
+    const falta = Math.round((r.monto || 0) - (r.repuesto || 0)); if (falta <= 0 || !r.fechaRepos) return; const d = dias(r.fechaRepos);
+    if (d <= 7) out.push({ d, ico: 'i-refresh', txt: `Reponer ${formatCOP(falta)} a ${f.nombre}`, sub: `previsto ${fechaLegible(r.fechaRepos)} · ${cuando(d)}`, ir: "irPagina('page-ahorro')" });
+  }));
+  if (typeof cuentasData !== 'undefined') cuentasData.productos.filter(esCredito).forEach(p => {
+    const e = estadoTarjeta(p); if (e.facturado <= 0 || !e.vence) return; const d = dias(e.vence);
+    if (d <= 3) out.push({ d, ico: 'i-card', txt: `Pagar ${p.nombre}: ${formatCOP(e.facturado)}`, sub: `límite ${fechaLegible(e.vence)} · ${cuando(d)}`, ir: "irPagina('page-deudas')" });
+  });
+  return out.sort((a, b) => a.d - b.d);
+};
+const renderAvisos = () => {
+  const card = document.getElementById('avisosCard'); if (!card) return;
+  let av = []; try { av = avisosActivos(); } catch (e) {}
+  card.style.display = av.length ? '' : 'none';
+  document.getElementById('avisosBody').innerHTML = av.map(a => `<div class="aviso-fila${a.d <= 0 ? ' urg' : ''}" onclick="${a.ir}"><svg class="ico" aria-hidden="true"><use href="#${a.ico}"/></svg><div><b>${_escC(a.txt)}</b><span>${_escC(a.sub)}</span></div></div>`).join('');
+};
+
+/* Recordatorios: archivo de calendario (.ics) con alarmas — funciona con la app cerrada */
+const exportarCalendario = () => {
+  const p2 = n => String(n).padStart(2, '0'), ymd = d => `${d.getFullYear()}${p2(d.getMonth() + 1)}${p2(d.getDate())}`;
+  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+  const prox = dia => { let d = _fd(hoy.getFullYear(), hoy.getMonth(), dia); if (d < hoy) d = _fd(hoy.getFullYear(), hoy.getMonth() + 1, dia); return d; };
+  const limpiar = t => String(t).replace(/[\\;,]/g, ' ').replace(/\n/g, ' ');
+  const ev = [];
+  const add = (uid, fecha, titulo, desc, rrule, alarmas) => {
+    const fin = new Date(fecha); fin.setDate(fin.getDate() + 1);
+    ev.push(['BEGIN:VEVENT', `UID:${uid}@ivan-finanzas`, `DTSTAMP:${ymd(new Date())}T000000Z`, `DTSTART;VALUE=DATE:${ymd(fecha)}`, `DTEND;VALUE=DATE:${ymd(fin)}`,
+      `SUMMARY:${limpiar(titulo)}`, `DESCRIPTION:${limpiar(desc)}`, ...(rrule ? [`RRULE:${rrule}`] : []),
+      ...alarmas.flatMap(t => ['BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${limpiar(titulo)}`, `TRIGGER:${t}`, 'END:VALARM']), 'END:VEVENT'].join('\r\n'));
+  };
+  const dc = config.diaCobro || 22;
+  add('pago', prox(dc), 'Día de pago · registra tu ciclo', 'Abre Iván Finanzas y confirma tu pago.', `FREQ=MONTHLY;BYMONTHDAY=${Math.min(dc, 28)}`, ['PT8H']);
+  if (typeof cuentasData !== 'undefined') cuentasData.productos.filter(esCredito).forEach(p => {
+    const d = +p.pagoDia || 15;
+    add('tj-' + p.id, prox(d), `Pagar ${p.nombre}`, 'Fecha límite de pago de la tarjeta. Revisa el extracto en Iván Finanzas.', `FREQ=MONTHLY;BYMONTHDAY=${Math.min(d, 28)}`, ['-P2DT15H', 'PT8H']);
+  });
+  (typeof inversiones !== 'undefined' ? inversiones : []).forEach(i => { if (i.fechaVencimiento && parseFecha(i.fechaVencimiento) >= hoy) add('cdt-' + i.id, parseFecha(i.fechaVencimiento), `Vence ${i.nombre}`, 'Decide si renuevas o retiras.', '', ['-P7DT15H', 'PT8H']); });
+  ahorrosInversiones.forEach(f => (f.retiros || []).forEach(r => { const falta = Math.round((r.monto || 0) - (r.repuesto || 0)); if (falta > 0 && r.fechaRepos && parseFecha(r.fechaRepos) >= hoy) add('rep-' + r.id, parseFecha(r.fechaRepos), `Reponer ${formatCOP(falta)} a ${f.nombre}`, r.motivo || '', '', ['PT8H']); }));
+  const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Ivan Finanzas//ES', 'CALSCALE:GREGORIAN', ...ev, 'END:VCALENDAR'].join('\r\n');
+  const url = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' })), a = document.createElement('a');
+  a.href = url; a.download = 'ivan-finanzas-recordatorios.ics'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000);
+  mostrarToast(`${ev.length} recordatorios listos: abre el archivo y agrégalos a tu calendario`, 'success');
+};
+
+/* Registrar gasto (v6.1): monto grande, sumas rápidas, categorías más usadas primero */
+let regVerTodas = false;
+const _regUso = () => { const n = {}; [semanaActual, ...historial.slice(0, 6)].forEach(sm => (sm.gastos || []).forEach(g => { n[g.categoria] = (n[g.categoria] || 0) + 1; })); return n; };
+const pintarReg = () => {
+  const sel = document.getElementById('inputCategoria'), cats = document.getElementById('regCats'); if (!sel || !cats) return;
+  const uso = _regUso(), orden = config.categorias.slice().sort((a, b) => (uso[b.nombre] || 0) - (uso[a.nombre] || 0));
+  if (!sel.value || !config.categorias.some(c => c.nombre === sel.value) || sel.dataset.auto !== '0') { if (orden[0]) sel.value = orden[0].nombre; }
+  const N = 6; let vis = regVerTodas ? orden : orden.slice(0, N);
+  if (!vis.some(c => c.nombre === sel.value)) { const c = orden.find(x => x.nombre === sel.value); if (c) vis = [...vis.slice(0, N - 1), c]; }
+  cats.innerHTML = vis.map(c => `<button type="button" class="rapido-chip ${c.nombre === sel.value ? 'sel' : ''}" data-cat="${_escC(c.nombre)}">${catIco(c)}${_escC(c.nombre)}</button>`).join('')
+    + (orden.length > N ? `<button type="button" class="rapido-chip reg-mas" data-mas="1">${regVerTodas ? 'Menos' : 'Más'}<svg class="ico" aria-hidden="true"><use href="#${regVerTodas ? 'i-up' : 'i-down'}"/></svg></button>` : '');
+  cats.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    if (b.dataset.mas) regVerTodas = !regVerTodas; else { sel.value = b.dataset.cat; sel.dataset.auto = '0'; regVerTodas = false; if (navigator.vibrate) navigator.vibrate(8); }
+    pintarReg();
+  }));
+  // Fecha: Hoy / Ayer / otra
+  const f = document.getElementById('inputFecha'), hoy = fechaStr(new Date()), ay = new Date(); ay.setDate(ay.getDate() - 1); const ayer = fechaStr(ay);
+  const otra = f.value && f.value !== hoy && f.value !== ayer;
+  document.getElementById('regFecha').innerHTML = `<button type="button" class="${f.value === hoy ? 'on' : ''}" data-f="${hoy}">Hoy</button><button type="button" class="${f.value === ayer ? 'on' : ''}" data-f="${ayer}">Ayer</button><button type="button" class="${otra ? 'on' : ''}" data-f="">${otra ? _fmtCorta(f.value) : '<svg class="ico" aria-hidden="true"><use href="#i-calendar"/></svg>'}</button>`;
+  document.getElementById('regFecha').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    if (b.dataset.f) { f.value = b.dataset.f; pintarReg(); } else { try { f.showPicker(); } catch (e) { f.focus(); f.click(); } }
+  }));
+  pintarRegBtn();
+};
+const pintarRegBtn = () => {
+  const n = parseInt(String(document.getElementById('inputCantidad').value).replace(/\D/g, ''), 10) || 0;
+  document.getElementById('regBtn').textContent = n > 0 ? `Registrar ${formatCOP(n)} · ${document.getElementById('inputCategoria').value}` : 'Registrar gasto';
+};
+(() => {
+  const c = document.getElementById('inputCantidad');
+  const fmt = () => { const n = String(c.value).replace(/\D/g, '').replace(/^0+/, ''); c.value = n ? Number(n).toLocaleString('es-CO') : ''; pintarRegBtn(); };
+  c.addEventListener('input', fmt);
+  c.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); c.blur(); agregarGasto(); } });
+  document.getElementById('inputNota').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); agregarGasto(); } });
+  document.getElementById('inputFecha').addEventListener('change', () => pintarReg());
+  document.getElementById('regSumas').innerHTML = [5000, 10000, 20000, 50000].map(v => `<button type="button" data-v="${v}">+${v / 1000} mil</button>`).join('');
+  document.getElementById('regSumas').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    const n = (parseInt(String(c.value).replace(/\D/g, ''), 10) || 0) + (+b.dataset.v); c.value = n.toLocaleString('es-CO'); pintarRegBtn(); if (navigator.vibrate) navigator.vibrate(8);
+  }));
+})();
 
 /* ══════════════════════════════════════════════
    ALERTA DÍA DE PAGO (INTACTA)
@@ -9213,12 +9349,19 @@ const opcionesCuenta = (conTarjeta, vacio) => {
 const pintarChipsCuenta = (sel) => {
   let box = sel.nextElementSibling; if (!box || !box.classList.contains('cta-chips')) { box = document.createElement('div'); box.className = 'cta-chips'; sel.after(box); }
   sel.style.display = 'none';
+  if (box.dataset.open !== '1') {
+    const p = sel.value ? prodDe(sel.value) : null, e = p ? entDe(p.entidadId) : null, lab = sel.getAttribute('aria-label');
+    const txt = p ? (esCredito(p) ? p.nombre.replace(/^Tarjeta\s+/i, '') + ' · crédito' : nombreProd(p)) : 'Sin cuenta';
+    box.innerHTML = `<button type="button" class="rapido-chip cta-chip cta-res${p ? ' sel' : ''}">${lab ? `<small>${_escC(lab)}</small>` : ''}${e ? `<i style="background:${e.color || '#7c8db3'}"></i>` : ''}${_escC(txt)}<svg class="ico" aria-hidden="true"><use href="#i-down"/></svg></button>`;
+    box.firstChild.addEventListener('click', () => { box.dataset.open = '1'; pintarChipsCuenta(sel); });
+    return;
+  }
   box.innerHTML = [...sel.options].map(o => {
     const p = o.value ? prodDe(o.value) : null, e = p ? entDe(p.entidadId) : null;
     const txt = p ? (esCredito(p) ? p.nombre.replace(/^Tarjeta\s+/i, '') + ' · crédito' : p.nombre) : 'Sin cuenta';
     return `<button type="button" class="rapido-chip cta-chip${sel.value === o.value ? ' sel' : ''}${p && esCredito(p) ? ' tj' : ''}" data-v="${o.value}">${e ? `<i style="background:${e.color || '#7c8db3'}"></i>` : ''}${_escC(txt)}</button>`;
   }).join('');
-  box.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { sel.value = b.dataset.v; pintarChipsCuenta(sel); if (navigator.vibrate) navigator.vibrate(8); }));
+  box.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { sel.value = b.dataset.v; box.dataset.open = ''; pintarChipsCuenta(sel); if (navigator.vibrate) navigator.vibrate(8); }));
 };
 const poblarSelCuenta = (selId, conTarjeta, vacio, clave) => {
   const sel = document.getElementById(selId), wrap = document.getElementById(selId + 'Wrap');
@@ -9279,6 +9422,7 @@ const renderTarjetasDeudas = () => {
       const tot = grupos[k].reduce((t, c) => t + c.rest, 0);
       return `<details class="tj-grupo"><summary><span>${_escC(k)}</span><b>${formatCOP(tot)}</b></summary>${grupos[k].map(c => `<div class="tj-it"${c.origen === 'compra' ? ` onclick="quitarCompra('${c.id}')"` : ''}><span>${_escC(c.nota || k)} · ${_fmtCorta(c.fecha)}</span><b>${formatCOP(c.rest)}</b></div>`).join('')}</details>`;
     }).join('');
+    if (e.total <= 0) return `<div class="tj-bloque tj-vacia" onclick="abrirModalCuenta('${p.id}')"><div class="tj-top" style="margin:0">${ent ? avatarEnt(ent, true) : ''}<div class="tj-bt" style="margin:0;flex:1">${_escC(p.nombre)}</div><span style="font-size:12px;color:var(--muted)">Sin deuda</span></div></div>`;
     return `<div class="tj-bloque"><div class="tj-top">${ent ? avatarEnt(ent, true) : ''}<div class="tj-bt" style="margin:0;flex:1">${_escC(p.nombre)}</div><div class="tj-tot">${formatCOP(e.total)}</div></div>
       <div class="tj-f"><span>${e.facturado > 0 ? 'Extracto: pagar antes del ' + _fmtCorta(e.vence) : 'Sin extracto pendiente'}</span><b${e.facturado > 0 ? '' : ' style="color:var(--muted)"'}>${formatCOP(e.facturado)}</b></div>
       <div class="tj-f"><span>Por facturar (corte ${_fmtCorta(e.corteSig)})</span><b>${formatCOP(e.porFacturar)}</b></div>
@@ -9324,6 +9468,7 @@ const renderCuentasInicio = () => {
       }).join('') + (tarj > 0 ? `<div style="font-size:11.5px;color:var(--muted);margin-top:8px">Tarjetas de crédito usadas: ${formatCOP(tarj)}</div>` : '');
   }
   renderTarjetasLinea();
+  try { renderAvisos(); } catch (e) {}
 };
 const renderCuentas = () => {
   const lista = document.getElementById('ctaLista');
@@ -9588,9 +9733,11 @@ inicializar();
 /* Atajo del ícono (mantén presionado el ícono → «Gasto rápido»): abre directo la hoja de gasto rápido */
 try {
   const _qs = new URLSearchParams(location.search);
+  if (_qs.get('accion') === 'informe') { history.replaceState(null, '', location.pathname); setTimeout(() => abrirInforme(), 600); }
+  if (_qs.get('accion') === 'tarjetas') { history.replaceState(null, '', location.pathname); setTimeout(() => irPagina('page-deudas'), 500); }
   if (_qs.get('accion') === 'gasto') {
     history.replaceState(null, '', location.pathname);
-    setTimeout(() => { irPagina('page-inicio'); abrirRapido(); }, 500);
+    setTimeout(() => { irPagina('page-inicio'); const c = document.getElementById('inputCantidad'); if (c) { c.scrollIntoView({ block: 'center' }); c.focus(); } }, 500);
   }
 } catch (e) {}
 </script>
