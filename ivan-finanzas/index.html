@@ -127,7 +127,7 @@
     .ico {
       width: 1em; height: 1em; display: inline-block; flex-shrink: 0;
       vertical-align: -0.14em;
-      fill: none; stroke: currentColor; stroke-width: 1.75;
+      fill: none; stroke: currentColor; stroke-width: 1.6;
       stroke-linecap: round; stroke-linejoin: round;
     }
 
@@ -1889,6 +1889,17 @@
 .hero-tiempo{display:flex;justify-content:space-between;gap:12px;margin:10px 0 2px;font-size:12px;color:var(--muted,#8b95b0)}
 .hero-tiempo b{color:var(--accent,#cda149);font-weight:600;font-variant-numeric:tabular-nums}
 .hero-tiempo span:last-child{text-align:right}
+
+/* v6 — iconos propios (línea con acento dorado) */
+symbol .ac{stroke:var(--ico-ac,var(--accent,#cda149))}
+.btn-danger,.danger,.toast{--ico-ac:currentColor}
+.cat-ico{font-size:1.2em;vertical-align:-0.22em;margin-right:3px}
+.rapido-chip .cat-ico{margin-right:5px}
+.ico-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:4px}
+.ico-grid button{aspect-ratio:1;border-radius:12px;border:1px solid var(--border,rgba(255,255,255,.1));background:transparent;color:var(--text,#e8ecf5);display:flex;align-items:center;justify-content:center;font-size:21px;padding:0}
+.ico-grid button.on{border-color:var(--accent,#cda149);background:rgba(205,161,73,.1)}
+.rp-ico{width:13px;height:13px;vertical-align:-2px;margin-right:5px;fill:none;stroke:#17203a;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.rp-ico .ac{stroke:#b98a2e}
 </style>
 </head>
 <body>
@@ -1904,54 +1915,74 @@
 <!-- Íconos de interfaz Iván Finanzas (línea fina, reutilizados vía <use>) -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
-    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3.5 10.5 12 3.5l8.5 7"/><path d="M5.5 9.5V19a1.5 1.5 0 0 0 1.5 1.5h3.5v-5.5h3v5.5H17a1.5 1.5 0 0 0 1.5-1.5V9.5"/></symbol>
-    <symbol id="i-budget" viewBox="0 0 24 24"><rect x="5" y="4.5" width="14" height="16.5" rx="2.2"/><path d="M9 4.5V3h6v1.5"/><path d="M8.5 10h7M8.5 13.5h7M8.5 17h4"/></symbol>
-    <symbol id="i-coins" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="2.8"/><path d="M5 6v6c0 1.55 3.13 2.8 7 2.8s7-1.25 7-2.8V6"/><path d="M5 12v6c0 1.55 3.13 2.8 7 2.8s7-1.25 7-2.8v-6"/></symbol>
-    <symbol id="i-card" viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 9.8h19M6.5 15h4"/></symbol>
-    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3.5 20.5h17"/><path d="M6.5 17v-5M11.5 17V6.5M16.5 17v-8"/></symbol>
-    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 6.5h9.5M18.5 6.5H20M4 12h3.5M12.5 12H20M4 17.5h11.5"/><circle cx="16" cy="6.5" r="2.2"/><circle cx="10" cy="12" r="2.2"/><circle cx="18" cy="17.5" r="2.2"/></symbol>
-    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4.5 19.5h3.8L19 8.8a2.1 2.1 0 0 0-3-3L5.3 16.5z"/><path d="M14.5 7.3l2.9 2.9"/></symbol>
-    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4.5 7h15M10 11v6M14 11v6"/><path d="M6.5 7l.9 12a2 2 0 0 0 2 1.8h5.2a2 2 0 0 0 2-1.8l.9-12M9.5 7V4.5h5V7"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11.2 12 4l8 7.2V19a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/><path class="ac" d="M12 20v-5.5"/></symbol>
+    <symbol id="i-budget" viewBox="0 0 24 24"><path d="M4 17a8 8 0 0 1 16 0M4 20h16"/><path class="ac" d="M12 17l4-6.2"/></symbol>
+    <symbol id="i-coins" viewBox="0 0 24 24"><path d="M5 7.5c0 1.7 3.1 3 7 3s7-1.300 7-3-3.100-3-7-3-7 1.300-7 3ZM5 7.5v4.7c0 1.700 3.100 3 7 3s7-1.300 7-3V7.500"/><path class="ac" d="M5 12.2v4.6c0 1.700 3.100 3 7 3s7-1.300 7-3v-4.600"/></symbol>
+    <symbol id="i-card" viewBox="0 0 24 24"><path d="M5.5 6h13A2.500 2.500 0 0 1 21 8.500v7a2.500 2.500 0 0 1-2.500 2.500h-13A2.500 2.500 0 0 1 3 15.500v-7A2.500 2.500 0 0 1 5.500 6ZM7 14.500h3"/><path class="ac" d="M3 10.200h18"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M6 20v-6M18 20V9M4 20h16"/><path class="ac" d="M12 20V4.500"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 8h8M18 8h2M4 16h2M12 16h8"/><path class="ac" d="M15 5.800a2.200 2.200 0 1 0 0 4.400 2.200 2.200 0 0 0 0-4.400ZM9 13.800a2.200 2.200 0 1 0 0 4.400 2.200 2.200 0 0 0 0-4.400Z"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M5 19l.9-3.800L16.200 4.900a1.700 1.700 0 0 1 2.400 0l.5.500a1.700 1.700 0 0 1 0 2.400L8.800 18.100Z"/><path class="ac" d="M13.500 20H19"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M6.500 7.500l.8 11a1.500 1.500 0 0 0 1.500 1.500h6.400a1.500 1.500 0 0 0 1.500-1.500l.8-11M10 4.500h4"/><path class="ac" d="M4.500 7.500h15"/></symbol>
     <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
-    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
-    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></symbol>
-    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M7.5 3.5h9a1 1 0 0 1 1 1v16l-5.5-3.6-5.5 3.6v-16a1 1 0 0 1 1-1z"/></symbol>
-    <symbol id="i-calc" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2.2"/><path d="M8.5 7.5h7"/><path d="M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01" stroke-width="2.4"/></symbol>
-    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 20h14"/></symbol>
-    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M5 20h14"/></symbol>
-    <symbol id="i-sheet" viewBox="0 0 24 24"><rect x="4" y="3.5" width="16" height="17" rx="2.2"/><path d="M4 9h16M4 14.5h16M10 9v11.5"/></symbol>
-    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M19.5 11a7.5 7.5 0 0 0-13.4-4.2L4.5 8.5"/><path d="M4.5 4v4.5H9"/><path d="M4.5 13a7.5 7.5 0 0 0 13.4 4.2l1.6-1.7"/><path d="M19.5 20v-4.5H15"/></symbol>
-    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 4.3 2.8 17.5A2 2 0 0 0 4.5 20.5h15a2 2 0 0 0 1.7-3L13.7 4.3a2 2 0 0 0-3.4 0z"/><path d="M12 9.5v4M12 17h.01"/></symbol>
-    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8h.01"/></symbol>
-    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3.2 19 6v5.8c0 4.3-2.9 7.5-7 9-4.1-1.5-7-4.7-7-9V6z"/><path d="M9 12l2.1 2.1L15.2 10"/></symbol>
-    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3.5 16.5 9 11l4 4 7.5-7.5"/><path d="M15 7.5h5.5V13"/></symbol>
-    <symbol id="i-trend-down" viewBox="0 0 24 24"><path d="M3.5 7.5 9 13l4-4 7.5 7.5"/><path d="M15 16.5h5.5V11"/></symbol>
-    <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M18.5 8V6a1.5 1.5 0 0 0-1.5-1.5H6A2.5 2.5 0 0 0 3.5 7"/><path d="M3.5 7v10.5A2.5 2.5 0 0 0 6 20h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 19 8H6A2.5 2.5 0 0 1 3.5 7z"/><path d="M16.5 14h.01" stroke-width="2.4"/></symbol>
-    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.8"/><circle cx="12" cy="12" r="1.2"/></symbol>
-    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
-    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
-    <symbol id="i-bank" viewBox="0 0 24 24"><path d="M3.5 9.5 12 4.5l8.5 5"/><path d="M5.5 10.5v7M9.8 10.5v7M14.2 10.5v7M18.5 10.5v7M3.5 20.5h17"/></symbol>
-    <symbol id="i-pie" viewBox="0 0 24 24"><path d="M12 3.5a8.5 8.5 0 1 0 8.5 8.5H12z"/><path d="M15 3.2a8.5 8.5 0 0 1 5.8 5.8H15z"/></symbol>
-    <symbol id="i-hexagon" viewBox="0 0 24 24"><path d="M12 2.8l8 4.6v9.2l-8 4.6-8-4.6V7.4z"/><path d="M12 8v8"/></symbol>
-    <symbol id="i-plane" viewBox="0 0 24 24"><path d="M20.5 3.5 3.5 10.5l6.8 2.6 2.6 6.8z"/><path d="M10.3 13.1l4.7-4.7"/></symbol>
-    <symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="3.5" y="7" width="17" height="13" rx="2.2"/><path d="M9 7V5.5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1V7M3.5 12.5h17"/></symbol>
-    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.8"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4"/></symbol>
-    <symbol id="i-cap" viewBox="0 0 24 24"><path d="M2.5 9.5 12 5l9.5 4.5L12 14z"/><path d="M6.5 11.5V16c1.5 1.4 3.4 2.1 5.5 2.1s4-.7 5.5-2.1v-4.5M21.5 9.5V15"/></symbol>
-    <symbol id="i-car" viewBox="0 0 24 24"><path d="M5.5 15.5V12l1.7-4.3A2 2 0 0 1 9 6.5h6a2 2 0 0 1 1.8 1.2l1.7 4.3v3.5"/><path d="M4 12h16a.5.5 0 0 1 .5.5v4.5a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1v-1H7v1a1 1 0 0 1-1 1H4.5a1 1 0 0 1-1-1v-4.5A.5.5 0 0 1 4 12z"/><path d="M7 14.5h.01M17 14.5h.01" stroke-width="2.4"/></symbol>
-    <symbol id="i-box" viewBox="0 0 24 24"><path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5 12 12l8.5-4.5M12 12v9"/></symbol>
-    <symbol id="i-gift" viewBox="0 0 24 24"><rect x="3.5" y="8" width="17" height="4" rx="1"/><path d="M5 12v7.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V12M12 8v12.5"/><path d="M12 8C10.8 5.4 7.5 4.8 7.5 6.6S10.4 8 12 8zm0 0c1.2-2.6 4.5-3.2 4.5-1.4S13.6 8 12 8z"/></symbol>
-    <symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="9" r="5.5"/><path d="M8.7 13.4 7.5 20.5l4.5-2.4 4.5 2.4-1.2-7.1"/></symbol>
-    <symbol id="i-cash" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2.2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 9.5v5M18 9.5v5"/></symbol>
-    <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3.5l1.7 4.8 4.8 1.7-4.8 1.7L12 16.5l-1.7-4.8L5.5 10l4.8-1.7z"/><path d="M18.5 15.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/></symbol>
-    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3.5H7.5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V8z"/><path d="M14 3.5V8h4.5M9 13h6M9 16.5h4"/></symbol>
-    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3.5 7.5a2 2 0 0 1 2-2h3.8l2 2.3h7.2a2 2 0 0 1 2 2v8.7a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/></symbol>
-    <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M6 3.5h12v17l-3-1.8-3 1.8-3-1.8-3 1.8z"/><path d="M9 8h6M9 11.5h6M9 15h3.5"/></symbol>
-    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></symbol>
-    <symbol id="i-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5.8" rx="7.5" ry="2.8"/><path d="M4.5 5.8v12.4c0 1.55 3.36 2.8 7.5 2.8s7.5-1.25 7.5-2.8V5.8"/><path d="M4.5 12c0 1.55 3.36 2.8 7.5 2.8s7.5-1.25 7.5-2.8"/></symbol>
-    <symbol id="i-swap" viewBox="0 0 24 24"><path d="M17 3.5l3 3-3 3M20 6.5H8a4 4 0 0 0-4 4"/><path d="M7 20.5l-3-3 3-3M4 17.5h12a4 4 0 0 0 4-4"/></symbol>
-    <symbol id="i-up" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></symbol>
-    <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
-    <symbol id="i-repeat" viewBox="0 0 24 24"><path d="M17 3.5l3 3-3 3"/><path d="M4 11.5V10a3.5 3.5 0 0 1 3.5-3.5H20"/><path d="M7 20.5l-3-3 3-3"/><path d="M20 12.5V14a3.5 3.5 0 0 1-3.5 3.5H4"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.500l4.500 4.500L19 7.500"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.500-5.600-6.500-10.500a6.500 6.500 0 0 1 13 0C18.500 15.400 12 21 12 21Z"/><path class="ac" d="M12 8.300a2.200 2.200 0 1 0 0 4.400 2.200 2.200 0 0 0 0-4.400Z"/></symbol>
+    <symbol id="i-calc" viewBox="0 0 24 24"><path d="M7 3.500h10A1.500 1.500 0 0 1 18.500 5v14a1.500 1.500 0 0 1-1.500 1.500H7A1.500 1.500 0 0 1 5.500 19V5A1.500 1.500 0 0 1 7 3.500ZM9 12h.01M12 12h.01M15 12h.01M9 16h.01M12 16h.01M15 16h.01"/><path class="ac" d="M8.500 7.500h7"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M5 16v2.500A1.500 1.500 0 0 0 6.500 20h11a1.500 1.500 0 0 0 1.500-1.500V16"/><path class="ac" d="M12 4v11M8 11.500l4 4 4-4"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M5 16v2.500A1.500 1.500 0 0 0 6.500 20h11a1.500 1.500 0 0 0 1.500-1.500V16"/><path class="ac" d="M12 15.500V4.500M8 8.500l4-4 4 4"/></symbol>
+    <symbol id="i-sheet" viewBox="0 0 24 24"><path d="M6 3.500h12A1.500 1.500 0 0 1 19.500 5v14a1.500 1.500 0 0 1-1.500 1.500H6A1.500 1.500 0 0 1 4.500 19V5A1.500 1.500 0 0 1 6 3.500ZM4.500 9.500h15M4.500 15h15"/><path class="ac" d="M10 3.500v17"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M19.500 12a7.500 7.500 0 0 1-13.300 4.800M4.500 12a7.500 7.500 0 0 1 13.300-4.800"/><path class="ac" d="M17.800 3.500v3.700h-3.700M6.200 20.500v-3.700h3.700"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4.500 21 19.500H3Z"/><path class="ac" d="M12 10v4.500M12 17h.01"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17Z"/><path class="ac" d="M12 11v5M12 8h.01"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3.500l7 2.500v5.500c0 4.300-2.900 7.500-7 9-4.100-1.500-7-4.700-7-9V6Z"/><path class="ac" d="M9 12l2.200 2.200L15 10.400"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="M4 19.500h16"/><path class="ac" d="M4 15l5-5 3.500 3.500L19 7M15 7h4v4"/></symbol>
+    <symbol id="i-trend-down" viewBox="0 0 24 24"><path d="M4 19.500h16"/><path class="ac" d="M4 6l5 5 3.500-3.500L19 14M15 14h4v-4"/></symbol>
+    <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M4.500 7.500A2.500 2.500 0 0 1 7 5h10.500v3M4.500 7.500V17A2.500 2.500 0 0 0 7 19.500h11a1.500 1.500 0 0 0 1.500-1.500V9.500A1.500 1.500 0 0 0 18 8H5a.5.5 0 0 1-.5-.5Z"/><path class="ac" d="M15.300 13.800h1.400"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17ZM12 7.500a4.500 4.500 0 1 0 0 9 4.500 4.500 0 0 0 0-9Z"/><path class="ac" d="M12 11.300a.7.7 0 1 0 0 1.400.7.7 0 0 0 0-1.400Z"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><path d="M6 5.500h12A1.500 1.500 0 0 1 19.500 7v11.500A1.500 1.500 0 0 1 18 20H6a1.500 1.500 0 0 1-1.500-1.500V7A1.500 1.500 0 0 1 6 5.500ZM8.500 3.500v4M15.500 3.500v4"/><path class="ac" d="M4.500 10.500h15"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17Z"/><path class="ac" d="M12 7.500V12l3 2"/></symbol>
+    <symbol id="i-bank" viewBox="0 0 24 24"><path d="M4 9.200 12 4l8 5.200ZM7 12.500v4.500M17 12.500v4.500M4 20h16"/><path class="ac" d="M12 12.500v4.500"/></symbol>
+    <symbol id="i-pie" viewBox="0 0 24 24"><path d="M12 3.500a8.500 8.500 0 1 0 8.500 8.500"/><path class="ac" d="M12 3.500V12h8.500A8.500 8.500 0 0 0 12 3.500Z"/></symbol>
+    <symbol id="i-hexagon" viewBox="0 0 24 24"><path d="M12 3.500l7.400 4.250v8.500L12 20.500l-7.400-4.250v-8.500Z"/><path class="ac" d="M4.600 7.750 12 12l7.400-4.250M12 12v8.500"/></symbol>
+    <symbol id="i-plane" viewBox="0 0 24 24"><path d="M3.500 11.500l17-7-6.500 16-3-6.500Z"/><path class="ac" d="M11 14l4-4"/></symbol>
+    <symbol id="i-briefcase" viewBox="0 0 24 24"><path d="M5.500 8h13A1.500 1.500 0 0 1 20 9.500V18a1.500 1.500 0 0 1-1.500 1.500h-13A1.500 1.500 0 0 1 4 18V9.500A1.500 1.500 0 0 1 5.500 8ZM9 8V6a1.500 1.500 0 0 1 1.500-1.500h3A1.500 1.500 0 0 1 15 6v2"/><path class="ac" d="M4 13h16"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/><path class="ac" d="M12 3v2M12 19v2M3 12h2M19 12h2M5.600 5.600 7 7M17 17l1.400 1.400M5.600 18.400 7 17M17 7l1.400-1.400"/></symbol>
+    <symbol id="i-cap" viewBox="0 0 24 24"><path d="M3 9.500 12 5l9 4.500-9 4.500ZM7 11.800V16c1.400 1.300 3.100 2 5 2s3.600-.7 5-2v-4.200"/><path class="ac" d="M21 9.500V15"/></symbol>
+    <symbol id="i-car" viewBox="0 0 24 24"><path d="M4 16.500v-3.300l2-5.200h12l2 5.200v3.300M4 13.200h16"/><path class="ac" d="M7.500 15.300a1.700 1.700 0 1 0 0 3.400 1.700 1.700 0 0 0 0-3.400ZM16.500 15.300a1.700 1.700 0 1 0 0 3.400 1.700 1.700 0 0 0 0-3.400Z"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M4.500 8 12 4l7.500 4v8L12 20l-7.500-4Z"/><path class="ac" d="M4.500 8 12 12l7.500-4M12 12v8"/></symbol>
+    <symbol id="i-gift" viewBox="0 0 24 24"><path d="M5 11h14v7.500A1.500 1.500 0 0 1 17.500 20h-11A1.500 1.500 0 0 1 5 18.500ZM4 7.500h16V11H4Z"/><path class="ac" d="M12 7.500V20M12 7.500C10.500 4 7 4.500 8 6.500s4 1 4 1ZM12 7.500c1.500-3.500 5-3 4-1s-4 1-4 1Z"/></symbol>
+    <symbol id="i-award" viewBox="0 0 24 24"><path d="M12 3.500a5.500 5.500 0 1 0 0 11 5.500 5.500 0 0 0 0-11Z"/><path class="ac" d="M8.500 13.500 7 20.500l5-2.500 5 2.500-1.500-7"/></symbol>
+    <symbol id="i-cash" viewBox="0 0 24 24"><path d="M4.500 6.500h15A1.500 1.500 0 0 1 21 8v8a1.500 1.500 0 0 1-1.500 1.500h-15A1.500 1.500 0 0 1 3 16V8a1.500 1.500 0 0 1 1.500-1.500Z"/><path class="ac" d="M12 9.500a2.500 2.500 0 1 0 0 5 2.500 2.500 0 0 0 0-5Z"/></symbol>
+    <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M11 4l1.800 5.200L18 11l-5.200 1.800L11 18l-1.800-5.200L4 11l5.200-1.800Z"/><path class="ac" d="M18.500 15.500v4M16.500 17.500h4"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M7 3.500h6.500l5 5V19a1.500 1.500 0 0 1-1.500 1.500H7A1.500 1.500 0 0 1 5.500 19V5A1.500 1.500 0 0 1 7 3.500ZM13.500 3.500v5h5"/><path class="ac" d="M9 13h6M9 16.500h4"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M4 7a1.500 1.500 0 0 1 1.500-1.500h4l2 2.500h7A1.500 1.500 0 0 1 20 9.500V18a1.500 1.500 0 0 1-1.500 1.500h-13A1.500 1.500 0 0 1 4 18Z"/><path class="ac" d="M4 11.500h16"/></symbol>
+    <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M6 3.500h12v17l-2-1.500-2 1.500-2-1.500-2 1.500-2-1.500-2 1.500Z"/><path class="ac" d="M9 8.500h6M9 12h6"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><path d="M6.500 10.500h11A1.500 1.500 0 0 1 19 12v7a1.500 1.500 0 0 1-1.500 1.500h-11A1.500 1.500 0 0 1 5 19v-7a1.500 1.500 0 0 1 1.500-1.500ZM8 10.500V8a4 4 0 0 1 8 0v2.500"/><path class="ac" d="M12 14.500V17"/></symbol>
+    <symbol id="i-database" viewBox="0 0 24 24"><path d="M5 6.500c0 1.700 3.100 3 7 3s7-1.300 7-3-3.100-3-7-3-7 1.300-7 3ZM5 6.500v11c0 1.700 3.100 3 7 3s7-1.300 7-3v-11"/><path class="ac" d="M5 12c0 1.700 3.100 3 7 3s7-1.300 7-3"/></symbol>
+    <symbol id="i-swap" viewBox="0 0 24 24"><path d="M5 8.500h14M19 15.500H5"/><path class="ac" d="M15.500 5 19 8.500 15.500 12M8.500 12 5 15.500 8.500 19"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M6 14.500l6-6 6 6"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9.500l6 6 6-6"/></symbol>
+    <symbol id="i-repeat" viewBox="0 0 24 24"><path d="M5 11V9.500A2.500 2.500 0 0 1 7.500 7H19M19 13v1.500a2.500 2.500 0 0 1-2.500 2.500H5"/><path class="ac" d="M16 4l3 3-3 3M8 20l-3-3 3-3"/></symbol>
+    <symbol id="c-super" viewBox="0 0 24 24"><path d="M4 9.500h16l-1.500 8.800A1.500 1.500 0 0 1 17 19.500H7a1.500 1.500 0 0 1-1.500-1.200Z"/><path class="ac" d="M8.300 9.500 12 4l3.700 5.500"/></symbol>
+    <symbol id="c-bus" viewBox="0 0 24 24"><path d="M6.500 4.500h11A1.500 1.500 0 0 1 19 6v10.500H5V6a1.500 1.500 0 0 1 1.500-1.500ZM5 11.500h14M7.500 16.500V19M16.500 16.500V19"/><path class="ac" d="M7.700 14h1.200M15.100 14h1.200"/></symbol>
+    <symbol id="c-ocio" viewBox="0 0 24 24"><path d="M4 8.500A1.500 1.500 0 0 1 5.500 7h13A1.500 1.500 0 0 1 20 8.500V10a2 2 0 0 0 0 4v1.500a1.500 1.500 0 0 1-1.500 1.500h-13A1.500 1.500 0 0 1 4 15.500V14a2 2 0 0 0 0-4Z"/><path class="ac" d="M10 7.500v2M10 11v2M10 14.500v2"/></symbol>
+    <symbol id="c-comer" viewBox="0 0 24 24"><path d="M8 4v16M5.500 4v4.500a2.500 2.500 0 0 0 5 0V4"/><path class="ac" d="M16 20V4c2.200 1.200 3.200 3.600 3.200 6.600H16"/></symbol>
+    <symbol id="c-bulb" viewBox="0 0 24 24"><path d="M8.500 14.500a6 6 0 1 1 7 0c-.6.500-.9 1.100-.9 1.800v1.200H9.400v-1.200c0-.7-.3-1.300-.9-1.800Z"/><path class="ac" d="M10 20.500h4"/></symbol>
+    <symbol id="c-salud" viewBox="0 0 24 24"><path d="M12 20s-7.500-4.500-7.500-9.900A3.900 3.900 0 0 1 12 8a3.900 3.900 0 0 1 7.500 2.100C19.500 15.500 12 20 12 20Z"/><path class="ac" d="M8.300 12.500h2l1.100-2 1.500 4 1-2h1.800"/></symbol>
+    <symbol id="c-paw" viewBox="0 0 24 24"><path d="M12 12.500c-2.500 0-4.500 2.200-4.500 4.200 0 1.300 1 2.300 2.300 2.300.8 0 1.400-.4 2.200-.4s1.400.4 2.200.4c1.300 0 2.300-1 2.300-2.300 0-2-2-4.200-4.500-4.200Z"/><path class="ac" d="M6.800 9.300v1.200M10.200 6.300v1.400M13.800 6.300v1.400M17.200 9.300v1.200"/></symbol>
+    <symbol id="c-shirt" viewBox="0 0 24 24"><path d="M8.500 4 4 6.500l1.500 4 2-.8V20h9V9.700l2 .8 1.500-4L15.500 4"/><path class="ac" d="M8.500 4a3.500 3.500 0 0 0 7 0"/></symbol>
+    <symbol id="c-gym" viewBox="0 0 24 24"><path d="M7 8v8M17 8v8M7 12h10"/><path class="ac" d="M4 10v4M20 10v4"/></symbol>
+    <symbol id="c-globe" viewBox="0 0 24 24"><path d="M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17ZM3.500 12h17"/><path class="ac" d="M12 3.500c2.500 2.300 3.800 5.100 3.800 8.500s-1.300 6.200-3.800 8.500c-2.500-2.300-3.800-5.100-3.800-8.500s1.300-6.200 3.800-8.500Z"/></symbol>
+    <symbol id="c-phone" viewBox="0 0 24 24"><path d="M8.500 3.500h7A1.500 1.500 0 0 1 17 5v14a1.500 1.500 0 0 1-1.500 1.500h-7A1.500 1.500 0 0 1 7 19V5a1.500 1.500 0 0 1 1.500-1.500Z"/><path class="ac" d="M10.500 17.500h3"/></symbol>
+    <symbol id="c-play" viewBox="0 0 24 24"><path d="M5.500 5.500h13A1.500 1.500 0 0 1 20 7v10a1.500 1.500 0 0 1-1.500 1.500h-13A1.500 1.500 0 0 1 4 17V7a1.500 1.500 0 0 1 1.500-1.500Z"/><path class="ac" d="M10.500 9.500v5l4-2.500Z"/></symbol>
+    <symbol id="c-book" viewBox="0 0 24 24"><path d="M5 5.500A1.500 1.500 0 0 1 6.500 4H19v13H6.500A1.500 1.500 0 0 0 5 18.500ZM5 18.500A1.500 1.500 0 0 0 6.500 20H19v-3"/><path class="ac" d="M9 8.500h6"/></symbol>
+    <symbol id="c-pot" viewBox="0 0 24 24"><path d="M5 11h14v3.500a5 5 0 0 1-5 5h-4a5 5 0 0 1-5-5ZM3.500 11h17"/><path class="ac" d="M9.500 7.500c0-1.200 1-1.200 1-2.500M13.500 7.500c0-1.200 1-1.200 1-2.500"/></symbol>
+    <symbol id="c-fuel" viewBox="0 0 24 24"><path d="M5.500 20V6A1.500 1.500 0 0 1 7 4.500h5A1.500 1.500 0 0 1 13.500 6v14M4 20h11M13.500 11h2a1.500 1.500 0 0 1 1.500 1.500v3.300a1.250 1.250 0 0 0 2.500 0V9L17 6.500"/><path class="ac" d="M7.500 8h4v3.500h-4Z"/></symbol>
+    <symbol id="c-coffee" viewBox="0 0 24 24"><path d="M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5ZM16 10.500h1.500a2.250 2.250 0 0 1 0 4.500H16"/><path class="ac" d="M9 5.500V7M12 5v2"/></symbol>
+    <symbol id="c-tag" viewBox="0 0 24 24"><path d="M4 12.500V5.500A1.500 1.500 0 0 1 5.500 4h7l7.900 7.900a1.500 1.500 0 0 1 0 2.100l-5.400 5.400a1.500 1.500 0 0 1-2.100 0Z"/><path class="ac" d="M8.500 7.700a.8.8 0 1 0 0 1.600.8.8 0 0 0 0-1.600Z"/></symbol>
+    <symbol id="c-music" viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><path class="ac" d="M6.500 15.500a2.500 2.500 0 1 0 0 5 2.500 2.500 0 0 0 0-5ZM16.500 13.500a2.500 2.500 0 1 0 0 5 2.500 2.500 0 0 0 0-5Z"/></symbol>
+    <symbol id="c-drink" viewBox="0 0 24 24"><path d="M7 4.500h10l-1 15a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1Z"/><path class="ac" d="M7.300 9h9.400"/></symbol>
+    <symbol id="c-tools" viewBox="0 0 24 24"><path d="M14.500 6a4 4 0 0 0-5.200 5.200L4 16.500 7.500 20l5.300-5.300A4 4 0 0 0 18 9.500l-2.500 2.500-2.500-.5-.5-2.500Z"/></symbol>
   </defs>
 </svg>
 
@@ -2506,14 +2537,16 @@
     </div>
     <div class="form-grid">
       <div class="form-row" style="margin:0">
-        <label class="form-label">Emoji</label>
-        <input class="form-input" type="text" id="catEmoji" placeholder="🛒" maxlength="4" style="text-align:center;font-size:20px" />
+        <label class="form-label">Icono</label>
+        <input type="hidden" id="catEmoji" />
+        <button type="button" class="form-input" id="catIcoBtn" onclick="document.getElementById('catIcoGrid').style.display = document.getElementById('catIcoGrid').style.display === 'none' ? 'grid' : 'none'" style="display:flex;align-items:center;justify-content:center;font-size:22px"></button>
       </div>
       <div class="form-row" style="margin:0">
         <label class="form-label">Nombre</label>
         <input class="form-input" type="text" id="catNombre" placeholder="Ej: Suscripciones" />
       </div>
     </div>
+    <div class="ico-grid" id="catIcoGrid" style="display:none"></div>
     <div class="form-row" style="margin-top:10px">
       <label class="form-label">Límite mensual (opcional, $0 = sin límite)</label>
       <div class="amount-wrap">
@@ -3296,7 +3329,7 @@
         <div class="config-row">
           <div>
             <div class="config-label">Iván Finanzas</div>
-            <div class="config-sublabel">Control financiero personal · v5.20.1</div>
+            <div class="config-sublabel">Control financiero personal · v6.0.0</div>
           </div>
         </div>
       </div>
@@ -3738,9 +3771,36 @@ const fechaLegibleLarga = str => {
 
 const genId = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
 
-const getEmojiCat = nombre => {
-  const cat = config.categorias?.find(c => c.nombre === nombre);
-  return cat ? cat.emoji : '📦';
+/* Iconos de categoría: el dato guardado sigue siendo `emoji`; el icono se resuelve al pintar */
+const ICO_EMOJI = { '🛒':'c-super','🚌':'c-bus','🚗':'i-car','🚕':'i-car','🏍':'i-car','🛵':'i-car','⛽':'c-fuel','🎮':'c-ocio','🎉':'c-ocio','🎟':'c-ocio','🍔':'c-comer','🍕':'c-comer','🍽':'c-comer',
+  '💡':'c-bulb','💊':'c-salud','🏥':'c-salud','❤':'c-salud','🐾':'c-paw','🐶':'c-paw','🐱':'c-paw','👕':'c-shirt','👗':'c-shirt','👟':'c-shirt','📈':'i-trend','🐷':'i-coins','💰':'i-coins','🏋':'c-gym',
+  '🏠':'i-home','🏡':'i-home','📦':'i-box','🌐':'c-globe','📱':'c-phone','🎬':'c-play','📺':'c-play','💳':'i-card','🛡':'i-shield','📚':'c-book','🎓':'i-cap','🎁':'i-gift','🍲':'c-pot','✈':'i-plane',
+  '☕':'c-coffee','🎵':'c-music','🍺':'c-drink','🔧':'c-tools','💼':'i-briefcase','💵':'i-cash','🏷':'c-tag' };
+const ICO_NOMBRE = [[/gasolin|combust/i,'c-fuel'],[/mercad|super/i,'c-super'],[/transp|bus|taxi|uber|moto|carro/i,'c-bus'],[/aliment|almuerz|casino/i,'c-pot'],[/comer|restaur|comida/i,'c-comer'],
+  [/arriendo|vivienda|hogar|casa/i,'i-home'],[/salud|m[eé]dic|farmac/i,'c-salud'],[/internet|wifi/i,'c-globe'],[/celular|datos|tel[eé]f/i,'c-phone'],[/stream|netflix|suscrip/i,'c-play'],
+  [/cr[eé]dito|tarjeta|deuda/i,'i-card'],[/seguro/i,'i-shield'],[/educ|estudi|univers|curso/i,'c-book'],[/regalo|cumple/i,'i-gift'],[/ropa/i,'c-shirt'],[/gym|deporte/i,'c-gym'],[/mascot/i,'c-paw'],
+  [/ahorro/i,'i-coins'],[/invers/i,'i-trend'],[/ocio|entreten|fiesta|salida/i,'c-ocio'],[/viaje/i,'i-plane'],[/servicio|recibo|luz|agua/i,'c-bulb'],[/caf[eé]/i,'c-coffee']];
+const ICO_PICK = ['🛒','🍲','🍔','☕','🍺','🚌','🚗','⛽','✈','🏠','💡','🌐','📱','🎬','🎮','🎵','🎁','👕','🏋','💊','🐾','📚','🎓','💳','🛡','💰','📈','💼','💵','🔧','🏷','📦'];
+const catIcoId = c => {
+  const cat = (c && typeof c === 'object') ? c : (config.categorias || []).find(x => x.nombre === c);
+  const nombre = cat ? cat.nombre : (typeof c === 'string' ? c : '');
+  const em = cat && cat.emoji ? String(cat.emoji).replace(/\uFE0F/g, '') : '';
+  const porNombre = () => { const r = ICO_NOMBRE.find(([re]) => re.test(nombre || '')); return r ? r[1] : null; };
+  if (em && em !== '📦' && ICO_EMOJI[em]) return ICO_EMOJI[em];
+  return porNombre() || (em === '📦' || !em ? 'i-box' : 'c-tag');
+};
+const catIco = c => `<svg class="ico cat-ico" aria-hidden="true"><use href="#${catIcoId(c)}"/></svg>`;
+const catIcoRP = c => { const el = document.getElementById(catIcoId(c)); return el ? `<svg class="rp-ico" viewBox="0 0 24 24" aria-hidden="true">${el.innerHTML}</svg>` : ''; };
+const getEmojiCat = nombre => catIco(nombre);
+const pintarIcoCat = (abrir) => {
+  const inp = document.getElementById('catEmoji'), grid = document.getElementById('catIcoGrid'), btn = document.getElementById('catIcoBtn');
+  const actual = String(inp.value || '').replace(/\uFE0F/g, '');
+  const idDe = e => ICO_EMOJI[e] || 'c-tag';
+  const idActual = actual ? catIcoId({ nombre: document.getElementById('catNombre').value || '', emoji: actual }) : 'c-tag';
+  btn.innerHTML = `<svg class="ico" aria-hidden="true"><use href="#${idActual}"/></svg>`;
+  grid.innerHTML = ICO_PICK.map(e => `<button type="button" class="${e === actual ? 'on' : ''}" data-e="${e}"><svg class="ico" aria-hidden="true"><use href="#${idDe(e)}"/></svg></button>`).join('');
+  grid.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { inp.value = b.dataset.e; pintarIcoCat(false); }));
+  grid.style.display = abrir ? 'grid' : 'none';
 };
 
 const mesActualStr = () => {
@@ -4003,7 +4063,7 @@ const verificarMesGF = () => {
     // porque al ser de una sola vez no tiene sentido que reaparezcan el próximo ciclo.
     gastosUnicosMes = gastosUnicosMes.filter(g => g.cicloInicio !== cicloGuardado);
     guardarGastosUnicosMes();
-    mostrarToast('🔄 Nuevo ciclo: gastos fijos y únicos archivados', 'success');
+    mostrarToast('Nuevo ciclo: gastos fijos y únicos archivados', 'success');
   }
   localStorage.setItem('gfCicloActual', cicloHoy);
 };
@@ -4171,7 +4231,7 @@ const renderCicloBanner = () => {
     diasReinicio===0 ? 'Hoy' : diasReinicio===1 ? '1 día' : `${diasReinicio} días`;
   const diasPago = diasParaProxPago(hoy);
   document.getElementById('cicloProxPago').textContent =
-    diasPago===0 ? '¡Hoy cobras! 🎉' : diasPago===1 ? '1 día' : `${diasPago} días`;
+    diasPago===0 ? '¡Hoy cobras!' : diasPago===1 ? '1 día' : `${diasPago} días`;
   try { const L = document.getElementById('cicloLinea'); if (L) L.innerHTML = `${document.getElementById('cicloSemanaNum').textContent} · ${diasPago === 0 ? '<i>hoy cobras</i>' : `pago en <i>${diasPago === 1 ? '1 día' : diasPago + ' días'}</i>`}`; } catch (e) {}
 };
 
@@ -4484,7 +4544,7 @@ const renderHistorial = () => {
     if (inicioCicloSem !== cicloActual) {
       cicloActual = inicioCicloSem;
       const finCicloStr = calcularFinCicloDesde(inicioCicloSem);
-      html += `<div class="hist-ciclo-divider">💰 Ciclo: ${fechaLegible(inicioCicloSem)} → ${fechaLegible(finCicloStr)}</div>`;
+      html += `<div class="hist-ciclo-divider">Ciclo: ${fechaLegible(inicioCicloSem)} → ${fechaLegible(finCicloStr)}</div>`;
     }
     const totalSem = sem.gastos.reduce((s,g)=>s+g.cantidad,0);
     const numGastos = sem.gastos.length;
@@ -5297,14 +5357,14 @@ const abrirModalCategoria = (id=null) => {
     const cat = config.categorias.find(c => c.id === id);
     if (!cat) return;
     document.getElementById('modalCategoriaTitulo').textContent = 'Editar categoría';
-    document.getElementById('catEmoji').value  = cat.emoji;
+    document.getElementById('catEmoji').value  = cat.emoji; pintarIcoCat(false);
     document.getElementById('catNombre').value = cat.nombre;
     document.getElementById('catLimite').value = cat.limite || '';
     document.getElementById('catGrupo').value  = cat.grupo || '';
     elim.style.display = 'block';
   } else {
     document.getElementById('modalCategoriaTitulo').textContent = 'Nueva categoría';
-    document.getElementById('catEmoji').value  = '';
+    document.getElementById('catEmoji').value  = ''; pintarIcoCat(true);
     document.getElementById('catNombre').value = '';
     document.getElementById('catLimite').value = '';
     document.getElementById('catGrupo').value  = '';
@@ -5365,7 +5425,7 @@ const renderLimitesAjustes = () => {
   el.innerHTML = config.categorias.map(c => `
     <div class="config-row">
       <div>
-        <div class="config-label">${c.emoji} ${c.nombre}</div>
+        <div class="config-label">${catIco(c)} ${c.nombre}</div>
         <div class="config-sublabel">${c.limite>0 ? formatCOP(c.limite)+' / mes · ' : ''}${etiquetaGrupo[c.grupo] || 'Sin clasificar'}</div>
       </div>
       <button class="icon-btn" onclick="abrirModalCategoria('${c.id}')"><svg class="ico" aria-hidden="true"><use href="#i-edit"/></svg></button>
@@ -5386,7 +5446,7 @@ const renderLimitesInicio = () => {
     return `
     <div style="margin-bottom:12px">
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;font-size:12px">
-        <span style="font-weight:700;color:var(--text)">${c.emoji} ${c.nombre}</span>
+        <span style="font-weight:700;color:var(--text)">${catIco(c)} ${c.nombre}</span>
         <span style="font-family:var(--mono);font-weight:700;color:${color}">${formatCOP(gastado)} / ${formatCOP(c.limite)}</span>
       </div>
       <div class="ahorro-bar-bg"><div class="ahorro-bar-fill" style="width:${pct}%;background:${color}"></div></div>
@@ -5637,7 +5697,7 @@ const renderInforme = () => {
   catEl.innerHTML = catsOrdenadas.length ? catsOrdenadas.map(([nombre,monto]) => {
     const cat = config.categorias.find(c=>c.nombre===nombre);
     const pct = totalGeneral>0 ? (monto/totalGeneral)*100 : 0;
-    return `<div class="port-dist-row"><div class="port-dist-dot" style="background:${colorGrupo[cat?.grupo]||'var(--muted)'}"></div><div class="port-dist-name">${cat?.emoji||'📦'} ${nombre}</div><div class="port-dist-pct">${formatCOP(monto)} · ${pct.toFixed(0)}%</div></div>`;
+    return `<div class="port-dist-row"><div class="port-dist-dot" style="background:${colorGrupo[cat?.grupo]||'var(--muted)'}"></div><div class="port-dist-name">${catIco(cat)} ${nombre}</div><div class="port-dist-pct">${formatCOP(monto)} · ${pct.toFixed(0)}%</div></div>`;
   }).join('') : `<div style="font-size:11px;color:var(--muted)">Sin gastos en este ciclo aún.</div>`;
 
   // Ahorro por tipo (fondos)
@@ -5660,7 +5720,7 @@ const renderInforme = () => {
     scSection.style.display = 'block';
     document.getElementById('informeSinClasificar').innerHTML = sinClasificarCats.map(n => {
       const cat = config.categorias.find(c=>c.nombre===n);
-      return `<div style="font-size:12px;padding:4px 0">${cat?.emoji||'📦'} ${n} — ${formatCOP(porCategoria[n])}</div>`;
+      return `<div style="font-size:12px;padding:4px 0">${catIco(cat)} ${n} — ${formatCOP(porCategoria[n])}</div>`;
     }).join('');
   } else {
     scSection.style.display = 'none';
@@ -5787,7 +5847,7 @@ const renderHistorialPagos = () => {
     <div class="inv-item" onclick="toggleHistorialPagoDetalle('${idx}')">
       <div class="inv-item-top">
         <div class="inv-item-left">
-          <div class="inv-cat-icon">🗂️</div>
+          <div class="inv-cat-icon"><svg class="ico" aria-hidden="true"><use href="#i-folder"/></svg></div>
           <div>
             <div class="inv-nombre">Ciclo ${fechaLegible(h.ciclo)}</div>
             <div class="inv-meta">${pagadosCount}/${pagos.length} pagados · Ingreso ${formatCOP(ingresoTotal)}</div>
@@ -5807,7 +5867,7 @@ const renderHistorialPagos = () => {
 ══════════════════════════════════════════════ */
 const abrirModalGastoUnico = (id=null) => {
   guEditandoId = id;
-  document.getElementById('guCategoria').innerHTML = config.categorias.map(c=>`<option value="${c.nombre}">${c.emoji} ${c.nombre}</option>`).join('');
+  document.getElementById('guCategoria').innerHTML = config.categorias.map(c=>`<option value="${c.nombre}">${c.nombre}</option>`).join('');
   const elim = document.getElementById('btnElimGastoUnico');
   if (id) {
     const g = gastosUnicosMes.find(x=>x.id===id);
@@ -5892,7 +5952,7 @@ const renderGastosUnicos = () => {
           <div class="gf-checkbox ${g.pagado?'checked':''}" onclick="event.stopPropagation(); togglePagoUnico('${g.id}')" style="margin-right:2px">
             ${g.pagado?'✓':''}
           </div>
-          <div class="inv-cat-icon">${cat(g.categoria)?.emoji || '📦'}</div>
+          <div class="inv-cat-icon">${catIco(g.categoria)}</div>
           <div onclick="abrirModalGastoUnico('${g.id}')" style="cursor:pointer">
             <div class="inv-nombre">${g.nombre}</div>
             <div class="inv-meta">${g.categoria}${g.pagado ? ' · ✓ pagado' : ' · pendiente'}</div>
@@ -6036,7 +6096,7 @@ const _catMasUsada = () => {
 const _fechaRapido = () => { const d = new Date(); d.setDate(d.getDate() - rapidoDia); return fechaStr(d); };
 const pintarChipsRapido = () => {
   const cont = document.getElementById('rapidoChips');
-  cont.innerHTML = config.categorias.map(c => `<button type="button" class="rapido-chip ${c.nombre === rapidoCat ? 'sel' : ''}" data-cat="${String(c.nombre).replace(/"/g, '&quot;')}">${c.emoji || ''} ${c.nombre}</button>`).join('');
+  cont.innerHTML = config.categorias.map(c => `<button type="button" class="rapido-chip ${c.nombre === rapidoCat ? 'sel' : ''}" data-cat="${String(c.nombre).replace(/"/g, '&quot;')}">${catIco(c)}${c.nombre}</button>`).join('');
   cont.querySelectorAll('.rapido-chip').forEach(b => b.addEventListener('click', () => { rapidoCat = b.dataset.cat; pintarChipsRapido(); vibrar(10); }));
 };
 const actualizarRapido = () => {
@@ -6088,7 +6148,7 @@ const abrirRapido = () => {
   const cont = document.getElementById('rapidoRecientes');
   cont.innerHTML = rec.map((g, i) => {
     const c = config.categorias.find(x => x.nombre === g.categoria);
-    return `<button type="button" class="rapido-rec" data-i="${i}"><b>${formatCOP(g.cantidad)}</b><span>${c ? c.emoji + ' ' : ''}${g.nota ? String(g.nota).replace(/[<>&]/g, '').slice(0, 18) : g.categoria}</span></button>`;
+    return `<button type="button" class="rapido-rec" data-i="${i}"><b>${formatCOP(g.cantidad)}</b><span>${c ? catIco(c) : ''}${g.nota ? String(g.nota).replace(/[<>&]/g, '').slice(0, 18) : g.categoria}</span></button>`;
   }).join('');
   cont.querySelectorAll('.rapido-rec').forEach(b => b.addEventListener('click', () => {
     const g = rec[Number(b.dataset.i)];
@@ -6135,7 +6195,7 @@ const abrirModal = id => {
   document.getElementById('editFecha').value    = gasto.fecha;
   const sel = document.getElementById('editCategoria');
   sel.innerHTML = config.categorias.map(c =>
-    `<option value="${c.nombre}" ${c.nombre===gasto.categoria?'selected':''}>${c.emoji} ${c.nombre}</option>`
+    `<option value="${c.nombre}" ${c.nombre===gasto.categoria?'selected':''}>${c.nombre}</option>`
   ).join('');
   document.getElementById('modalOverlay').classList.add('open');
 };
@@ -6333,7 +6393,7 @@ const actualizarDestinoGF = () => {
 const abrirModalGF = (id=null) => {
   gfEditandoId = id;
   poblarSelectsDestinoGF();
-  document.getElementById('gfCategoria').innerHTML = config.categorias.map(c=>`<option value="${c.nombre}">${c.emoji} ${c.nombre}</option>`).join('');
+  document.getElementById('gfCategoria').innerHTML = config.categorias.map(c=>`<option value="${c.nombre}">${c.nombre}</option>`).join('');
   const elim = document.getElementById('btnElimGF');
   if (id) {
     const g = gastosFijos.find(x=>x.id===id);
@@ -8273,7 +8333,7 @@ const rpPaginaGastos = (d, prev) => {
   const filasCat = top.map(([c, v], i) => {
     const cat = config.categorias.find(x => x.nombre === c);
     const antes = prev ? (prev.porCategoria[c] || 0) : null;
-    return `<div class="rp-cat"><div class="rp-cat-n">${cat?.emoji ? cat.emoji + ' ' : ''}${esc(c)}</div>
+    return `<div class="rp-cat"><div class="rp-cat-n">${catIcoRP(cat || c)}${esc(c)}</div>
       <div class="rp-cat-b">${rpBarra(v, max, PALETA_RP[i % PALETA_RP.length], 10)}</div>
       <div class="rp-cat-v">${fmtS(v)}<small>${pctRP(d.consumo ? v / d.consumo * 100 : 0)}${antes != null ? ` · ${rpDelta(v - antes, false)}` : ''}</small></div></div>`;
   }).join('');
@@ -8356,7 +8416,7 @@ const rpPagina503020 = d => {
   const lims = d.limites.length ? `<div class="rp-lims">${d.limites.map(l => {
     const p = l.limite ? l.gastado / l.limite * 100 : 0;
     const col = p > 100 ? RP.amber : p >= 70 ? RP.bronze : RP.gold;
-    return `<div class="rp-lim"><div class="rp-lim-t"><span>${l.emoji ? l.emoji + ' ' : ''}${esc(l.nombre)}</span><b style="color:${p > 100 ? RP.amber : RP.ink}">${fmtS(l.gastado)} / ${fmtS(l.limite)}</b></div>${rpBarra(l.gastado, l.limite, col, 7)}</div>`;
+    return `<div class="rp-lim"><div class="rp-lim-t"><span>${catIcoRP(l.nombre)}${esc(l.nombre)}</span><b style="color:${p > 100 ? RP.amber : RP.ink}">${fmtS(l.gastado)} / ${fmtS(l.limite)}</b></div>${rpBarra(l.gastado, l.limite, col, 7)}</div>`;
   }).join('')}</div>` : '';
   return `
     <h2 class="rp-h2" style="margin-top:0">Regla 50/30/20</h2>
@@ -8392,7 +8452,7 @@ const rpPaginaGrupo = (d, prev, grupo, ref) => {
       const cat = config.categorias.find(x => x.nombre === c);
       const lim = d.limites.find(l => l.nombre === c);
       const antes = prev ? ((prev.porGrupoCat[grupo] || {})[c] || 0) : null;
-      return `<tr><td>${cat?.emoji ? cat.emoji + ' ' : ''}${esc(c)}</td><td><b>${fmtS(v)}</b></td><td>${pctRP(d.ingreso > 0 ? v / d.ingreso * 100 : 0, 1)}</td><td>${pctRP(total > 0 ? v / total * 100 : 0)}</td><td>${antes == null ? '—' : rpDelta(v - antes, false)}</td><td>${lim ? `${fmtS(lim.limite)} · ${pctRP(lim.limite ? lim.gastado / lim.limite * 100 : 0)}` : '—'}</td></tr>`;
+      return `<tr><td>${catIcoRP(cat || c)}${esc(c)}</td><td><b>${fmtS(v)}</b></td><td>${pctRP(d.ingreso > 0 ? v / d.ingreso * 100 : 0, 1)}</td><td>${pctRP(total > 0 ? v / total * 100 : 0)}</td><td>${antes == null ? '—' : rpDelta(v - antes, false)}</td><td>${lim ? `${fmtS(lim.limite)} · ${pctRP(lim.limite ? lim.gastado / lim.limite * 100 : 0)}` : '—'}</td></tr>`;
     }).join('')}
     <tr class="rp-subtotal"><td><b>Total</b></td><td><b>${fmtS(total)}</b></td><td>${pctRP(d.ingreso > 0 ? total / d.ingreso * 100 : 0, 1)}</td><td>100%</td><td>${prev ? rpDelta(total - prev.grupos[grupo], false) : '—'}</td><td>—</td></tr>
     </tbody></table>` : rpSinMov();
@@ -8431,7 +8491,7 @@ const rpPaginaVariables = (d, prev) => {
   const prom = vars.length ? total / vars.length : 0;
   const tabla = filasCat.length ? `<table class="rp-tabla"><thead><tr><th>Categoría</th><th>Monto</th><th>Registros</th><th>Promedio</th><th>Cambio</th></tr></thead><tbody>
     ${filasCat.map(([c, o]) => { const cat = config.categorias.find(x => x.nombre === c); const antes = prev ? (prev.porCatVar[c] || 0) : null;
-      return `<tr><td>${cat?.emoji ? cat.emoji + ' ' : ''}${esc(c)}</td><td><b>${fmtS(o.v)}</b></td><td>${o.n}</td><td>${fmtS(o.v / o.n)}</td><td>${antes == null ? '—' : rpDelta(o.v - antes, false)}</td></tr>`; }).join('')}
+      return `<tr><td>${catIcoRP(cat || c)}${esc(c)}</td><td><b>${fmtS(o.v)}</b></td><td>${o.n}</td><td>${fmtS(o.v / o.n)}</td><td>${antes == null ? '—' : rpDelta(o.v - antes, false)}</td></tr>`; }).join('')}
     </tbody></table>` : rpSinMov();
   const orden = vars.slice().sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
   const lista = orden.length ? `<table class="rp-tabla"><thead><tr><th>Fecha</th><th>Categoría</th><th>Detalle</th><th>Monto</th></tr></thead><tbody>
@@ -8907,7 +8967,7 @@ const mostrarToast = (msg, tipo='success') => {
    SELECTS Y CONFIG VIEW (INTACTOS)
 ══════════════════════════════════════════════ */
 const poblarSelects = () => {
-  const opts = config.categorias.map(c=>`<option value="${c.nombre}">${c.emoji} ${c.nombre}</option>`).join('');
+  const opts = config.categorias.map(c=>`<option value="${c.nombre}">${c.nombre}</option>`).join('');
   document.getElementById('inputCategoria').innerHTML=opts;
   document.getElementById('editCategoria').innerHTML =opts;
 };
@@ -8929,7 +8989,7 @@ const setFechaHoy = () => {
 ══════════════════════════════════════════════ */
 const verificarAlertaCobro = () => {
   const diasPago = diasParaProxPago(new Date());
-  if (diasPago===0) setTimeout(()=>mostrarToast('💰 ¡Hoy es día de pago! Nuevo ciclo iniciado 🎉','success'),800);
+  if (diasPago===0) setTimeout(()=>mostrarToast('¡Hoy es día de pago! Nuevo ciclo iniciado','success'),800);
 };
 
 /* ══════════════════════════════════════════════
