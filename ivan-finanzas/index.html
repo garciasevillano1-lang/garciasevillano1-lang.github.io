@@ -1940,6 +1940,10 @@ symbol .ac{stroke:var(--ico-ac,var(--accent,#cda149))}
 .aviso-fila span{font-size:11.5px;color:var(--muted,#8b95b0)}
 .aviso-fila.urg span{color:#e0a458}
 :root[data-theme="light"] .aviso-fila{border-top-color:rgba(0,0,0,.07)}
+
+/* v6.2 — gasto pasado */
+.reg-oculto{display:none!important}
+.reg-pasado{display:flex;flex-direction:column;gap:8px;align-items:flex-start;margin:0 0 12px;padding:10px 12px;border:1px dashed rgba(205,161,73,.45);border-radius:12px;font-size:12px;line-height:1.45;color:var(--text-dim,#aab3cc)}
 </style>
 </head>
 <body>
@@ -2935,6 +2939,7 @@ symbol .ac{stroke:var(--ico-ac,var(--accent,#cda149))}
         <div id="inputCuentaWrap" style="display:none"><select id="inputCuenta" aria-label="Pagado desde"></select></div>
         <input class="form-input reg-nota" type="text" id="inputNota" placeholder="Nota (opcional)" />
       </div>
+      <div class="reg-pasado" id="regPasado" style="display:none"></div>
       <input type="date" id="inputFecha" class="reg-date" tabindex="-1" aria-hidden="true" />
       <button class="btn-primary" id="regBtn" onclick="agregarGasto()">Registrar gasto</button>
     </div>
@@ -3366,7 +3371,7 @@ symbol .ac{stroke:var(--ico-ac,var(--accent,#cda149))}
         <div class="config-row">
           <div>
             <div class="config-label">Iván Finanzas</div>
-            <div class="config-sublabel">Control financiero personal · v6.1.1</div>
+            <div class="config-sublabel">Control financiero personal · v6.2.0</div>
           </div>
         </div>
       </div>
@@ -4596,8 +4601,8 @@ const renderHistorial = () => {
         : '');
     const gastosHTML = sem.gastos.length
       ? [...sem.gastos].sort((a,b)=>new Date(b.fecha+'T12:00')-new Date(a.fecha+'T12:00'))
-          .map(g=>`<div class="hist-gasto-row">
-            <div><span class="hist-gasto-cat">${getEmojiCat(g.categoria)} ${g.categoria}</span>${g.nota?`<div style="font-size:10px;color:var(--muted)">${g.nota}</div>`:''}</div>
+          .map(g=>`<div class="hist-gasto-row"${g.pasado ? ` onclick="quitarGastoPasado('${g.id}')" style="cursor:pointer"` : ''}>
+            <div><span class="hist-gasto-cat">${getEmojiCat(g.categoria)} ${g.categoria}</span>${g.nota?`<div style="font-size:10px;color:var(--muted)">${g.nota}</div>`:''}${g.pasado ? `<div style="font-size:10px;color:var(--accent)">${fechaLegible(g.fecha)} · agregado después${g.ciclo ? ' · cuenta en el ciclo actual' : ''} · toca para quitar</div>` : ''}</div>
             <span class="hist-gasto-amount">−${formatCOP(g.cantidad)}</span></div>`).join('')
       : `<div style="color:var(--muted);font-size:12px;padding:8px 0">Sin gastos esta semana.</div>`;
     html += `
@@ -5376,10 +5381,10 @@ const calcGastoCategoriaMes = nombreCategoria => {
   const ciclo = cicloActualInicio();
   let total = 0;
   historial.forEach(sem => sem.gastos.forEach(g => {
-    if (g.categoria === nombreCategoria && cicloDeFechaStr(g.fecha) === ciclo) total += g.cantidad;
+    if (g.categoria === nombreCategoria && cicloDeGasto(g) === ciclo) total += g.cantidad;
   }));
   (semanaActual.gastos||[]).forEach(g => {
-    if (g.categoria === nombreCategoria && cicloDeFechaStr(g.fecha) === ciclo) total += g.cantidad;
+    if (g.categoria === nombreCategoria && cicloDeGasto(g) === ciclo) total += g.cantidad;
   });
   // Gastos únicos del ciclo ya pagados también cuentan para el límite
   gastosUnicosMes.forEach(g => { if (g.categoria === nombreCategoria && g.cicloInicio === ciclo && g.pagado) total += g.valor || 0; });
@@ -5612,6 +5617,8 @@ const editarIngresoMensual = async () => {
 ══════════════════════════════════════════════ */
 const cicloActualInicio  = () => calcularSemanaFinanciera(new Date()).inicioCiclo;
 const cicloDeFechaStr    = f => fechaStr(obtenerInicioCiclo(parseFecha(f)));
+// Un gasto puede traer `ciclo` propio (gasto pasado que se cuenta en otro ciclo); si no, manda su fecha
+const cicloDeGasto       = g => g.ciclo || cicloDeFechaStr(g.fecha);
 const gastosUnicosDelCiclo = () => gastosUnicosMes.filter(g => g.cicloInicio === cicloActualInicio());
 const ingresosExtraDelCiclo = () => ingresosExtra.filter(ie => cicloDeFechaStr(ie.fecha) === cicloActualInicio());
 
@@ -5640,8 +5647,8 @@ const calcInforme503020 = () => {
   };
 
   const gastosVariablesDelCiclo = [];
-  historial.forEach(sem => sem.gastos.forEach(g => { if (cicloDeFechaStr(g.fecha)===ciclo) gastosVariablesDelCiclo.push(g); }));
-  (semanaActual.gastos||[]).forEach(g => { if (cicloDeFechaStr(g.fecha)===ciclo) gastosVariablesDelCiclo.push(g); });
+  historial.forEach(sem => sem.gastos.forEach(g => { if (cicloDeGasto(g)===ciclo) gastosVariablesDelCiclo.push(g); }));
+  (semanaActual.gastos||[]).forEach(g => { if (cicloDeGasto(g)===ciclo) gastosVariablesDelCiclo.push(g); });
   gastosVariablesDelCiclo.forEach(g => { totalVariables += g.cantidad; contar(g.categoria, null, g.cantidad); });
 
   gastosFijos.filter(g => g.destino !== 'tarjeta').forEach(g => { totalFijos += g.valor; contar(g.categoria, g.destino, g.valor); });
@@ -6102,6 +6109,23 @@ const agregarGasto = async () => {
   const fecha     = document.getElementById('inputFecha').value;
   if (!cantidad || cantidad<=0) { mostrarToast('Ingresa una cantidad válida','danger'); return; }
   if (!fecha) { mostrarToast('Selecciona una fecha','danger'); return; }
+  // Gasto pasado (fecha anterior a esta semana): se guarda en su semana, sin tocar presupuesto ni cuentas
+  if (semanaActual.inicioSemana && fecha < semanaActual.inicioSemana) {
+    const ciclo = cicloActualInicio(), fuera = cicloDeFechaStr(fecha) !== ciclo, mover = fuera && regCicloActual;
+    let dup = null; historial.forEach(w => (w.gastos || []).forEach(g => { if (!dup && g.fecha === fecha && g.cantidad === cantidad && g.categoria === categoria) dup = g; }));
+    if (dup) {
+      if (mover && cicloDeGasto(dup) !== ciclo) { dup.ciclo = ciclo; guardarHistorial(); mostrarToast('Ese gasto ya estaba registrado: lo pasé al ciclo actual', 'success'); }
+      else { mostrarToast('Ese gasto ya está registrado en esa fecha', 'warn'); return; }
+    } else {
+      const dist = w => Math.abs(parseFecha(w.finSemana || w.inicioSemana) - parseFecha(fecha));
+      const sem = historial.find(w => w.inicioSemana <= fecha && fecha <= (w.finSemana || w.inicioSemana)) || historial.slice().sort((a, b) => dist(a) - dist(b))[0];
+      const g = { id: genId(), cantidad, categoria, nota, fecha, pasado: true, ...(mover ? { ciclo } : {}) };
+      if (sem) { sem.gastos = sem.gastos || []; sem.gastos.push(g); guardarHistorial(); } else { semanaActual.gastos.push(g); guardarSemana(); }
+      mostrarToast(`✓ ${formatCOP(cantidad)} agregado al ${fechaLegible(fecha)} · sin tocar presupuesto ni cuentas`, 'success');
+    }
+    document.getElementById('inputCantidad').value=''; document.getElementById('inputNota').value='';
+    pintarReg(); renderTodo(); return;
+  }
   const cuentaId = document.getElementById('inputCuenta').value || '';
   const pc = cuentaId ? prodDe(cuentaId) : null;
   const saldo = calcSaldo();
@@ -8083,8 +8107,8 @@ const datosCicloInforme = (ciclo, lista = listaCiclosInforme()) => {
   const esActual = ciclo === cicloActualInicio();
   const arch = historialPagos.find(h => h.ciclo === ciclo) || null;
   const variables = [];
-  historial.forEach(sem => (sem.gastos || []).forEach(g => { if (g.fecha && cicloDeFechaStr(g.fecha) === ciclo) variables.push(g); }));
-  (semanaActual.gastos || []).forEach(g => { if (g.fecha && cicloDeFechaStr(g.fecha) === ciclo) variables.push(g); });
+  historial.forEach(sem => (sem.gastos || []).forEach(g => { if (g.fecha && cicloDeGasto(g) === ciclo) variables.push(g); }));
+  (semanaActual.gastos || []).forEach(g => { if (g.fecha && cicloDeGasto(g) === ciclo) variables.push(g); });
   let fijos = [], unicos = [], pendientes = 0;
   if (esActual) {
     fijos = gastosFijos.filter(g => g.pagado && g.destino !== 'tarjeta');
@@ -9081,7 +9105,12 @@ const exportarCalendario = () => {
 };
 
 /* Registrar gasto (v6.1): monto grande, sumas rápidas, categorías más usadas primero */
-let regVerTodas = false;
+let regVerTodas = false, regCicloActual = true;
+const quitarGastoPasado = async (id) => {
+  if (!(await uiConfirm('¿Quitar este gasto agregado después? No cambia tu presupuesto ni tus cuentas.', { titulo: 'Quitar gasto', ok: 'Quitar', peligro: true }))) return;
+  historial.forEach(w => { w.gastos = (w.gastos || []).filter(g => g.id !== id); }); guardarHistorial(); renderTodo(); mostrarToast('Gasto quitado', 'warn');
+};
+const regEsPasado = () => { const f = document.getElementById('inputFecha').value; return !!(f && semanaActual.inicioSemana && f < semanaActual.inicioSemana); };
 const _regUso = () => { const n = {}; [semanaActual, ...historial.slice(0, 6)].forEach(sm => (sm.gastos || []).forEach(g => { n[g.categoria] = (n[g.categoria] || 0) + 1; })); return n; };
 const pintarReg = () => {
   const sel = document.getElementById('inputCategoria'), cats = document.getElementById('regCats'); if (!sel || !cats) return;
@@ -9102,11 +9131,21 @@ const pintarReg = () => {
   document.getElementById('regFecha').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
     if (b.dataset.f) { f.value = b.dataset.f; pintarReg(); } else { try { f.showPicker(); } catch (e) { f.focus(); f.click(); } }
   }));
+  // Gasto pasado: aviso y opción de contarlo en el ciclo actual
+  const pas = regEsPasado(), rp = document.getElementById('regPasado');
+  document.getElementById('inputCuentaWrap').classList.toggle('reg-oculto', pas);
+  rp.style.display = pas ? '' : 'none';
+  if (pas) {
+    const fuera = cicloDeFechaStr(f.value) !== cicloActualInicio();
+    rp.innerHTML = `<span>Gasto pasado (${_fmtCorta(f.value)}): se guarda con esa fecha, sin tocar el presupuesto de esta semana ni tus cuentas.</span>`
+      + (fuera ? `<button type="button" class="rapido-chip${regCicloActual ? ' sel' : ''}" id="regCicloBtn">${regCicloActual ? 'Cuenta en el ciclo actual' : 'Cuenta en su ciclo original'}</button>` : '');
+    const cb = document.getElementById('regCicloBtn'); if (cb) cb.addEventListener('click', () => { regCicloActual = !regCicloActual; pintarReg(); });
+  }
   pintarRegBtn();
 };
 const pintarRegBtn = () => {
   const n = parseInt(String(document.getElementById('inputCantidad').value).replace(/\D/g, ''), 10) || 0;
-  document.getElementById('regBtn').textContent = n > 0 ? `Registrar ${formatCOP(n)} · ${document.getElementById('inputCategoria').value}` : 'Registrar gasto';
+  document.getElementById('regBtn').textContent = n > 0 ? `${regEsPasado() ? 'Agregar gasto pasado' : 'Registrar'} ${formatCOP(n)} · ${document.getElementById('inputCategoria').value}` : (regEsPasado() ? 'Agregar gasto pasado' : 'Registrar gasto');
 };
 (() => {
   const c = document.getElementById('inputCantidad');
