@@ -2483,15 +2483,16 @@ symbol .ac{stroke:var(--ico-ac,var(--accent,#cda149))}
 <div class="modal-overlay" id="modalTransf">
   <div class="modal">
     <div class="modal-header">
-      <span class="modal-title">Transferir</span>
+      <span class="modal-title" id="trTitulo">Transferir</span>
       <button class="modal-close" onclick="cerrarModalTransf()"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
     </div>
-    <div class="form-row"><label class="form-label">Desde</label><select class="form-input" id="trDesde"></select></div>
-    <div class="form-row"><label class="form-label">Hacia</label><select class="form-input" id="trHacia"></select></div>
+    <div class="form-row" id="trPagoRow" style="display:none"><label class="form-label">¿Cuánto pagas?</label><div class="cta-chips" id="trPagoChips" style="margin:0"></div></div>
+    <div class="form-row"><label class="form-label" id="trDesdeLab">Desde</label><select class="form-input" id="trDesde"></select></div>
+    <div class="form-row" id="trHaciaRow"><label class="form-label">Hacia</label><select class="form-input" id="trHacia"></select></div>
     <div class="form-row"><label class="form-label">Monto ($)</label>
       <div class="amount-wrap"><span class="amount-prefix">$</span><input class="form-input" type="number" id="trMonto" placeholder="0" inputmode="numeric" /></div></div>
-    <p style="font-size:11.5px;color:var(--muted);margin:-2px 0 12px;line-height:1.5">Mover plata entre tus cuentas no es un gasto. Si el destino es una tarjeta de crédito, es el pago de la tarjeta.</p>
-    <div class="modal-actions"><button class="btn-save" onclick="confirmarTransf()">Transferir</button></div>
+    <p id="trNota" style="font-size:11.5px;color:var(--muted);margin:-2px 0 12px;line-height:1.5"></p>
+    <div class="modal-actions"><button class="btn-save" id="trBtn" onclick="confirmarTransf()">Transferir</button></div>
   </div>
 </div>
 
@@ -3365,7 +3366,7 @@ symbol .ac{stroke:var(--ico-ac,var(--accent,#cda149))}
         <div class="config-row">
           <div>
             <div class="config-label">Iván Finanzas</div>
-            <div class="config-sublabel">Control financiero personal · v6.1.0</div>
+            <div class="config-sublabel">Control financiero personal · v6.1.1</div>
           </div>
         </div>
       </div>
@@ -9427,7 +9428,7 @@ const renderTarjetasDeudas = () => {
       <div class="tj-f"><span>${e.facturado > 0 ? 'Extracto: pagar antes del ' + _fmtCorta(e.vence) : 'Sin extracto pendiente'}</span><b${e.facturado > 0 ? '' : ' style="color:var(--muted)"'}>${formatCOP(e.facturado)}</b></div>
       <div class="tj-f"><span>Por facturar (corte ${_fmtCorta(e.corteSig)})</span><b>${formatCOP(e.porFacturar)}</b></div>
       ${gr ? `<div class="min-lab" style="margin:12px 0 2px">En qué se fue (toca una compra para quitarla)</div>${gr}` : ''}
-      <div style="display:flex;gap:10px;margin-top:12px"><button class="btn-ghost" style="flex:1;min-height:42px" ${e.total > 0 ? '' : 'disabled'} onclick="abrirModalTransf(null,'${p.id}',${e.total})">Pagar toda la deuda</button><button class="btn-ghost" style="flex:0 0 auto;min-height:42px;padding:0 18px" onclick="abrirModalCuenta('${p.id}')">Editar</button></div></div>`;
+      <div style="display:flex;gap:10px;margin-top:12px"><button class="btn-ghost" style="flex:1;min-height:42px" ${e.total > 0 ? '' : 'disabled'} onclick="abrirModalTransf(null,'${p.id}',${e.facturado || e.total})">Pagar tarjeta</button><button class="btn-ghost" style="flex:0 0 auto;min-height:42px;padding:0 18px" onclick="abrirModalCuenta('${p.id}')">Editar</button></div></div>`;
   }).join('');
 };
 
@@ -9640,6 +9641,28 @@ const abrirModalTransf = (desdeId, haciaId, monto) => {
   const otro = cuentasData.productos.find(p => p.id !== d); if (otro) document.getElementById('trHacia').value = otro.id;
   if (haciaId) document.getElementById('trHacia').value = haciaId;
   document.getElementById('trMonto').value = monto || '';
+  // Modo "pagar tarjeta": eliges extracto, toda la deuda u otro valor
+  const tj = haciaTj ? prodDe(haciaId) : null, e = tj ? estadoTarjeta(tj) : null;
+  document.getElementById('trTitulo').textContent = tj ? 'Pagar ' + tj.nombre : 'Transferir';
+  document.getElementById('trHaciaRow').style.display = tj ? 'none' : '';
+  document.getElementById('trPagoRow').style.display = tj ? '' : 'none';
+  document.getElementById('trDesdeLab').textContent = tj ? 'Pagar desde' : 'Desde';
+  document.getElementById('trBtn').textContent = tj ? 'Registrar pago' : 'Transferir';
+  document.getElementById('trNota').textContent = tj ? 'Puedes pagar solo el extracto, toda la deuda o cualquier valor. El pago se abona primero a lo más antiguo.' : 'Mover plata entre tus cuentas no es un gasto. Si el destino es una tarjeta de crédito, es el pago de la tarjeta.';
+  if (tj) {
+    const inp = document.getElementById('trMonto'), box = document.getElementById('trPagoChips');
+    const ops = [];
+    if (e.facturado > 0) ops.push(['Extracto', e.facturado]);
+    if (e.total > 0 && e.total !== e.facturado) ops.push(['Toda la deuda', e.total]);
+    const pintar = () => {
+      const v = Math.round(parseFloat(inp.value) || 0), enOps = ops.some(o => o[1] === v);
+      box.innerHTML = ops.map(o => `<button type="button" class="rapido-chip cta-chip${o[1] === v ? ' sel' : ''}" data-v="${o[1]}">${o[0]} · ${formatCOP(o[1])}</button>`).join('')
+        + `<button type="button" class="rapido-chip cta-chip${!enOps ? ' sel' : ''}" data-v="">Otro valor</button>`;
+      box.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { if (b.dataset.v) { inp.value = b.dataset.v; } else { inp.value = ''; inp.focus(); } pintar(); }));
+    };
+    inp.value = monto || e.facturado || e.total || '';
+    inp.oninput = pintar; pintar();
+  } else document.getElementById('trMonto').oninput = null;
   document.getElementById('modalTransf').classList.add('open');
 };
 const cerrarModalTransf = () => document.getElementById('modalTransf').classList.remove('open');
