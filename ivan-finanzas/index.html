@@ -1944,6 +1944,9 @@ symbol .ac{stroke:var(--ico-ac,var(--accent,#cda149))}
 /* v6.2 — gasto pasado */
 .reg-oculto{display:none!important}
 .reg-pasado{display:flex;flex-direction:column;gap:8px;align-items:flex-start;margin:0 0 12px;padding:10px 12px;border:1px dashed rgba(205,161,73,.45);border-radius:12px;font-size:12px;line-height:1.45;color:var(--text-dim,#aab3cc)}
+
+/* v6.3 — categorías ocultas */
+.cat-oculta .config-label{opacity:.5}
 </style>
 </head>
 <body>
@@ -3371,7 +3374,7 @@ symbol .ac{stroke:var(--ico-ac,var(--accent,#cda149))}
         <div class="config-row">
           <div>
             <div class="config-label">Iván Finanzas</div>
-            <div class="config-sublabel">Control financiero personal · v6.2.0</div>
+            <div class="config-sublabel">Control financiero personal · v6.3.0</div>
           </div>
         </div>
       </div>
@@ -5459,25 +5462,41 @@ document.getElementById('modalCategoria').addEventListener('click', e => {
   if (e.target === document.getElementById('modalCategoria')) cerrarModalCategoria();
 });
 
+/* Categorías ocultas (v6.3): no salen al registrar, pero sus gastos y el informe se conservan */
+const catsActivas = (incluir) => config.categorias.filter(c => !c.inactiva || c.nombre === incluir);
+const optsCats = (incluir) => catsActivas(incluir).map(c => `<option value="${c.nombre}">${c.nombre}${c.inactiva ? ' (oculta)' : ''}</option>`).join('');
+const toggleCategoria = (id, activa) => {
+  const c = config.categorias.find(x => x.id === id); if (!c) return;
+  if (!activa && catsActivas().length <= 1) { mostrarToast('Debe quedar al menos una categoría visible', 'danger'); renderLimitesAjustes(); return; }
+  if (activa) delete c.inactiva; else c.inactiva = true;
+  guardarConfig(); renderLimitesAjustes(); poblarSelects(); renderLimitesInicio();
+  mostrarToast(activa ? `${c.nombre} visible de nuevo` : `${c.nombre} oculta: ya no aparece al registrar`, 'success');
+};
 const renderLimitesAjustes = () => {
   const el = document.getElementById('limitesAjustesLista');
   if (!el) return;
   const etiquetaGrupo = { necesidad:'Necesidad', deseo:'Deseo', ahorro:'Ahorro e inversión', deuda:'Pago de deudas' };
-  el.innerHTML = config.categorias.map(c => `
-    <div class="config-row">
-      <div>
+  const fila = c => `
+    <div class="config-row${c.inactiva ? ' cat-oculta' : ''}">
+      <div style="flex:1;min-width:0">
         <div class="config-label">${catIco(c)} ${c.nombre}</div>
-        <div class="config-sublabel">${c.limite>0 ? formatCOP(c.limite)+' / mes · ' : ''}${etiquetaGrupo[c.grupo] || 'Sin clasificar'}</div>
+        <div class="config-sublabel">${c.inactiva ? 'Oculta · ' : ''}${c.limite>0 ? formatCOP(c.limite)+' / mes · ' : ''}${etiquetaGrupo[c.grupo] || 'Sin clasificar'}</div>
       </div>
+      <label class="toggle" title="${c.inactiva ? 'Mostrar' : 'Ocultar'}" style="margin-right:8px">
+        <input type="checkbox" ${c.inactiva ? '' : 'checked'} onchange="toggleCategoria('${c.id}', this.checked)">
+        <span class="slider"></span>
+      </label>
       <button class="icon-btn" onclick="abrirModalCategoria('${c.id}')"><svg class="ico" aria-hidden="true"><use href="#i-edit"/></svg></button>
-    </div>`).join('');
+    </div>`;
+  const act = config.categorias.filter(c => !c.inactiva), ina = config.categorias.filter(c => c.inactiva);
+  el.innerHTML = act.map(fila).join('') + (ina.length ? `<div class="config-sublabel" style="padding:14px 4px 4px;letter-spacing:.5px">OCULTAS · actívalas cuando las vuelvas a necesitar</div>` + ina.map(fila).join('') : '');
 };
 
 const renderLimitesInicio = () => {
   const section = document.getElementById('limitesCategoriaSection');
   const el = document.getElementById('limitesCategoriaLista');
   if (!section || !el) return;
-  const conLimite = config.categorias.filter(c => c.limite > 0);
+  const conLimite = config.categorias.filter(c => c.limite > 0 && (!c.inactiva || calcGastoCategoriaMes(c.nombre) > 0));
   if (!conLimite.length) { section.style.display = 'none'; return; }
   section.style.display = 'block';
   el.innerHTML = conLimite.map(c => {
@@ -5910,7 +5929,7 @@ const renderHistorialPagos = () => {
 ══════════════════════════════════════════════ */
 const abrirModalGastoUnico = (id=null) => {
   guEditandoId = id;
-  document.getElementById('guCategoria').innerHTML = config.categorias.map(c=>`<option value="${c.nombre}">${c.nombre}</option>`).join('');
+  document.getElementById('guCategoria').innerHTML = optsCats(id ? (gastosUnicosMes.find(x=>x.id===id)||{}).categoria : null);
   const elim = document.getElementById('btnElimGastoUnico');
   if (id) {
     const g = gastosUnicosMes.find(x=>x.id===id);
@@ -6454,7 +6473,7 @@ const actualizarDestinoGF = () => {
 const abrirModalGF = (id=null) => {
   gfEditandoId = id;
   poblarSelectsDestinoGF();
-  document.getElementById('gfCategoria').innerHTML = config.categorias.map(c=>`<option value="${c.nombre}">${c.nombre}</option>`).join('');
+  document.getElementById('gfCategoria').innerHTML = optsCats(id ? (gastosFijos.find(x=>x.id===id)||{}).categoria : null);
   const elim = document.getElementById('btnElimGF');
   if (id) {
     const g = gastosFijos.find(x=>x.id===id);
@@ -9032,8 +9051,8 @@ const mostrarToast = (msg, tipo='success') => {
 const poblarSelects = () => {
   const opts = config.categorias.map(c=>`<option value="${c.nombre}">${c.nombre}</option>`).join('');
   const _prevCat = document.getElementById('inputCategoria').value;
-  document.getElementById('inputCategoria').innerHTML=opts;
-  if (_prevCat) document.getElementById('inputCategoria').value = _prevCat;
+  document.getElementById('inputCategoria').innerHTML=optsCats();
+  if (_prevCat && catsActivas().some(c => c.nombre === _prevCat)) document.getElementById('inputCategoria').value = _prevCat;
   document.getElementById('editCategoria').innerHTML =opts;
   try { pintarReg(); } catch (e) {}
 };
@@ -9114,8 +9133,8 @@ const regEsPasado = () => { const f = document.getElementById('inputFecha').valu
 const _regUso = () => { const n = {}; [semanaActual, ...historial.slice(0, 6)].forEach(sm => (sm.gastos || []).forEach(g => { n[g.categoria] = (n[g.categoria] || 0) + 1; })); return n; };
 const pintarReg = () => {
   const sel = document.getElementById('inputCategoria'), cats = document.getElementById('regCats'); if (!sel || !cats) return;
-  const uso = _regUso(), orden = config.categorias.slice().sort((a, b) => (uso[b.nombre] || 0) - (uso[a.nombre] || 0));
-  if (!sel.value || !config.categorias.some(c => c.nombre === sel.value) || sel.dataset.auto !== '0') { if (orden[0]) sel.value = orden[0].nombre; }
+  const uso = _regUso(), orden = catsActivas().slice().sort((a, b) => (uso[b.nombre] || 0) - (uso[a.nombre] || 0));
+  if (!sel.value || !catsActivas().some(c => c.nombre === sel.value) || sel.dataset.auto !== '0') { if (orden[0]) sel.value = orden[0].nombre; }
   const N = 6; let vis = regVerTodas ? orden : orden.slice(0, N);
   if (!vis.some(c => c.nombre === sel.value)) { const c = orden.find(x => x.nombre === sel.value); if (c) vis = [...vis.slice(0, N - 1), c]; }
   cats.innerHTML = vis.map(c => `<button type="button" class="rapido-chip ${c.nombre === sel.value ? 'sel' : ''}" data-cat="${_escC(c.nombre)}">${catIco(c)}${_escC(c.nombre)}</button>`).join('')
