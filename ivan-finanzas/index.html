@@ -1947,6 +1947,11 @@ symbol .ac{stroke:var(--ico-ac,var(--accent,#cda149))}
 
 /* v6.3 — categorías ocultas */
 .cat-oculta .config-label{opacity:.5}
+
+/* v6.3.1 — "Hoy me pagaron" a la vista */
+.hero-pago{display:inline-flex;align-items:center;gap:6px;margin:12px 0 0;padding:7px 14px;border-radius:999px;border:1px solid var(--border,rgba(255,255,255,.12));background:transparent;color:var(--muted,#8b95b0);font-size:12.5px;font-weight:500;font-family:inherit}
+.hero-pago .ico{font-size:14px}
+.hero-pago.cerca{border-color:var(--accent,#cda149);color:var(--accent,#cda149);background:rgba(205,161,73,.08)}
 </style>
 </head>
 <body>
@@ -2924,6 +2929,7 @@ symbol .ac{stroke:var(--ico-ac,var(--accent,#cda149))}
       <div class="hero-mid">de <span id="presupTotal">$0</span> <span class="hero-sub" id="presupSub">Esta semana</span></div>
       <div class="hero-bar"><div id="progressBar" style="width:100%"></div></div>
       <div class="hero-tiempo" id="heroTiempo"></div>
+      <button type="button" class="hero-pago" id="heroPago" onclick="confirmarPagoHoy()"><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg> Hoy me pagaron</button>
       <div class="hero-row"><span>Gastado <b id="totalGastado">$0</b></span><span>Proyección al pago <b id="proyeccionTotal">$0</b></span></div>
       <div id="proyeccionDesglose" class="hero-desglose">—</div>
       <div id="heroTarjetas"></div>
@@ -2965,7 +2971,6 @@ symbol .ac{stroke:var(--ico-ac,var(--accent,#cda149))}
       <div class="acc-body"><div id="inicioCuentasBody"></div>
       <button class="min-link" style="margin-top:10px" onclick="irPagina('page-cuentas')">Ver detalle de mis cuentas <svg class="ico" aria-hidden="true"><use href="#i-down" style="transform:rotate(-90deg);transform-origin:center"/></svg></button></div></details>
     </div>
-    <div class="pago-fila"><button class="min-link" onclick="confirmarPagoHoy()"><svg class="ico" aria-hidden="true"><use href="#i-check"/></svg> Hoy me pagaron</button></div>
 
     <!-- Detalles (cerrados por defecto: se abren solo cuando los quieres ver) -->
     <div class="section acc-sec">
@@ -3374,7 +3379,7 @@ symbol .ac{stroke:var(--ico-ac,var(--accent,#cda149))}
         <div class="config-row">
           <div>
             <div class="config-label">Iván Finanzas</div>
-            <div class="config-sublabel">Control financiero personal · v6.3.0</div>
+            <div class="config-sublabel">Control financiero personal · v6.3.1</div>
           </div>
         </div>
       </div>
@@ -3881,6 +3886,9 @@ const obtenerInicioCiclo = (fecha = new Date()) => {
   if (config.ultimoPagoConfirmado) {
     const confirmado = parseFecha(config.ultimoPagoConfirmado);
     if (confirmado <= fecha && confirmado > esperado) esperado = confirmado;
+    // Pago adelantado (hasta 10 días antes del día de cobro): el ciclo arranca el día real del pago,
+    // y el día de cobro de ese mes ya no abre otro ciclo.
+    else if (confirmado <= fecha && confirmado < esperado && (esperado - confirmado) <= 10 * 86400000) esperado = confirmado;
   }
   return esperado;
 };
@@ -4454,6 +4462,7 @@ const renderProyeccionCiclo = () => {
     const finTxt = fmtD(parseFecha(info.finSemana), { weekday: 1 });
     const semTxt = dSem === 0 ? 'La semana termina hoy' : `${dSem === 1 ? 'Queda' : 'Quedan'} <b>${dSem}</b> ${dSem === 1 ? 'día' : 'días'}`;
     ht.innerHTML = `<span>${semTxt}</span><span>${dSem === 0 ? '' : 'hasta el ' + finTxt}</span>`;
+    const hp = document.getElementById('heroPago'); if (hp) hp.classList.toggle('cerca', dPago <= 7);
   }
 
   const saldoTexto = (saldoActual<0?'-':'') + formatCOP(saldoActual);
@@ -6091,7 +6100,7 @@ const renderGastosFijos = () => {
           <div class="gf-name">${g.nombre}</div>
           <div class="gf-meta">
             <span>${g.categoria}</span>${badge}
-            ${g.metodo?`<span>· ${g.metodo}</span>`:''}
+            ${g.cuentaId && typeof prodDe === 'function' && prodDe(g.cuentaId) ? `<span>· desde ${prodDe(g.cuentaId).nombre}</span>` : (g.metodo?`<span>· ${g.metodo}</span>`:'')}
             ${g.destino && g.destino!=='gasto' && nombreDestinoGF(g) ? `<span>· ${iconoDestinoGF(g.destino)} ${nombreDestinoGF(g)}</span>` : ''}
           </div>
         </div>
@@ -6819,8 +6828,9 @@ const togglePagoGF = async id => {
   const destinoMsg = g.pagado && g.destino !== 'gasto' && g.destino
     ? ({ deuda:' · deuda actualizada', ahorro:' · ahorro actualizado', inversion:' · inversión actualizada', tarjeta:' · tarjeta abonada' })[g.destino]
     : '';
-  mostrarToast((g.pagado ? '✓ Marcado como pagado' : 'Marcado como pendiente') + destinoMsg,
-    g.pagado ? 'success' : 'warn');
+  const msgCta = g.pagado && g._msgCuenta ? ' · ' + g._msgCuenta : ''; const faltoSaldo = /no tenía saldo/.test(msgCta); delete g._msgCuenta; guardarGastosFijos();
+  mostrarToast((g.pagado ? '✓ Marcado como pagado' : 'Marcado como pendiente') + destinoMsg + msgCta,
+    faltoSaldo ? 'warn' : g.pagado ? 'success' : 'warn');
   renderGastosFijos();
   refrescarTrasEfectoGF();
 };
@@ -8962,7 +8972,7 @@ const confirmarCierreCiclo = () => {
       if (g && !g.pagado) { g.pagado = true; aplicarEfectoGF(g); nPagos++; if (g.destino && g.destino !== 'gasto') conEfecto++; }
     } else {
       const u = gastosUnicosMes.find(x => x.id === c.dataset.id);
-      if (u && !u.pagado) { u.pagado = true; nPagos++; }
+      if (u && !u.pagado) { u.pagado = true; nPagos++; const pc = u.cuentaId ? prodDe(u.cuentaId) : null; if (pc && !esCredito(pc)) { const a0 = +pc.saldo || 0; cambiarSaldo(pc, -u.valor); u.cuentaMonto = a0 - (+pc.saldo || 0); guardarCuentas(); } }
     }
   });
   guardarGastosFijos(); guardarGastosUnicosMes();
@@ -9792,8 +9802,11 @@ window._efectoCuentasGF = {
     if (g.destino === 'tarjeta' && g.destinoId) g.tarjetaPago = pagarTarjeta(g.destinoId, g.valor);
     if (g.cuentaId) {
       const p = prodDe(g.cuentaId);
-      if (p && !esCredito(p)) { cambiarSaldo(p, -g.valor); g.cuentaMonto = g.valor; recordarCuenta('fijo', p.id); }
-      else if (p && esCredito(p) && g.destino !== 'tarjeta') { g.compraId = agregarCompraTarjeta(p.id, { monto: g.valor, fecha: fechaStr(new Date()), categoria: g.categoria, nota: g.nombre }); recordarCuenta('fijo', p.id); }
+      if (p && !esCredito(p)) {
+        const antes = +p.saldo || 0; cambiarSaldo(p, -g.valor); g.cuentaMonto = antes - (+p.saldo || 0); recordarCuenta('fijo', p.id);
+        g._msgCuenta = g.cuentaMonto < g.valor ? `${p.nombre} no tenía saldo suficiente (tenía ${formatCOP(antes)}): actualiza su saldo en Cuentas` : `descontado de ${p.nombre}`;
+      }
+      else if (p && esCredito(p) && g.destino !== 'tarjeta') { g.compraId = agregarCompraTarjeta(p.id, { monto: g.valor, fecha: fechaStr(new Date()), categoria: g.categoria, nota: g.nombre }); recordarCuenta('fijo', p.id); g._msgCuenta = `cargado a ${p.nombre}`; }
     }
     guardarCuentas(); renderCuentas();
   },
