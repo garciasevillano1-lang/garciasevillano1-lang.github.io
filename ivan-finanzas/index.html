@@ -1948,10 +1948,22 @@ symbol .ac{stroke:var(--ico-ac,var(--accent,#cda149))}
 /* v6.3 — categorías ocultas */
 .cat-oculta .config-label{opacity:.5}
 
-/* v6.3.1 — "Hoy me pagaron" a la vista */
+/* v6.3.2 — "Hoy me pagaron" a la vista */
 .hero-pago{display:inline-flex;align-items:center;gap:6px;margin:12px 0 0;padding:7px 14px;border-radius:999px;border:1px solid var(--border,rgba(255,255,255,.12));background:transparent;color:var(--muted,#8b95b0);font-size:12.5px;font-weight:500;font-family:inherit}
 .hero-pago .ico{font-size:14px}
 .hero-pago.cerca{border-color:var(--accent,#cda149);color:var(--accent,#cda149);background:rgba(205,161,73,.08)}
+
+/* v6.3.2 — compras de tarjeta con descripción */
+.tj-compra{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid rgba(255,255,255,.06);cursor:pointer}
+.tj-ci{font-size:20px;color:var(--text-dim,#aab3cc);display:flex}
+.tj-ci .cat-ico{margin:0}
+.tj-cd{flex:1;min-width:0}
+.tj-cd b{display:block;font-size:13.5px;font-weight:500;color:var(--text,#e8ecf5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tj-cd span{font-size:11.5px;color:var(--muted,#8b95b0)}
+.tj-cv{text-align:right;font-weight:600;font-size:13.5px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tj-cv small{display:block;font-size:10.5px;font-weight:400;color:var(--muted,#8b95b0)}
+:root[data-theme="light"] .tj-compra{border-top-color:rgba(0,0,0,.07)}
+:root[data-theme="light"] .tj-cd b{color:#17203a}
 </style>
 </head>
 <body>
@@ -2488,6 +2500,21 @@ symbol .ac{stroke:var(--ico-ac,var(--accent,#cda149))}
       <button class="btn-ghost" style="flex:1" onclick="cerrarModalSueldo(null)">Omitir</button>
       <button class="btn-save" style="flex:1" onclick="cerrarModalSueldo(true)">Registrar</button>
     </div>
+  </div>
+</div>
+
+<!-- Tarjeta: detalle de una compra -->
+<div class="modal-overlay" id="modalCompraTj">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="ctjTitulo">Compra con tarjeta</span>
+      <button class="modal-close" onclick="document.getElementById('modalCompraTj').classList.remove('open')"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
+    </div>
+    <div id="ctjInfo" style="font-size:12.5px;color:var(--muted);margin:-4px 0 14px;line-height:1.5"></div>
+    <div class="form-row"><label class="form-label">Descripción</label><input class="form-input" type="text" id="ctjNota" placeholder="Ej: Gasolina, mercado Éxito…" /></div>
+    <div class="form-row"><label class="form-label">Categoría</label><select class="form-input" id="ctjCat"></select></div>
+    <button class="btn-danger" id="ctjQuitar" style="width:100%;margin-bottom:10px" onclick="quitarCompraDesdeModal()">Quitar esta compra</button>
+    <div class="modal-actions"><button class="btn-save" onclick="guardarCompraTj()">Guardar</button></div>
   </div>
 </div>
 
@@ -3379,7 +3406,7 @@ symbol .ac{stroke:var(--ico-ac,var(--accent,#cda149))}
         <div class="config-row">
           <div>
             <div class="config-label">Iván Finanzas</div>
-            <div class="config-sublabel">Control financiero personal · v6.3.1</div>
+            <div class="config-sublabel">Control financiero personal · v6.3.2</div>
           </div>
         </div>
       </div>
@@ -4562,7 +4589,7 @@ const renderGastos = () => {
       <div class="cat-icon">${getEmojiCat(g.categoria)}</div>
       <div class="gasto-info">
         <div class="gasto-cat">${g.categoria}</div>
-        <div class="gasto-nota">${g.nota||'Sin nota'}</div>
+        <div class="gasto-nota">${g.nota||'Sin nota'}${g.compraId && g.cuentaId && typeof prodDe === 'function' && prodDe(g.cuentaId) ? ` · <span style="color:var(--accent)">${prodDe(g.cuentaId).nombre}</span>` : ''}</div>
       </div>
       <div class="gasto-right">
         <div class="gasto-amount">−${formatCOP(g.cantidad)}</div>
@@ -9478,24 +9505,50 @@ const comprasPendientes = p => {
   });
   return out;
 };
+let ctjId = null;
+const abrirCompraTj = id => {
+  const c = cuentasData.compras.find(x => x.id === id); if (!c) return; ctjId = id;
+  const p = prodDe(c.cuentaId);
+  document.getElementById('ctjTitulo').textContent = c.origen === 'compra' ? 'Compra con ' + (p ? p.nombre : 'tarjeta') : 'Saldo de ' + (p ? p.nombre : 'la tarjeta');
+  document.getElementById('ctjInfo').textContent = `${formatCOP(c.monto)} · ${fechaLegible(c.fecha)}` + (c.origen === 'compra' ? '' : ' · Ponle una descripción y categoría para saber a qué corresponde.');
+  document.getElementById('ctjNota').value = c.nota && !/^Ajuste (de facturado|por facturar)$|^Saldo inicial$/.test(c.nota) ? c.nota : '';
+  document.getElementById('ctjCat').innerHTML = '<option value="">Sin categoría</option>' + optsCats(c.categoria);
+  document.getElementById('ctjCat').value = c.categoria || '';
+  document.getElementById('ctjQuitar').style.display = c.origen === 'compra' ? '' : 'none';
+  document.getElementById('modalCompraTj').classList.add('open');
+};
+const guardarCompraTj = () => {
+  const c = cuentasData.compras.find(x => x.id === ctjId); if (!c) return;
+  c.nota = document.getElementById('ctjNota').value.trim(); c.categoria = document.getElementById('ctjCat').value;
+  // si viene de un gasto registrado, se actualiza también ese gasto
+  if (c.origen === 'compra') {
+    let ch = false;
+    [semanaActual, ...historial].forEach(w => (w.gastos || []).forEach(g => { if (g.compraId === c.id) { g.nota = c.nota; if (c.categoria) g.categoria = c.categoria; ch = true; } }));
+    if (ch) { guardarSemana(); guardarHistorial(); }
+  }
+  guardarCuentas(); document.getElementById('modalCompraTj').classList.remove('open'); renderCuentas(); renderTodo(); mostrarToast('Compra actualizada', 'success');
+};
+const quitarCompraDesdeModal = async () => { const id = ctjId; document.getElementById('modalCompraTj').classList.remove('open'); await quitarCompra(id); };
 const renderTarjetasDeudas = () => {
   const sec = document.getElementById('tarjetasSeccion'), lista = document.getElementById('tarjetasLista'); if (!sec || !lista) return;
   const tjs = cuentasData.productos.filter(esCredito);
   if (!tjs.length) { sec.style.display = 'none'; return; }
   sec.style.display = '';
   lista.innerHTML = tjs.map(p => {
-    const e = estadoTarjeta(p), items = comprasPendientes(p), grupos = {};
-    items.forEach(c => { const k = c.origen === 'base' ? 'Saldo inicial' : c.origen === 'ajuste' ? 'Ajustes' : (c.categoria || 'Sin categoría'); (grupos[k] = grupos[k] || []).push(c); });
+    const e = estadoTarjeta(p), items = comprasPendientes(p).filter(c => c.rest > 0).sort((a, b) => b.fecha.localeCompare(a.fecha));
     const ent = entDe(p.entidadId);
-    const gr = Object.keys(grupos).map(k => {
-      const tot = grupos[k].reduce((t, c) => t + c.rest, 0);
-      return `<details class="tj-grupo"><summary><span>${_escC(k)}</span><b>${formatCOP(tot)}</b></summary>${grupos[k].map(c => `<div class="tj-it"${c.origen === 'compra' ? ` onclick="quitarCompra('${c.id}')"` : ''}><span>${_escC(c.nota || k)} · ${_fmtCorta(c.fecha)}</span><b>${formatCOP(c.rest)}</b></div>`).join('')}</details>`;
+    const gr = items.map(c => {
+      const sinDet = c.origen !== 'compra';
+      const notaReal = /^Ajuste (de facturado|por facturar)$|^Saldo inicial$/.test(c.nota || '') ? '' : c.nota;
+      const titulo = notaReal || (sinDet ? (c.origen === 'base' ? 'Saldo que ya traía la tarjeta' : 'Saldo ingresado a mano') : (c.categoria || 'Compra'));
+      const sub = [sinDet && !c.categoria && !notaReal ? 'sin detalle · toca para describir' : (c.categoria || ''), _fmtCorta(c.fecha)].filter(Boolean).join(' · ');
+      return `<div class="tj-compra" onclick="abrirCompraTj('${c.id}')"><span class="tj-ci">${c.categoria ? catIco(c.categoria) : '<svg class="ico cat-ico" aria-hidden="true"><use href="#i-receipt"/></svg>'}</span><div class="tj-cd"><b>${_escC(titulo)}</b><span>${_escC(sub)}</span></div><div class="tj-cv">${formatCOP(c.rest)}${c.rest < c.monto ? `<small>de ${formatCOP(c.monto)}</small>` : ''}</div></div>`;
     }).join('');
     if (e.total <= 0) return `<div class="tj-bloque tj-vacia" onclick="abrirModalCuenta('${p.id}')"><div class="tj-top" style="margin:0">${ent ? avatarEnt(ent, true) : ''}<div class="tj-bt" style="margin:0;flex:1">${_escC(p.nombre)}</div><span style="font-size:12px;color:var(--muted)">Sin deuda</span></div></div>`;
     return `<div class="tj-bloque"><div class="tj-top">${ent ? avatarEnt(ent, true) : ''}<div class="tj-bt" style="margin:0;flex:1">${_escC(p.nombre)}</div><div class="tj-tot">${formatCOP(e.total)}</div></div>
       <div class="tj-f"><span>${e.facturado > 0 ? 'Extracto: pagar antes del ' + _fmtCorta(e.vence) : 'Sin extracto pendiente'}</span><b${e.facturado > 0 ? '' : ' style="color:var(--muted)"'}>${formatCOP(e.facturado)}</b></div>
       <div class="tj-f"><span>Por facturar (corte ${_fmtCorta(e.corteSig)})</span><b>${formatCOP(e.porFacturar)}</b></div>
-      ${gr ? `<div class="min-lab" style="margin:12px 0 2px">En qué se fue (toca una compra para quitarla)</div>${gr}` : ''}
+      ${gr ? `<div class="min-lab" style="margin:14px 0 4px">Lo que debes en esta tarjeta</div>${gr}` : ''}
       <div style="display:flex;gap:10px;margin-top:12px"><button class="btn-ghost" style="flex:1;min-height:42px" ${e.total > 0 ? '' : 'disabled'} onclick="abrirModalTransf(null,'${p.id}',${e.facturado || e.total})">Pagar tarjeta</button><button class="btn-ghost" style="flex:0 0 auto;min-height:42px;padding:0 18px" onclick="abrirModalCuenta('${p.id}')">Editar</button></div></div>`;
   }).join('');
 };
@@ -9790,7 +9843,7 @@ const abrirDetalleEnt = (id) => {
   document.getElementById('modalDetalleEnt').classList.add('open');
 };
 const cerrarDetalleEnt = () => document.getElementById('modalDetalleEnt').classList.remove('open');
-['modalEntidad','modalCuenta','modalTransf','modalDetalleEnt'].forEach(id => document.getElementById(id).addEventListener('click', ev => { if (ev.target.id === id) document.getElementById(id).classList.remove('open'); }));
+['modalEntidad','modalCuenta','modalTransf','modalDetalleEnt','modalCompraTj'].forEach(id => document.getElementById(id).addEventListener('click', ev => { if (ev.target.id === id) document.getElementById(id).classList.remove('open'); }));
 cargarCuentas(); renderCuentas();
 
 /* ══════════════════════════════════════════════
