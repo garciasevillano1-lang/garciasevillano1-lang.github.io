@@ -1948,12 +1948,12 @@ symbol .ac{stroke:var(--ico-ac,var(--accent,#cda149))}
 /* v6.3 — categorías ocultas */
 .cat-oculta .config-label{opacity:.5}
 
-/* v6.3.2 — "Hoy me pagaron" a la vista */
+/* v6.3.3 — "Hoy me pagaron" a la vista */
 .hero-pago{display:inline-flex;align-items:center;gap:6px;margin:12px 0 0;padding:7px 14px;border-radius:999px;border:1px solid var(--border,rgba(255,255,255,.12));background:transparent;color:var(--muted,#8b95b0);font-size:12.5px;font-weight:500;font-family:inherit}
 .hero-pago .ico{font-size:14px}
 .hero-pago.cerca{border-color:var(--accent,#cda149);color:var(--accent,#cda149);background:rgba(205,161,73,.08)}
 
-/* v6.3.2 — compras de tarjeta con descripción */
+/* v6.3.3 — compras de tarjeta con descripción */
 .tj-compra{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid rgba(255,255,255,.06);cursor:pointer}
 .tj-ci{font-size:20px;color:var(--text-dim,#aab3cc);display:flex}
 .tj-ci .cat-ico{margin:0}
@@ -3406,7 +3406,7 @@ symbol .ac{stroke:var(--ico-ac,var(--accent,#cda149))}
         <div class="config-row">
           <div>
             <div class="config-label">Iván Finanzas</div>
-            <div class="config-sublabel">Control financiero personal · v6.3.2</div>
+            <div class="config-sublabel">Control financiero personal · v6.3.3</div>
           </div>
         </div>
       </div>
@@ -5462,12 +5462,22 @@ const guardarCategoria = () => {
   const grupo  = document.getElementById('catGrupo').value || null;
 
   if (!nombre) { mostrarToast('Ingresa un nombre para la categoría','danger'); return; }
-  const duplicada = config.categorias.some(c => c.nombre.toLowerCase()===nombre.toLowerCase() && c.id!==categoriaEditandoId);
-  if (duplicada) { mostrarToast('Ya existe una categoría con ese nombre','danger'); return; }
+  const mismo = c => c.nombre.toLowerCase()===nombre.toLowerCase() && c.id!==categoriaEditandoId;
+  if (config.categorias.some(c => mismo(c) && !c.eliminada)) { mostrarToast('Ya existe una categoría con ese nombre','danger'); return; }
+  const eliminadaIgual = config.categorias.find(c => mismo(c) && c.eliminada);
 
   if (categoriaEditandoId) {
     const cat = config.categorias.find(c => c.id === categoriaEditandoId);
-    if (cat) { cat.emoji = emoji; cat.nombre = nombre; cat.limite = limite; cat.grupo = grupo; }
+    if (cat) {
+      const viejo = cat.nombre;
+      if (eliminadaIgual) config.categorias = config.categorias.filter(c => c !== eliminadaIgual);
+      cat.emoji = emoji; cat.nombre = nombre; cat.limite = limite; cat.grupo = grupo;
+      if (viejo !== nombre) renombrarCategoriaEnRegistros(viejo, nombre);
+    }
+  } else if (eliminadaIgual) {
+    // volver a crear una categoría eliminada la recupera, con su historial intacto
+    delete eliminadaIgual.eliminada; delete eliminadaIgual.inactiva;
+    Object.assign(eliminadaIgual, { emoji, limite, grupo });
   } else {
     config.categorias.push({ id: genId(), nombre, emoji, limite, grupo });
   }
@@ -5479,7 +5489,33 @@ const guardarCategoria = () => {
   renderLimitesInicio();
 };
 
+/* Renombrar: los registros pasan al nombre nuevo (mismos montos y fechas; conservan su grupo e icono) */
+const renombrarCategoriaEnRegistros = (viejo, nuevo) => {
+  const fix = g => { if (g && g.categoria === viejo) g.categoria = nuevo; };
+  (semanaActual.gastos || []).forEach(fix);
+  historial.forEach(w => (w.gastos || []).forEach(fix));
+  gastosFijos.forEach(fix); gastosUnicosMes.forEach(fix);
+  historialPagos.forEach(h => { (h.pagos || []).forEach(fix); (h.unicos || []).forEach(fix); });
+  if (typeof cuentasData !== 'undefined') cuentasData.compras.forEach(fix);
+  guardarSemana(); guardarHistorial(); guardarGastosFijos(); guardarGastosUnicosMes(); guardarHistorialPagos();
+  if (typeof guardarCuentas === 'function') guardarCuentas();
+};
 const eliminarCategoria = async () => {
+  if (!categoriaEditandoId) return;
+  const cat = config.categorias.find(c => c.id === categoriaEditandoId);
+  if (!cat) return;
+  if (!cat.inactiva && catsActivas().length <= 1) { mostrarToast('Debe quedar al menos una categoría','danger'); return; }
+  if (!(await uiConfirm(`¿Eliminar la categoría "${cat.nombre}"? Desaparece de tus listas, pero tus gastos, meses anteriores e informes quedan iguales: conservan su nombre, grupo e icono.`, { titulo:'Eliminar', ok:'Eliminar', peligro:true }))) return;
+  // Se archiva en vez de borrarse, para que el historial siga sabiendo su grupo 50/30/20 e icono
+  cat.eliminada = true; cat.inactiva = true;
+  guardarConfig();
+  cerrarModalCategoria();
+  mostrarToast('Categoría eliminada · tu historial no cambia', 'warn');
+  poblarSelects();
+  renderLimitesAjustes();
+  renderLimitesInicio();
+};
+const _eliminarCategoriaViejo = async () => {
   if (!categoriaEditandoId) return;
   if (config.categorias.length <= 1) { mostrarToast('Debe quedar al menos una categoría','danger'); return; }
   const cat = config.categorias.find(c => c.id === categoriaEditandoId);
@@ -5499,8 +5535,8 @@ document.getElementById('modalCategoria').addEventListener('click', e => {
 });
 
 /* Categorías ocultas (v6.3): no salen al registrar, pero sus gastos y el informe se conservan */
-const catsActivas = (incluir) => config.categorias.filter(c => !c.inactiva || c.nombre === incluir);
-const optsCats = (incluir) => catsActivas(incluir).map(c => `<option value="${c.nombre}">${c.nombre}${c.inactiva ? ' (oculta)' : ''}</option>`).join('');
+const catsActivas = (incluir) => config.categorias.filter(c => (!c.inactiva && !c.eliminada) || c.nombre === incluir);
+const optsCats = (incluir) => catsActivas(incluir).map(c => `<option value="${c.nombre}">${c.nombre}${c.eliminada ? ' (eliminada)' : c.inactiva ? ' (oculta)' : ''}</option>`).join('');
 const toggleCategoria = (id, activa) => {
   const c = config.categorias.find(x => x.id === id); if (!c) return;
   if (!activa && catsActivas().length <= 1) { mostrarToast('Debe quedar al menos una categoría visible', 'danger'); renderLimitesAjustes(); return; }
@@ -5524,7 +5560,7 @@ const renderLimitesAjustes = () => {
       </label>
       <button class="icon-btn" onclick="abrirModalCategoria('${c.id}')"><svg class="ico" aria-hidden="true"><use href="#i-edit"/></svg></button>
     </div>`;
-  const act = config.categorias.filter(c => !c.inactiva), ina = config.categorias.filter(c => c.inactiva);
+  const act = config.categorias.filter(c => !c.inactiva && !c.eliminada), ina = config.categorias.filter(c => c.inactiva && !c.eliminada);
   el.innerHTML = act.map(fila).join('') + (ina.length ? `<div class="config-sublabel" style="padding:14px 4px 4px;letter-spacing:.5px">OCULTAS · actívalas cuando las vuelvas a necesitar</div>` + ina.map(fila).join('') : '');
 };
 
@@ -5532,7 +5568,7 @@ const renderLimitesInicio = () => {
   const section = document.getElementById('limitesCategoriaSection');
   const el = document.getElementById('limitesCategoriaLista');
   if (!section || !el) return;
-  const conLimite = config.categorias.filter(c => c.limite > 0 && (!c.inactiva || calcGastoCategoriaMes(c.nombre) > 0));
+  const conLimite = config.categorias.filter(c => c.limite > 0 && ((!c.inactiva && !c.eliminada) || calcGastoCategoriaMes(c.nombre) > 0));
   if (!conLimite.length) { section.style.display = 'none'; return; }
   section.style.display = 'block';
   el.innerHTML = conLimite.map(c => {
@@ -6310,9 +6346,8 @@ const abrirModal = id => {
   document.getElementById('editNota').value     = gasto.nota||'';
   document.getElementById('editFecha').value    = gasto.fecha;
   const sel = document.getElementById('editCategoria');
-  sel.innerHTML = config.categorias.map(c =>
-    `<option value="${c.nombre}" ${c.nombre===gasto.categoria?'selected':''}>${c.nombre}</option>`
-  ).join('');
+  sel.innerHTML = optsCats(gasto.categoria) + (config.categorias.some(c => c.nombre === gasto.categoria) ? '' : `<option value="${gasto.categoria}">${gasto.categoria}</option>`);
+  sel.value = gasto.categoria;
   document.getElementById('modalOverlay').classList.add('open');
 };
 
@@ -8236,7 +8271,7 @@ const datosCicloInforme = (ciclo, lista = listaCiclosInforme()) => {
   movsConsumo.filter(m => m.tipo === 'variable').forEach(m => { varPorCat[m.categoria] = (varPorCat[m.categoria] || 0) + m.monto; });
   const limPorCat = { ...varPorCat };
   movsConsumo.filter(m => m.tipo === 'unico').forEach(m => { limPorCat[m.categoria] = (limPorCat[m.categoria] || 0) + m.monto; });
-  const limites = config.categorias.filter(c => c.limite > 0).map(c => ({ nombre: c.nombre, emoji: c.emoji, limite: c.limite, gastado: limPorCat[c.nombre] || 0 }));
+  const limites = config.categorias.filter(c => c.limite > 0 && (!c.eliminada || (limPorCat[c.nombre] || 0) > 0)).map(c => ({ nombre: c.nombre, emoji: c.emoji, limite: c.limite, gastado: limPorCat[c.nombre] || 0 }));
 
   const topGastos = movsConsumo.filter(m => m.tipo !== 'fijo')
     .map(m => ({ fecha: m.fecha, categoria: m.categoria, nota: m.nombre, monto: m.monto, tipo: m.tipo === 'unico' ? 'Único' : 'Variable' }))
